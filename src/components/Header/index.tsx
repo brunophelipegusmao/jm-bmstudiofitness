@@ -41,7 +41,7 @@ export function Header() {
           </li>
           <li>
             <Link
-              href="/sobre"
+              href="/user/login"
               className="text-[#C2A537] transition-colors hover:text-[#D4B547]"
             >
               Área do Aluno
