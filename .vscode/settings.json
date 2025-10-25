@@ -49,5 +49,19 @@
     "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
   },
   "editor.formatOnPaste": true,
-  "editor.autoIndentOnPaste": true
+  "editor.autoIndentOnPaste": true,
+  "eslint.workingDirectories": [
+    {
+      "mode": "auto"
+    }
+  ],
+  "eslint.validate": [
+    "javascript",
+    "typescript",
+    "javascriptreact",
+    "typescriptreact"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
 }
