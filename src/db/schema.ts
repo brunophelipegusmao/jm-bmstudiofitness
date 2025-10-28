@@ -9,9 +9,15 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
+import { UserRole } from "../types/user-roles";
+
 export const usersTable = pgTable("tb_users", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
+  userRole: text("user_role")
+    .$type<UserRole>()
+    .notNull()
+    .default(UserRole.ALUNO),
   createdAt: date("created_at").notNull().defaultNow(),
 });
 
@@ -70,7 +76,8 @@ export const healthMetricsTable = pgTable("tb_health_metrics", {
   useSupplements: boolean("use_supplements").notNull(),
   whatSupplements: text("what_supplements"),
   otherNotes: text("other_notes"),
-  coachObservations: text("coach_observations"),
+  coachaObservations: text("coach_observations"),
+  coachObservationsParticular: text("coach_observations_particular"),
 });
 
 export const healthMetricsRelations = relations(
