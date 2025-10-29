@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { AdminLayout } from "@/components/Admin/AdminLayout";
 import { Button } from "@/components/Button";
-import { Container } from "@/components/Container";
 import {
   Card,
   CardContent,
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { formatCPF } from "@/lib/utils";
 
 // Tipos
 interface StudentData {
@@ -42,11 +43,6 @@ export default function CheckInsAdminPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
-
-  // Função para formatar CPF para exibição
-  const formatCPF = (cpf: string) => {
-    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
-  };
 
   // Buscar alunos baseado no termo de pesquisa
   const searchStudents = async (term: string) => {
@@ -158,8 +154,8 @@ export default function CheckInsAdminPage() {
   const { days, firstDay } = generateCalendar();
 
   return (
-    <Container>
-      <div className="min-h-screen bg-linear-to-br from-black/95 to-gray-900 py-8">
+    <AdminLayout>
+      <div className="py-4 sm:py-8">
         <div className="mx-auto max-w-6xl">
           <Card className="border-[#C2A537] bg-black/95 backdrop-blur-sm">
             <CardHeader>
@@ -174,7 +170,7 @@ export default function CheckInsAdminPage() {
             <CardContent>
               {/* Pesquisa de aluno */}
               <div className="mb-6">
-                <Label htmlFor="search" className="text-[#C2A537]">
+                <Label htmlFor="search" className="mb-2 text-[#C2A537]">
                   Pesquisar Aluno
                 </Label>
                 <div className="relative">
@@ -380,6 +376,6 @@ export default function CheckInsAdminPage() {
           </Card>
         </div>
       </div>
-    </Container>
+    </AdminLayout>
   );
 }

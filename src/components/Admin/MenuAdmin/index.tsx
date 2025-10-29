@@ -1,6 +1,5 @@
 "use client";
 
-import { logoutAction } from "@/actions/login/logout-action";
 import clsx from "clsx";
 import {
   CircleXIcon,
@@ -14,6 +13,8 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
+
+import { logoutAction } from "@/actions/auth/logout-action";
 
 export function MenuAdmin() {
   const [isOpen, setIsOpen] = useState(false);

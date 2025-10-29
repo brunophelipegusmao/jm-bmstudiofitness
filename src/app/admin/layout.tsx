@@ -37,7 +37,6 @@ export default function RootLayout({
       >
         <AdminHeader />
         <main className="pt-20">{children}</main>
-        <Footer />
       </body>
     </html>
   );

@@ -23,6 +23,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { formatCPF } from "@/lib/utils";
 
 export default function AdminDashboardPage() {
   const [students, setStudents] = useState<StudentFullData[]>([]);
@@ -108,7 +109,7 @@ export default function AdminDashboardPage() {
       <div className="min-h-screen w-full p-2 lg:p-8 xl:p-1">
         <div className="mx-auto space-y-8">
           {/* Cabeçalho */}
-          <Card className="border-[#C2A537] bg-black/95">
+          <Card className="border-[#C2A537] bg-black/95 text-center">
             <CardHeader>
               <CardTitle className="text-2xl text-[#C2A537] lg:text-3xl xl:text-4xl">
                 🏋️ Dashboard Administrativo
@@ -441,7 +442,9 @@ function PersonalDataTab({ student }: { student: StudentFullData }) {
           <label className="text-sm font-medium text-[#C2A537] lg:text-base">
             CPF
           </label>
-          <p className="text-base text-white lg:text-lg">{student.cpf}</p>
+          <p className="text-base text-white lg:text-lg">
+            {formatCPF(student.cpf)}
+          </p>
         </div>
         <div>
           <label className="text-sm font-medium text-[#C2A537] lg:text-base">

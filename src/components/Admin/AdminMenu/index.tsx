@@ -2,12 +2,16 @@ import {
   ClipboardCheck,
   DollarSign,
   LayoutDashboard,
+  Loader2,
   LogOut,
   Settings,
   Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTransition } from "react";
+
+import { logoutAction } from "@/actions/auth/logout-action";
 
 interface AdminMenuProps {
   className?: string;
@@ -15,6 +19,14 @@ interface AdminMenuProps {
 
 export function AdminMenu({ className = "" }: AdminMenuProps) {
   const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
+
+  // Função para lidar com o logout
+  const handleLogout = () => {
+    startTransition(async () => {
+      await logoutAction();
+    });
+  };
 
   const menuItems = [
     {
@@ -30,8 +42,8 @@ export function AdminMenu({ className = "" }: AdminMenuProps) {
       description: "Relatórios de presença",
     },
     {
-      href: "/admin/pagamentos",
-      label: "Pagamentos",
+      href: "/admin/financeiro",
+      label: "Financeiro",
       icon: DollarSign,
       description: "Controle financeiro",
     },
@@ -45,11 +57,13 @@ export function AdminMenu({ className = "" }: AdminMenuProps) {
 
   return (
     <nav className={`h-max-screen space-y-2 ${className}`}>
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold text-[#C2A537]">
-          🏋️ Painel Administrativo
+      <div className="mb-3 sm:mb-4">
+        <h2 className="text-base font-semibold text-[#C2A537] sm:text-lg">
+          🏋️ <span className="xs:inline hidden">Painel</span> Admin
         </h2>
-        <p className="text-sm text-slate-400">Área restrita - Acesso total</p>
+        <p className="hidden text-xs text-slate-400 sm:block sm:text-sm">
+          Área restrita - Acesso total
+        </p>
       </div>
 
       {menuItems.map((item) => {
@@ -59,17 +73,19 @@ export function AdminMenu({ className = "" }: AdminMenuProps) {
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center gap-3 rounded-lg p-3 transition-colors ${
+            className={`flex items-center gap-2 rounded-lg p-2 transition-colors sm:gap-3 sm:p-3 ${
               isActive
                 ? "bg-[#C2A537] text-black"
                 : "text-slate-300 hover:bg-[#C2A537]/20 hover:text-[#C2A537]"
             }`}
           >
-            <item.icon className="h-5 w-5" />
-            <div className="flex-1">
-              <p className="font-medium">{item.label}</p>
+            <item.icon className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium sm:text-base">
+                {item.label}
+              </p>
               <p
-                className={`text-xs ${
+                className={`hidden text-xs sm:block ${
                   isActive ? "text-black/70" : "text-slate-500"
                 }`}
               >
@@ -80,29 +96,40 @@ export function AdminMenu({ className = "" }: AdminMenuProps) {
         );
       })}
 
-      <div className="mt-8 space-y-2 border-t border-slate-700 pt-4">
+      <div className="mt-6 space-y-2 border-t border-slate-700 pt-3 sm:mt-8 sm:pt-4">
         <Link
           href="/admin"
-          className="flex items-center gap-3 rounded-lg p-3 text-slate-300 transition-colors hover:bg-slate-800 hover:text-white"
+          className="flex items-center gap-2 rounded-lg p-2 text-slate-300 transition-colors hover:bg-slate-800 hover:text-white sm:gap-3 sm:p-3"
         >
-          <Settings className="h-5 w-5" />
-          <div className="flex-1">
-            <p className="font-medium">Configurações</p>
-            <p className="text-xs text-slate-500">Configurações do sistema</p>
+          <Settings className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium sm:text-base">
+              <span className="sm:hidden">Config</span>
+              <span className="hidden sm:inline">Configurações</span>
+            </p>
+            <p className="hidden text-xs text-slate-500 sm:block">
+              Configurações do sistema
+            </p>
           </div>
         </Link>
 
         <button
-          onClick={() => {
-            // Implementar logout aqui
-            console.log("Logout");
-          }}
-          className="flex w-full items-center gap-3 rounded-lg p-3 text-slate-300 transition-colors hover:bg-red-900/20 hover:text-red-400"
+          onClick={handleLogout}
+          disabled={isPending}
+          className="flex w-full items-center gap-2 rounded-lg p-2 text-slate-300 transition-colors hover:bg-red-900/20 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-50 sm:gap-3 sm:p-3"
         >
-          <LogOut className="h-5 w-5" />
-          <div className="flex-1 text-left">
-            <p className="font-medium">Sair</p>
-            <p className="text-xs text-slate-500">Encerrar sessão</p>
+          {isPending ? (
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin sm:h-5 sm:w-5" />
+          ) : (
+            <LogOut className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
+          )}
+          <div className="min-w-0 flex-1 text-left">
+            <p className="truncate text-sm font-medium sm:text-base">
+              {isPending ? "Saindo..." : "Sair"}
+            </p>
+            <p className="hidden text-xs text-slate-500 sm:block">
+              {isPending ? "Encerrando sessão..." : "Encerrar sessão"}
+            </p>
           </div>
         </button>
       </div>
