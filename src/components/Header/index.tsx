@@ -49,7 +49,15 @@ export function Header() {
           </li>
           <li>
             <Link
-              href="/servicos"
+              href="/coach/login"
+              className="text-[#C2A537] transition-colors hover:text-[#D4B547]"
+            >
+              Área do Coach
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/services"
               className="text-[#C2A537] transition-colors hover:text-[#D4B547]"
             >
               Serviços
@@ -57,7 +65,7 @@ export function Header() {
           </li>
           <li>
             <Link
-              href="/contato"
+              href="/contact"
               className="text-[#C2A537] transition-colors hover:text-[#D4B547]"
             >
               Contato

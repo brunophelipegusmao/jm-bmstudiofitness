@@ -49,6 +49,9 @@ export default function SectionFeatured() {
       )}
     >
       <section className="relative flex w-full max-w-[350px] flex-col items-center justify-center px-2 sm:max-w-[600px] sm:px-4 md:max-w-[800px] lg:max-w-[900px]">
+        <h1 className="py-6 text-5xl font-semibold text-[#C2A537] blur-[#c2a537] drop-shadow-md sm:text-2xl sm:text-center md:text-5xl">
+          Bem-vindo ao JM Studio Fitness
+        </h1>
         <Carousel
           opts={{
             align: "start",

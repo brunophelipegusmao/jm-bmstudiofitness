@@ -6,6 +6,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { WhatsAppFloat } from "@/components/WhatsAppFloat";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,17 +30,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <body
         className={clsx(
           `${geistSans.variable} ${geistMono.variable} antialiased`,
           "bg-[#1b1b1a] text-slate-200",
-          "m-0 p-0", // Remove margens e padding padrão
+          "m-0 flex h-full flex-col p-0", // Remove margens e padding padrão, adiciona flexbox
         )}
       >
         <Header />
-        <main className="pt-20">{children}</main>
+        <main className="flex-1 pt-20">{children}</main>
         <Footer />
+        <WhatsAppFloat />
       </body>
     </html>
   );

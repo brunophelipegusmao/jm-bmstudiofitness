@@ -31,12 +31,7 @@ export async function verifyTokenEdge(
   token: string,
 ): Promise<JWTPayload | null> {
   try {
-    console.log("🔐 Verificando JWT token com Edge Runtime...");
     const { payload } = await jwtVerify(token, JWT_SECRET);
-    console.log("✅ JWT válido, payload:", {
-      userId: payload.userId,
-      role: payload.role,
-    });
 
     return {
       userId: payload.userId as string,
@@ -56,21 +51,15 @@ export function extractTokenEdge(request: NextRequest): string | null {
   // Tentar pegar do header Authorization
   const authHeader = request.headers.get("authorization");
   if (authHeader && authHeader.startsWith("Bearer ")) {
-    console.log("🎫 Token encontrado no header Authorization");
     return authHeader.substring(7);
   }
 
   // Tentar pegar do cookie
   const tokenCookie = request.cookies.get("auth-token");
   if (tokenCookie) {
-    console.log(
-      "🍪 Token encontrado no cookie:",
-      tokenCookie.value.substring(0, 20) + "...",
-    );
     return tokenCookie.value;
   }
 
-  console.log("❌ Nenhum token encontrado");
   return null;
 }
 
@@ -80,25 +69,17 @@ export async function getUserFromRequestEdge(request: NextRequest): Promise<{
   id: string;
   email: string;
 } | null> {
-  console.log("🔍 Extraindo usuário do request (Edge Runtime)...");
   const token = extractTokenEdge(request);
 
   if (!token) {
-    console.log("❌ Token não encontrado");
     return null;
   }
 
-  console.log("🔓 Verificando token JWT...");
   const payload = await verifyTokenEdge(token);
   if (!payload) {
-    console.log("❌ Token JWT inválido ou expirado");
     return null;
   }
 
-  console.log("✅ Token válido, usuário:", {
-    role: payload.role,
-    email: payload.email,
-  });
   return {
     role: payload.role,
     id: payload.userId,

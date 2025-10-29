@@ -18,7 +18,7 @@ export const usersTable = pgTable("tb_users", {
     .$type<UserRole>()
     .notNull()
     .default(UserRole.ALUNO),
-  password: text("password"), // Senha hash para admin e professores
+  password: text("password"), // Senha hash para admin e coaches
   createdAt: date("created_at").notNull().defaultNow(),
 });
 
@@ -136,6 +136,37 @@ export const checkInRelations = relations(checkInTable, ({ one }) => ({
     references: [usersTable.id],
   }),
 }));
+
+// Tabela de histórico de observações do coach
+export const coachObservationsHistoryTable = pgTable(
+  "tb_coach_observations_history",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => usersTable.id),
+    professorId: uuid("professor_id")
+      .notNull()
+      .references(() => usersTable.id),
+    observationType: text("observation_type").notNull(), // 'general' ou 'particular'
+    observationText: text("observation_text").notNull(),
+    createdAt: date("created_at").notNull().defaultNow(),
+  },
+);
+
+export const coachObservationsHistoryRelations = relations(
+  coachObservationsHistoryTable,
+  ({ one }) => ({
+    student: one(usersTable, {
+      fields: [coachObservationsHistoryTable.userId],
+      references: [usersTable.id],
+    }),
+    professor: one(usersTable, {
+      fields: [coachObservationsHistoryTable.professorId],
+      references: [usersTable.id],
+    }),
+  }),
+);
 
 // Array de números de 1 a 10 para os dias de vencimento (limitado até 10º dia útil)
 export const dueDateOptions = Array.from({ length: 10 }, (_, i) => i + 1);

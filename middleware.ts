@@ -12,7 +12,7 @@ const protectedRoutes: Record<string, UserRole[]> = {
   "/admin/dashboard": [UserRole.ADMIN], // Dashboard admin
   "/admin/pagamentos": [UserRole.ADMIN], // Pagamentos admin
   "/admin/checkins": [UserRole.ADMIN, UserRole.PROFESSOR], // Admin e professor podem ver check-ins
-  "/professor": [UserRole.ADMIN, UserRole.PROFESSOR], // Admin e professor podem acessar área do professor
+  "/coach": [UserRole.ADMIN, UserRole.PROFESSOR], // Admin e professor podem acessar área do coach
 };
 
 export function middleware(request: NextRequest) {

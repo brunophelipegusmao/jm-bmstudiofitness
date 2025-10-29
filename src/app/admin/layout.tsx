@@ -21,13 +21,13 @@ export const metadata: Metadata = {
     "Transforme sua vida no JM Studio Fitness. Ambiente acolhedor e profissional dedicado à sua saúde, bem-estar e conquista dos seus objetivos fitness. Venha fazer parte da nossa família fitness!",
 };
 
-export default function RootLayout({
+export default function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <body
         className={clsx(
           `${geistSans.variable} ${geistMono.variable} antialiased`,

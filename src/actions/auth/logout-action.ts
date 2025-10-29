@@ -9,6 +9,6 @@ export async function logoutAction(): Promise<void> {
   // Remover o cookie de autenticação
   cookieStore.delete("auth-token");
 
-  // Redirecionar para página de login
-  redirect("/admin/login");
+  // Redirecionar para página principal
+  redirect("/");
 }
