@@ -3,18 +3,25 @@
 import {
   BarChart3,
   DollarSign,
+  Eye,
+  EyeOff,
   Heart,
+  LogOut,
+  Plus,
   Search,
   User,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 import {
   getAllStudentsFullDataAction,
   StudentFullData,
 } from "@/actions/admin/get-students-full-data-action";
+import { logoutAction } from "@/actions/auth/logout-action";
+import { updateCoachObservationsAction } from "@/actions/coach/update-coach-observations-action";
 import { AdminLayout } from "@/components/Admin/AdminLayout";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -23,6 +30,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { formatCPF } from "@/lib/utils";
 
 export default function AdminDashboardPage() {
@@ -38,20 +46,21 @@ export default function AdminDashboardPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // Função para carregar dados dos alunos
+  const loadStudents = async () => {
+    try {
+      const data = await getAllStudentsFullDataAction();
+      setStudents(data);
+      setFilteredStudents(data);
+    } catch (error) {
+      console.error("Erro ao carregar dados dos alunos:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Carregar dados dos alunos
   useEffect(() => {
-    async function loadStudents() {
-      try {
-        const data = await getAllStudentsFullDataAction();
-        setStudents(data);
-        setFilteredStudents(data);
-      } catch (error) {
-        console.error("Erro ao carregar dados dos alunos:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     loadStudents();
   }, []);
 
@@ -109,14 +118,30 @@ export default function AdminDashboardPage() {
       <div className="min-h-screen w-full p-2 lg:p-8 xl:p-1">
         <div className="mx-auto space-y-8">
           {/* Cabeçalho */}
-          <Card className="border-[#C2A537] bg-black/95 text-center">
+          <Card className="border-[#C2A537] bg-black/95">
             <CardHeader>
-              <CardTitle className="text-2xl text-[#C2A537] lg:text-3xl xl:text-4xl">
-                🏋️ Dashboard Administrativo
-              </CardTitle>
-              <CardDescription className="text-lg text-slate-300 lg:text-xl">
-                Visualize e gerencie informações completas dos alunos
-              </CardDescription>
+              <div className="flex flex-col items-center justify-between gap-4 lg:flex-row">
+                <div className="text-center lg:text-left">
+                  <CardTitle className="text-2xl text-[#C2A537] lg:text-3xl xl:text-4xl">
+                    🏋️ Dashboard Administrativo
+                  </CardTitle>
+                  <CardDescription className="text-lg text-slate-300 lg:text-xl">
+                    Visualize e gerencie informações completas dos alunos
+                  </CardDescription>
+                </div>
+
+                {/* Botão de Logout */}
+                <form action={logoutAction}>
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    className="border-[#C2A537] bg-black/95 text-[#C2A537] hover:bg-[#C2A537]/10 hover:text-[#D4B547]"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sair
+                  </Button>
+                </form>
+              </div>
             </CardHeader>
           </Card>
 
@@ -221,7 +246,7 @@ export default function AdminDashboardPage() {
 
           {/* Busca Global */}
           <div className="w-full">
-            <Card className="border-[#C2A537]/50 bg-gradient-to-r from-[#C2A537]/5 to-transparent shadow-sm">
+            <Card className="border-[#C2A537]/50 bg-linear-to-r from-[#C2A537]/5 to-transparent shadow-sm">
               <CardContent className="p-3 lg:p-4">
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
@@ -545,6 +570,16 @@ function FinancialDataTab({ student }: { student: StudentFullData }) {
 }
 
 function HealthDataTab({ student }: { student: StudentFullData }) {
+  const [showAddObservations, setShowAddObservations] = useState(false);
+  const [showGeneralHistory, setShowGeneralHistory] = useState(false);
+  const [showPrivateHistory, setShowPrivateHistory] = useState(false);
+
+  const initialState = { success: false, error: "", message: "" };
+  const [state, action, isPending] = useActionState(
+    updateCoachObservationsAction,
+    initialState,
+  );
+
   return (
     <div className="space-y-8 lg:space-y-12">
       {/* Dados físicos */}
@@ -699,9 +734,88 @@ function HealthDataTab({ student }: { student: StudentFullData }) {
 
       {/* Observações */}
       <div>
-        <h3 className="mb-4 text-lg font-semibold text-[#C2A537] lg:mb-6 lg:text-xl xl:text-2xl">
-          Observações
-        </h3>
+        <div className="mb-4 flex items-center justify-between lg:mb-6">
+          <h3 className="text-lg font-semibold text-[#C2A537] lg:text-xl xl:text-2xl">
+            Observações
+          </h3>
+          <Button
+            onClick={() => setShowAddObservations(!showAddObservations)}
+            variant="outline"
+            className="border-[#C2A537] bg-black/95 text-[#C2A537] hover:bg-[#C2A537]/10 hover:text-[#D4B547]"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            {showAddObservations ? "Cancelar" : "Adicionar Observação"}
+          </Button>
+        </div>
+
+        {/* Formulário de Observações */}
+        {showAddObservations && (
+          <Card className="mb-6 border-[#C2A537]/30 bg-black/40">
+            <CardHeader>
+              <CardTitle className="text-[#C2A537]">
+                Adicionar Observação de Treinamento
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form action={action} className="space-y-4">
+                <input type="hidden" name="studentId" value={student.userId} />
+
+                <div>
+                  <Label
+                    htmlFor="generalObservations"
+                    className="text-slate-300"
+                  >
+                    Observações Gerais (visíveis para o aluno)
+                  </Label>
+                  <textarea
+                    id="generalObservations"
+                    name="generalObservations"
+                    rows={3}
+                    className="mt-1 block w-full rounded-md border border-[#C2A537]/30 bg-slate-900/50 p-3 text-slate-200 placeholder:text-slate-500 focus:border-[#C2A537] focus:ring-[#C2A537]"
+                    placeholder="Digite observações sobre o treino, progresso, etc."
+                    defaultValue={student.coachaObservations || ""}
+                  />
+                </div>
+
+                <div>
+                  <Label
+                    htmlFor="privateObservations"
+                    className="text-slate-300"
+                  >
+                    Observações Particulares (apenas para treinadores/admin)
+                  </Label>
+                  <textarea
+                    id="privateObservations"
+                    name="privateObservations"
+                    rows={3}
+                    className="mt-1 block w-full rounded-md border border-[#C2A537]/30 bg-slate-900/50 p-3 text-slate-200 placeholder:text-slate-500 focus:border-[#C2A537] focus:ring-[#C2A537]"
+                    placeholder="Digite observações privadas, anotações pessoais..."
+                    defaultValue={student.coachObservationsParticular || ""}
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    type="submit"
+                    disabled={isPending}
+                    className="border-[#C2A537] bg-[#C2A537] text-black hover:bg-[#D4B547]"
+                  >
+                    {isPending ? "Salvando..." : "Salvar Observações"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowAddObservations(false)}
+                    className="border-slate-600 text-slate-300 hover:bg-slate-800"
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+
         <div className="space-y-6 lg:space-y-8">
           {student.otherNotes && (
             <div>
@@ -721,6 +835,14 @@ function HealthDataTab({ student }: { student: StudentFullData }) {
               <p className="text-base text-white lg:text-lg">
                 {student.coachaObservations}
               </p>
+              <Button
+                onClick={() => setShowGeneralHistory(!showGeneralHistory)}
+                variant="ghost"
+                className="mt-2 text-slate-400 hover:text-[#C2A537]"
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                {showGeneralHistory ? "Ocultar" : "Ver"} histórico
+              </Button>
             </div>
           )}
           {student.coachObservationsParticular && (
@@ -731,6 +853,14 @@ function HealthDataTab({ student }: { student: StudentFullData }) {
               <p className="text-base text-white lg:text-lg">
                 {student.coachObservationsParticular}
               </p>
+              <Button
+                onClick={() => setShowPrivateHistory(!showPrivateHistory)}
+                variant="ghost"
+                className="mt-2 text-slate-400 hover:text-[#C2A537]"
+              >
+                <EyeOff className="mr-2 h-4 w-4" />
+                {showPrivateHistory ? "Ocultar" : "Ver"} histórico
+              </Button>
             </div>
           )}
         </div>

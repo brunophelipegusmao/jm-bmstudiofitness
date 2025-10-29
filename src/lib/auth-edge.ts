@@ -72,13 +72,21 @@ export async function getUserFromRequestEdge(request: NextRequest): Promise<{
   const token = extractTokenEdge(request);
 
   if (!token) {
+    console.log("🔍 Token não encontrado no request");
     return null;
   }
 
   const payload = await verifyTokenEdge(token);
   if (!payload) {
+    console.log("🔍 Token inválido ou expirado");
     return null;
   }
+
+  console.log("✅ Token verificado com sucesso:", {
+    role: payload.role,
+    email: payload.email,
+    userId: payload.userId,
+  });
 
   return {
     role: payload.role,

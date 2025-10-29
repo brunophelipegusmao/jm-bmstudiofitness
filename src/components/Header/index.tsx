@@ -3,6 +3,8 @@ import { MenuIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { CoachLink } from "@/components/CoachLink";
+
 import banner from "./logo.svg";
 
 export function Header() {
@@ -48,12 +50,9 @@ export function Header() {
             </Link>
           </li>
           <li>
-            <Link
-              href="/coach/login"
-              className="text-[#C2A537] transition-colors hover:text-[#D4B547]"
-            >
+            <CoachLink className="text-[#C2A537] transition-colors hover:text-[#D4B547]">
               Área do Coach
-            </Link>
+            </CoachLink>
           </li>
           <li>
             <Link

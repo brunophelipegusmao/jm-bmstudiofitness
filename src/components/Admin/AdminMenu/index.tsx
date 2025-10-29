@@ -48,7 +48,7 @@ export function AdminMenu({ className = "" }: AdminMenuProps) {
       description: "Controle financeiro",
     },
     {
-      href: "/cadastro",
+      href: "/user/cadastro",
       label: "Novo Aluno",
       icon: Users,
       description: "Cadastrar novo aluno",

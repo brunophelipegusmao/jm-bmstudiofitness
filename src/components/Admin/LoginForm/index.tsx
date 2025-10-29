@@ -1,36 +1,29 @@
 "use client";
 
-import { loginAction } from "@/actions/login/login-action";
-import { Button } from "@/components/Button";
-import { InputText } from "@/components/InputText";
 import clsx from "clsx";
 import { LogInIcon } from "lucide-react";
-import { useActionState, useEffect } from "react";
-import { toast } from "react-toastify";
+import { useActionState } from "react";
+
+import { loginAction } from "@/actions/auth/login-action";
+import { Button } from "@/components/Button";
+import { InputText } from "@/components/InputText";
 
 export function LoginForm() {
   const initialState = {
-    username: "",
+    email: "",
     error: "",
   };
   const [state, action, isPending] = useActionState(loginAction, initialState);
 
-  useEffect(() => {
-    if (state.error) {
-      toast.dismiss();
-      toast.error(state.error);
-    }
-  }, [state]);
-
   return (
     <form action={action} className="flex flex-1 flex-col gap-6">
       <InputText
-        type="text"
-        name="username"
-        labelText="Usuário"
-        placeholder="Digite seu usuário"
+        type="email"
+        name="email"
+        labelText="Email"
+        placeholder="Digite seu email"
         disabled={isPending}
-        defaultValue={state.username}
+        defaultValue={state.email}
       />
       <InputText
         type="password"

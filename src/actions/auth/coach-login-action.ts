@@ -70,11 +70,15 @@ export async function coachLoginAction(
       };
     }
 
-    // Verificar se é professor
-    if (user.userRole !== UserRole.PROFESSOR) {
+    // Verificar se é professor ou admin (ambos podem acessar área do coach)
+    if (
+      user.userRole !== UserRole.PROFESSOR &&
+      user.userRole !== UserRole.ADMIN
+    ) {
       return {
         email,
-        error: "Acesso negado: apenas coaches podem fazer login aqui",
+        error:
+          "Acesso negado: apenas coaches e administradores podem fazer login aqui",
       };
     }
 
