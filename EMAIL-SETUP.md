@@ -5,6 +5,7 @@ Este guia mostra como configurar o envio de e-mails no sistema, com diferentes p
 ## 🚀 Quick Start
 
 1. **Copie o arquivo de exemplo:**
+
    ```bash
    cp .env.example .env
    ```
@@ -45,10 +46,11 @@ Este guia mostra como configurar o envio de e-mails no sistema, com diferentes p
 **Configuração:**
 
 1. **Ative 2FA** na sua conta Google
-2. **Crie senha de app:** 
+2. **Crie senha de app:**
    - Google Account → Security → 2-Step Verification → App passwords
    - Gere senha para "Mail"
 3. **Configure .env:**
+
    ```bash
    EMAIL_PROVIDER="smtp"
    SMTP_HOST="smtp.gmail.com"
@@ -136,6 +138,7 @@ EMAIL_FROM_NAME="BM Studio Fitness"
 ## 🧪 Como Testar
 
 1. **Inicie o servidor:**
+
    ```bash
    npm run dev
    ```
@@ -158,8 +161,9 @@ EMAIL_FROM_NAME="BM Studio Fitness"
 O template de e-mail está em `/src/lib/email.ts` na função `generateConfirmationEmailTemplate()`.
 
 **Você pode personalizar:**
+
 - ✅ Cores e design
-- ✅ Logo da empresa  
+- ✅ Logo da empresa
 - ✅ Texto e mensagens
 - ✅ Layout responsivo
 
@@ -168,17 +172,20 @@ O template de e-mail está em `/src/lib/email.ts` na função `generateConfirmat
 ## 🚨 Problemas Comuns
 
 ### E-mail não chega
+
 - ✅ Verifique spam/lixeira
 - ✅ Confirme API Key correta
 - ✅ Verifique console do servidor para erros
 - ✅ Teste com e-mail diferente
 
 ### Erro de autenticação
+
 - ✅ Gmail: Use senha de app, não senha normal
 - ✅ Resend: Verifique se API Key está ativa
 - ✅ SendGrid: Confirme permissões da API Key
 
 ### E-mail marcado como spam
+
 - ✅ Configure SPF/DKIM no seu domínio
 - ✅ Use domínio próprio em vez de gratuito
 - ✅ Evite palavras como "promoção", "grátis" no assunto

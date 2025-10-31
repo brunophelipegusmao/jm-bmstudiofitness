@@ -3,7 +3,12 @@
 import { eq, or } from "drizzle-orm";
 
 import { db } from "@/db";
-import { checkInTable, financialTable, personalDataTable, usersTable } from "@/db/schema";
+import {
+  checkInTable,
+  financialTable,
+  personalDataTable,
+  usersTable,
+} from "@/db/schema";
 
 interface QuickCheckInState {
   success: boolean;
@@ -94,8 +99,9 @@ export async function quickCheckInAction(
 
         // Se o último pagamento não foi neste mês/ano e já passou do vencimento
         if (
-          (lastPaymentYear < currentYear || 
-           (lastPaymentYear === currentYear && lastPaymentMonth < currentMonth)) &&
+          (lastPaymentYear < currentYear ||
+            (lastPaymentYear === currentYear &&
+              lastPaymentMonth < currentMonth)) &&
           currentDay > financialData.dueDate
         ) {
           isOverdue = true;

@@ -3,10 +3,11 @@
 ### 📝 **Passo a Passo para Testar**
 
 1. **Configure o .env:**
+
    ```bash
    # Para teste rápido (sem e-mail real)
    EMAIL_PROVIDER="development"
-   
+
    # Ou para teste real com Resend
    EMAIL_PROVIDER="resend"
    RESEND_API_KEY="sua_api_key"
@@ -45,7 +46,7 @@ Assunto: Bem-vindo(a) ao BM Studio Fitness - Confirme sua conta
 ### 🔗 **Fluxo Completo de Teste**
 
 1. **Admin cadastra aluno** → E-mail enviado automaticamente
-2. **Aluno recebe e-mail** → Clica no link de confirmação  
+2. **Aluno recebe e-mail** → Clica no link de confirmação
 3. **Aluno confirma dados** → Cria senha
 4. **Aluno faz login** → Acessa dashboard
 5. **Aluno tenta check-in** → Sistema valida pagamento
@@ -69,16 +70,19 @@ npx drizzle-kit studio
 ### 🚨 **Se Algo Der Errado**
 
 **E-mail não aparece no console:**
+
 - Verifique se `EMAIL_PROVIDER="development"` no .env
 - Reinicie o servidor
 - Verifique console do navegador e do servidor
 
 **Erro ao cadastrar aluno:**
+
 - Verifique conexão com banco de dados
 - Confirme se todas as tabelas existem
 - Execute: `npm run db:push`
 
 **Link de confirmação não funciona:**
+
 - Verifique se `NEXT_PUBLIC_BASE_URL` está correto
 - Confirme se token foi gerado corretamente
 - Verifique se não expirou (24h)
@@ -86,8 +90,9 @@ npx drizzle-kit studio
 ### ✅ **Validação do Sistema**
 
 Após o teste, você deve ter:
+
 - ✅ E-mail de confirmação gerado
-- ✅ Link funcionando corretamente  
+- ✅ Link funcionando corretamente
 - ✅ Página de confirmação carregando
 - ✅ Aluno conseguindo criar senha
 - ✅ Login funcionando

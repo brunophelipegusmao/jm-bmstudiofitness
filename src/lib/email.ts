@@ -24,7 +24,10 @@ function getEmailConfig(): EmailConfig {
 }
 
 // Template de e-mail de confirmação
-function generateConfirmationEmailTemplate(name: string, confirmationUrl: string) {
+function generateConfirmationEmailTemplate(
+  name: string,
+  confirmationUrl: string,
+) {
   const html = `
     <!DOCTYPE html>
     <html>
@@ -109,7 +112,7 @@ async function sendWithResend(emailData: EmailData): Promise<boolean> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
       },
       body: JSON.stringify({
         from: `${getEmailConfig().fromName} <${getEmailConfig().from}>`,
@@ -140,13 +143,13 @@ async function sendWithSMTP(emailData: EmailData): Promise<boolean> {
   try {
     // Aqui você instalaria o nodemailer: npm install nodemailer @types/nodemailer
     // const nodemailer = require("nodemailer");
-    
+
     console.log("📧 SMTP não configurado. Para usar SMTP:");
     console.log("1. Instale: npm install nodemailer @types/nodemailer");
     console.log("2. Configure as variáveis SMTP no .env");
     console.log("3. Descomente o código SMTP nesta função");
     console.log(`E-mail seria enviado para: ${emailData.to}`);
-    
+
     return false;
   } catch (error) {
     console.error("Erro SMTP:", error);
@@ -161,13 +164,13 @@ async function sendWithSendGrid(emailData: EmailData): Promise<boolean> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.SENDGRID_API_KEY}`,
+        Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
       },
       body: JSON.stringify({
         personalizations: [{ to: [{ email: emailData.to }] }],
-        from: { 
-          email: getEmailConfig().from, 
-          name: getEmailConfig().fromName 
+        from: {
+          email: getEmailConfig().from,
+          name: getEmailConfig().fromName,
         },
         subject: emailData.subject,
         content: [
@@ -200,7 +203,7 @@ async function sendInDevelopment(emailData: EmailData): Promise<boolean> {
   console.log("---");
   console.log(emailData.text);
   console.log("=".repeat(60) + "\n");
-  
+
   return true;
 }
 
@@ -213,9 +216,12 @@ export async function sendConfirmationEmail(
   try {
     const config = getEmailConfig();
     const confirmationUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/user/confirm?token=${token}`;
-    
-    const emailTemplate = generateConfirmationEmailTemplate(name, confirmationUrl);
-    
+
+    const emailTemplate = generateConfirmationEmailTemplate(
+      name,
+      confirmationUrl,
+    );
+
     const emailData: EmailData = {
       to: email,
       subject: "Bem-vindo(a) ao BM Studio Fitness - Confirme sua conta",
@@ -227,13 +233,13 @@ export async function sendConfirmationEmail(
     switch (config.provider) {
       case "resend":
         return await sendWithResend(emailData);
-      
+
       case "smtp":
         return await sendWithSMTP(emailData);
-      
+
       case "sendgrid":
         return await sendWithSendGrid(emailData);
-      
+
       case "development":
       default:
         return await sendInDevelopment(emailData);
