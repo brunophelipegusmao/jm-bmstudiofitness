@@ -8,7 +8,7 @@ import SectionHistory from "@/components/SectionHistory";
 
 export default function HomePage() {
   return (
-    <motion.main
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -17,6 +17,6 @@ export default function HomePage() {
       <SectionFeatured />
       <SectionHistory />
       <PostListHome />
-    </motion.main>
+    </motion.div>
   );
 }

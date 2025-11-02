@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 interface StudentLinkProps {
   className?: string;
   children: React.ReactNode;
+  onClick?: () => void;
 }
 
 interface UserData {
@@ -14,7 +15,11 @@ interface UserData {
   name: string;
 }
 
-export function StudentLink({ className, children }: StudentLinkProps) {
+export function StudentLink({
+  className,
+  children,
+  onClick,
+}: StudentLinkProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [destination, setDestination] = useState("/user/login");
 
@@ -59,7 +64,7 @@ export function StudentLink({ className, children }: StudentLinkProps) {
   }
 
   return (
-    <Link href={destination} className={className}>
+    <Link href={destination} className={className} onClick={onClick}>
       {children}
     </Link>
   );

@@ -88,14 +88,14 @@ export default function SectionFeatured() {
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.3 }}
               viewport={{ once: true }}
-              className="relative bg-linear-to-r from-[#FFD700] via-[#C2A537] to-[#B8941F] bg-clip-text py-6 text-3xl font-bold text-transparent drop-shadow-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
+              className="font-oswald relative bg-linear-to-r from-[#FFD700] via-[#C2A537] to-[#B8941F] bg-clip-text py-6 text-3xl font-bold text-transparent drop-shadow-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
             >
               <motion.span
                 initial={{ opacity: 0, y: -20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
                 viewport={{ once: true }}
-                className="block animate-pulse"
+                className="font-oswald block animate-pulse"
               >
                 Bem-vindo ao
               </motion.span>
@@ -105,9 +105,28 @@ export default function SectionFeatured() {
                 transition={{ duration: 0.8, delay: 0.7 }}
                 viewport={{ once: true }}
                 whileHover={{ scale: 1.05 }}
-                className="mt-2 block bg-linear-to-r from-[#FFD700] via-[#C2A537] to-[#FFD700] bg-clip-text text-4xl font-extrabold text-transparent transition-transform sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl"
+                className="mt-2 block text-4xl font-extrabold transition-transform sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl"
               >
-                JM Fitness Studio
+                {/* JM com fonte diferente - imitando a logo */}
+                <motion.span
+                  initial={{ opacity: 0, x: -30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: 0.9 }}
+                  viewport={{ once: true }}
+                  className="font-anton bg-linear-to-r from-[#FFD700] via-[#C2A537] to-[#B8941F] bg-clip-text font-black tracking-tighter text-transparent"
+                >
+                  JM
+                </motion.span>{" "}
+                {/* Fitness Studio com Oswald - imitando a logo */}
+                <motion.span
+                  initial={{ opacity: 0, x: 30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: 1.1 }}
+                  viewport={{ once: true }}
+                  className="font-oswald bg-linear-to-r from-[#FFD700] via-[#C2A537] to-[#FFD700] bg-clip-text font-light tracking-wider text-transparent"
+                >
+                  Fitness Studio
+                </motion.span>
               </motion.span>
             </motion.h1>
 

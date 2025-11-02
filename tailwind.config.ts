@@ -9,6 +9,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        oswald: ["var(--font-oswald)", "sans-serif"],
+        anton: ["var(--font-anton)", "sans-serif"],
+      },
       animation: {
         "fade-in": "fadeIn 0.5s ease-in-out",
         "slide-in-from-top": "slideInFromTop 0.5s ease-out",

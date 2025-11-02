@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 interface CoachLinkProps {
   className?: string;
   children: React.ReactNode;
+  onClick?: () => void;
 }
 
 interface UserData {
@@ -14,7 +15,7 @@ interface UserData {
   name: string;
 }
 
-export function CoachLink({ className, children }: CoachLinkProps) {
+export function CoachLink({ className, children, onClick }: CoachLinkProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [destination, setDestination] = useState("/coach/login");
 
@@ -60,7 +61,7 @@ export function CoachLink({ className, children }: CoachLinkProps) {
   }
 
   return (
-    <Link href={destination} className={className}>
+    <Link href={destination} className={className} onClick={onClick}>
       {children}
     </Link>
   );
