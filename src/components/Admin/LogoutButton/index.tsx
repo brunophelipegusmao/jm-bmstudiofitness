@@ -29,6 +29,8 @@ export function LogoutButton() {
         return "Administrador";
       case "professor":
         return "Professor";
+      case "funcionario":
+        return "Funcionário";
       default:
         return role;
     }

@@ -10,7 +10,7 @@ const JWT_SECRET = new TextEncoder().encode(
 export interface JWTPayload {
   userId: string;
   email: string;
-  role: "admin" | "professor" | "aluno";
+  role: "admin" | "professor" | "funcionario" | "aluno";
   iat?: number;
   exp?: number;
 }
@@ -36,7 +36,7 @@ export async function verifyTokenEdge(
     return {
       userId: payload.userId as string,
       email: payload.email as string,
-      role: payload.role as "admin" | "professor" | "aluno",
+      role: payload.role as "admin" | "professor" | "funcionario" | "aluno",
       iat: payload.iat,
       exp: payload.exp,
     };
@@ -65,7 +65,7 @@ export function extractTokenEdge(request: NextRequest): string | null {
 
 // Extrair usuário do request para Edge Runtime
 export async function getUserFromRequestEdge(request: NextRequest): Promise<{
-  role: "admin" | "professor" | "aluno";
+  role: "admin" | "professor" | "funcionario" | "aluno";
   id: string;
   email: string;
 } | null> {

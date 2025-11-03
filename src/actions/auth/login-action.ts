@@ -70,10 +70,11 @@ export async function loginAction(
       };
     }
 
-    // Verificar se é admin, professor ou aluno
+    // Verificar se é admin, professor, funcionário ou aluno
     if (
       user.userRole !== UserRole.ADMIN &&
       user.userRole !== UserRole.PROFESSOR &&
+      user.userRole !== UserRole.FUNCIONARIO &&
       user.userRole !== UserRole.ALUNO
     ) {
       return {

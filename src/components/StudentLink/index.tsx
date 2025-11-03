@@ -10,7 +10,7 @@ interface StudentLinkProps {
 }
 
 interface UserData {
-  role: "admin" | "professor" | "aluno";
+  role: "admin" | "professor" | "funcionario" | "aluno";
   email: string;
   name: string;
 }
@@ -41,7 +41,7 @@ export function StudentLink({
           if (userData.role === "aluno") {
             setDestination("/user/dashboard"); // Aluno = vai direto para dashboard
           } else {
-            // Outros roles (admin, professor) não têm acesso - vai para login
+            // Outros roles (admin, professor, funcionario) não têm acesso - vai para login
             setDestination("/user/login");
           }
         } else {

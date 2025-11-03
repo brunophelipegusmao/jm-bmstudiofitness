@@ -439,7 +439,7 @@ Senha: 123456
 interface JWTPayload {
   id: string;
   email: string;
-  role: "admin" | "professor" | "aluno";
+  role: "admin" | "professor" | "funcionario" | "aluno";
   name: string;
   iat: number;
   exp: number;
@@ -474,6 +474,45 @@ export function middleware(request: NextRequest) {
 4. **🍪 Cookie**: Armazenamento httpOnly seguro
 5. **🛡️ Middleware**: Validação automática em cada request
 6. **🚪 Logout**: Limpeza completa de cookies e sessões
+
+### **🏢 Níveis de Usuário e Permissões**
+
+O sistema possui **4 níveis hierárquicos** de usuário com permissões específicas:
+
+#### **👑 Administrador (admin)**
+
+- ✅ **Acesso Total**: Todas as funcionalidades do sistema
+- ✅ **Gestão de Usuários**: Criar, editar, excluir qualquer usuário
+- ✅ **Dados Financeiros**: Acesso completo aos relatórios financeiros
+- ✅ **Configurações**: Controle total das configurações do sistema
+- ✅ **Observações do Coach**: Acesso às observações particulares
+- 🔑 **Área**: `/admin` (dashboard administrativo completo)
+
+#### **👨‍🏫 Professor (professor)**
+
+- ✅ **Gestão de Alunos**: Cadastrar e editar dados dos alunos
+- ✅ **Dados de Saúde**: Acesso completo aos dados de saúde dos alunos
+- ✅ **Observações do Coach**: Criar e editar observações particulares
+- ❌ **Dados Financeiros**: Sem acesso aos dados financeiros
+- ❌ **Configurações**: Sem acesso às configurações do sistema
+- 🔑 **Área**: `/coach` (área específica do professor)
+
+#### **💼 Funcionário (funcionario)**
+
+- ✅ **Gestão de Alunos**: Cadastrar e editar dados dos alunos
+- ✅ **Dados Financeiros**: Acesso aos dados financeiros dos alunos
+- ✅ **Relatórios**: Visualizar relatórios financeiros
+- ❌ **Observações do Coach**: Sem acesso às observações particulares
+- ❌ **Configurações**: Sem acesso às configurações do sistema
+- 🔑 **Área**: `/admin` (dashboard administrativo limitado)
+
+#### **🏋️‍♂️ Aluno (aluno)**
+
+- ✅ **Dados Próprios**: Visualizar e editar dados pessoais próprios
+- ✅ **Dados de Saúde**: Visualizar próprios dados de saúde (exceto observações do coach)
+- ✅ **Dados Financeiros**: Visualizar próprios dados financeiros
+- ❌ **Outros Usuários**: Sem acesso aos dados de outros usuários
+- 🔑 **Área**: `/user` (dashboard pessoal do aluno)
 
 ### **Níveis de Proteção**
 
@@ -834,8 +873,9 @@ export const metadata: Metadata = {
 
 ### **Schema do Banco de Dados**
 
+````sql
 ```sql
--- Tabela de usuários (admin, professor, aluno)
+-- Tabela de usuários (admin, professor, funcionario, aluno)
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(255) NOT NULL,
@@ -844,46 +884,47 @@ CREATE TABLE users (
   password_hash VARCHAR(255) NOT NULL,
   phone VARCHAR(20),
   birth_date DATE,
-  role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'professor', 'aluno')),
+  role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'professor', 'funcionario', 'aluno')),
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+````
 
 -- Dados de saúde dos alunos
 CREATE TABLE health_data (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  height DECIMAL(5,2), -- altura em cm
-  weight DECIMAL(5,2), -- peso em kg
-  allergies TEXT[],
-  medications TEXT[],
-  injuries TEXT[],
-  diet_info TEXT,
-  supplements TEXT[],
-  instructor_notes TEXT,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+height DECIMAL(5,2), -- altura em cm
+weight DECIMAL(5,2), -- peso em kg
+allergies TEXT[],
+medications TEXT[],
+injuries TEXT[],
+diet_info TEXT,
+supplements TEXT[],
+instructor_notes TEXT,
+created_at TIMESTAMP DEFAULT NOW(),
+updated_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Registro de check-ins
 CREATE TABLE checkins (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  created_at TIMESTAMP DEFAULT NOW()
+id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+created_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Controle financeiro
 CREATE TABLE payments (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  amount DECIMAL(10,2) NOT NULL,
-  due_date DATE NOT NULL,
-  payment_date DATE,
-  method VARCHAR(20) NOT NULL,
-  status VARCHAR(20) NOT NULL CHECK (status IN ('paid', 'pending', 'overdue')),
-  notes TEXT,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+amount DECIMAL(10,2) NOT NULL,
+due_date DATE NOT NULL,
+payment_date DATE,
+method VARCHAR(20) NOT NULL,
+status VARCHAR(20) NOT NULL CHECK (status IN ('paid', 'pending', 'overdue')),
+notes TEXT,
+created_at TIMESTAMP DEFAULT NOW(),
+updated_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Índices para performance
@@ -893,7 +934,8 @@ CREATE INDEX idx_users_role ON users(role);
 CREATE INDEX idx_checkins_user_date ON checkins(user_id, created_at);
 CREATE INDEX idx_payments_user_status ON payments(user_id, status);
 CREATE INDEX idx_payments_due_date ON payments(due_date);
-```
+
+````
 
 ### **Arquivos de Configuração Importantes**
 
@@ -922,7 +964,7 @@ psql postgresql://usuario:senha@localhost:5432/jm_fitness_studio
 
 # Verifique as variáveis de ambiente
 echo $DATABASE_URL
-```
+````
 
 **❌ Erro de autenticação / Token inválido**
 

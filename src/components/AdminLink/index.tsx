@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
-interface CoachLinkProps {
+interface AdminLinkProps {
   className?: string;
   children: React.ReactNode;
   onClick?: () => void;
@@ -15,9 +14,9 @@ interface UserData {
   name: string;
 }
 
-export function CoachLink({ className, children, onClick }: CoachLinkProps) {
+export function AdminLink({ className, children, onClick }: AdminLinkProps) {
   const [isLoading, setIsLoading] = useState(true);
-  const [destination, setDestination] = useState("/coach/login");
+  const [destination, setDestination] = useState("/admin/login");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -34,19 +33,19 @@ export function CoachLink({ className, children, onClick }: CoachLinkProps) {
           const userData: UserData = await response.json();
 
           // Determina destino baseado no role
-          if (userData.role === "admin" || userData.role === "professor") {
-            setDestination("/coach"); // Admin ou Professor = vai direto para área do coach
+          if (userData.role === "admin" || userData.role === "funcionario") {
+            setDestination("/admin/dashboard"); // Admin ou Funcionário = vai direto para dashboard administrativo
           } else {
-            // Outros roles (aluno) não têm acesso - vai para login
-            setDestination("/coach/login");
+            // Outros roles não têm acesso à área administrativa - vai para login
+            setDestination("/admin/login");
           }
         } else {
           // Não autenticado ou erro - vai para login
-          setDestination("/coach/login");
+          setDestination("/admin/login");
         }
       } catch (error) {
         console.error("Erro ao verificar autenticação:", error);
-        setDestination("/coach/login");
+        setDestination("/admin/login");
       } finally {
         setIsLoading(false);
       }
@@ -55,14 +54,16 @@ export function CoachLink({ className, children, onClick }: CoachLinkProps) {
     checkAuth();
   }, []);
 
-  // Mostra loading state brevemente
-  if (isLoading) {
-    return <span className={className}>{children}</span>;
-  }
+  const handleClick = () => {
+    if (onClick) onClick();
+    if (!isLoading) {
+      window.location.href = destination;
+    }
+  };
 
   return (
-    <Link href={destination} className={className} onClick={onClick}>
+    <button onClick={handleClick} className={className} disabled={isLoading}>
       {children}
-    </Link>
+    </button>
   );
 }

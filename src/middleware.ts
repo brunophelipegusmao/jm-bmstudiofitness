@@ -105,15 +105,20 @@ export async function middleware(request: NextRequest) {
 
   // Redireciona /admin exato para /admin/dashboard se autenticado
   if (pathname === "/admin") {
-    if (user.role === "admin") {
-      console.log("🔄 Redirecionando admin de /admin para /admin/dashboard");
+    if (["admin", "funcionario"].includes(user.role)) {
+      console.log("🔄 Redirecionando para /admin/dashboard");
       return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     } else {
-      // Não é admin, redireciona para área apropriada
+      // Não tem permissão para área administrativa, redireciona conforme papel
       console.log(
-        "🔄 Não-admin tentou acessar /admin, redirecionando para /coach",
+        "🔄 Usuário sem permissão para área administrativa, redirecionando",
       );
-      return NextResponse.redirect(new URL("/coach", request.url));
+
+      if (user.role === "professor") {
+        return NextResponse.redirect(new URL("/coach", request.url));
+      } else {
+        return NextResponse.redirect(new URL("/unauthorized", request.url));
+      }
     }
   }
 
@@ -132,13 +137,13 @@ export async function middleware(request: NextRequest) {
 
   // Verifica permissões por rota e papel do usuário
 
-  // Área administrativa - apenas admins
+  // Área administrativa - admins e funcionários (com permissões diferentes)
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
-    if (user.role !== "admin") {
-      console.log(
-        "❌ Usuário não é admin, redirecionando para área apropriada",
-        { userRole: user.role, expectedRole: "admin" },
-      );
+    if (!["admin", "funcionario"].includes(user.role)) {
+      console.log("❌ Usuário sem permissão para área administrativa", {
+        userRole: user.role,
+        expectedRoles: ["admin", "funcionario"],
+      });
 
       if (user.role === "professor") {
         // Professor tentando acessar admin - redireciona para área do coach
@@ -160,9 +165,9 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Rota de cadastro de alunos - apenas professores e admins
+  // Rota de cadastro de alunos - professores, funcionários e admins
   if (pathname === "/user/cadastro" || pathname === "/cadastro") {
-    if (!["admin", "professor"].includes(user.role)) {
+    if (!["admin", "professor", "funcionario"].includes(user.role)) {
       console.log("❌ Usuário sem permissão para cadastro de alunos", {
         userRole: user.role,
       });

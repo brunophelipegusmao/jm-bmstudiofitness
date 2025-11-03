@@ -23,8 +23,14 @@ const professorUser: UserSession = {
   name: "Professor João",
 };
 
+const funcionarioUser: UserSession = {
+  id: "func-789",
+  role: UserRole.FUNCIONARIO,
+  name: "Carlos Funcionário",
+};
+
 const alunoUser: UserSession = {
-  id: "aluno-789",
+  id: "aluno-999",
   role: UserRole.ALUNO,
   name: "Maria Silva",
 };
@@ -34,6 +40,7 @@ export function exemploUsagePermissoes() {
   // Criando checkers de permissão
   const adminChecker = createPermissionChecker(adminUser);
   const professorChecker = createPermissionChecker(professorUser);
+  const funcionarioChecker = createPermissionChecker(funcionarioUser);
   const alunoChecker = createPermissionChecker(alunoUser);
 
   console.log("=== EXEMPLOS DE VERIFICAÇÃO DE PERMISSÕES ===\n");
@@ -45,6 +52,9 @@ export function exemploUsagePermissoes() {
   );
   console.log(
     `Professor pode criar usuários: ${professorChecker.can(ACTIONS.CREATE, RESOURCES.USERS)}`,
+  );
+  console.log(
+    `Funcionário pode criar usuários: ${funcionarioChecker.can(ACTIONS.CREATE, RESOURCES.USERS)}`,
   );
   console.log(
     `Aluno pode criar usuários: ${alunoChecker.can(ACTIONS.CREATE, RESOURCES.USERS)}\n`,
@@ -59,6 +69,12 @@ export function exemploUsagePermissoes() {
     `Professor pode ler dados financeiros: ${professorChecker.can(ACTIONS.READ, RESOURCES.FINANCIAL)}`,
   );
   console.log(
+    `Funcionário pode ler dados financeiros: ${funcionarioChecker.can(ACTIONS.READ, RESOURCES.FINANCIAL)}`,
+  );
+  console.log(
+    `Professor pode ler dados financeiros: ${professorChecker.can(ACTIONS.READ, RESOURCES.FINANCIAL)}`,
+  );
+  console.log(
     `Aluno pode ler próprios dados financeiros: ${alunoChecker.can(ACTIONS.READ, RESOURCES.FINANCIAL, { targetUserId: alunoUser.id })}\n`,
   );
 
@@ -66,6 +82,12 @@ export function exemploUsagePermissoes() {
   console.log("3. Observações particulares do coach:");
   console.log(
     `Admin pode ler observações: ${adminChecker.can(ACTIONS.READ, RESOURCES.COACH_OBSERVATIONS)}`,
+  );
+  console.log(
+    `Professor pode ler observações: ${professorChecker.can(ACTIONS.READ, RESOURCES.COACH_OBSERVATIONS)}`,
+  );
+  console.log(
+    `Funcionário pode ler observações: ${funcionarioChecker.can(ACTIONS.READ, RESOURCES.COACH_OBSERVATIONS)}`,
   );
   console.log(
     `Professor pode ler observações: ${professorChecker.can(ACTIONS.READ, RESOURCES.COACH_OBSERVATIONS)}`,

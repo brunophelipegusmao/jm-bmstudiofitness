@@ -55,6 +55,7 @@ export class PermissionChecker {
   canAccessUserData(targetUserId: string): boolean {
     if (this.user.role === UserRole.ADMIN) return true;
     if (this.user.role === UserRole.PROFESSOR) return true;
+    if (this.user.role === UserRole.FUNCIONARIO) return true;
     return this.user.id === targetUserId; // Aluno só pode acessar próprios dados
   }
 
@@ -88,6 +89,11 @@ export class PermissionChecker {
   // Verifica se é professor
   isProfessor(): boolean {
     return this.user.role === UserRole.PROFESSOR;
+  }
+
+  // Verifica se é funcionário
+  isFuncionario(): boolean {
+    return this.user.role === UserRole.FUNCIONARIO;
   }
 
   // Verifica se é aluno

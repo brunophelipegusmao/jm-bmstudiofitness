@@ -27,6 +27,7 @@ async function main() {
   // 1) Criar usuários com diferentes roles e senhas
   const adminPassword = await hashPassword("admin123"); // Senha: admin123
   const professorPassword = await hashPassword("prof123"); // Senha: prof123
+  const funcionarioPassword = await hashPassword("func123"); // Senha: func123
   const alunoPassword = await hashPassword("aluno123"); // Senha: aluno123
 
   const users = await db
@@ -43,6 +44,12 @@ async function main() {
         userRole: UserRole.PROFESSOR,
         password: professorPassword,
         createdAt: "2025-02-01",
+      },
+      {
+        name: "Carlos Silva",
+        userRole: UserRole.FUNCIONARIO,
+        password: funcionarioPassword,
+        createdAt: "2025-02-15",
       },
       {
         name: "Ana Costa",
@@ -75,7 +82,7 @@ async function main() {
       userRole: usersTable.userRole,
     });
 
-  const [admin, professor, ana, bruno, carla, daniel] = users;
+  const [admin, professor, funcionario, ana, bruno, carla, daniel] = users;
 
   // 2) Dados pessoais - incluindo email obrigatório
   await db.insert(personalDataTable).values([

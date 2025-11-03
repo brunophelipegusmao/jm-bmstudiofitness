@@ -3,6 +3,7 @@
 export enum UserRole {
   ADMIN = "admin",
   PROFESSOR = "professor",
+  FUNCIONARIO = "funcionario",
   ALUNO = "aluno",
 }
 
@@ -87,6 +88,40 @@ export const USER_PERMISSIONS: RolePermissions[] = [
         resource: "coachObservationsParticular",
         actions: ["create", "read", "update"],
         conditions: { targetUserType: "aluno" },
+      },
+    ],
+  },
+  {
+    role: UserRole.FUNCIONARIO,
+    description:
+      "Acesso parcial ao sistema - gerenciamento de alunos e financeiro",
+    permissions: [
+      {
+        resource: "users",
+        actions: ["create", "read", "update"],
+        conditions: { targetUserType: "aluno" },
+      },
+      {
+        resource: "personalData",
+        actions: ["create", "read", "update"],
+        conditions: { targetUserType: "aluno" },
+      },
+      {
+        resource: "healthMetrics",
+        actions: ["create", "read", "update"],
+        conditions: {
+          targetUserType: "aluno",
+          excludeFields: ["coachObservationsParticular"],
+        },
+      },
+      {
+        resource: "financial",
+        actions: ["create", "read", "update"],
+        conditions: { targetUserType: "aluno" },
+      },
+      {
+        resource: "coachObservationsParticular",
+        actions: [], // Sem acesso às observações particulares do coach
       },
     ],
   },
