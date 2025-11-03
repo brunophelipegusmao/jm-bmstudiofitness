@@ -4,6 +4,7 @@ import clsx from "clsx";
 import type { Metadata } from "next";
 import { Anton, Geist, Geist_Mono, Oswald } from "next/font/google";
 
+import { ClientWrapper } from "@/components/ClientWrapper";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
@@ -51,10 +52,12 @@ export default function RootLayout({
           "m-0 flex h-full flex-col p-0", // Remove margens e padding padrão, adiciona flexbox
         )}
       >
-        <Header />
-        <main className="flex-1 pt-16 sm:pt-20">{children}</main>
-        <Footer />
-        <WhatsAppFloat />
+        <ClientWrapper>
+          <Header />
+          <main className="flex-1 pt-16 sm:pt-20">{children}</main>
+          <Footer />
+          <WhatsAppFloat />
+        </ClientWrapper>
       </body>
     </html>
   );

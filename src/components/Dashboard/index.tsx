@@ -1,4 +1,8 @@
+export { AdministrativeTab } from "./AdministrativeTab";
+export { AdminTabs } from "./AdminTabs";
+export { ConfigurationTab } from "./ConfigurationTab";
 export { DashboardHeader } from "./DashboardHeader";
+export { FinancialTab } from "./FinancialTab";
 export { FrequencyChart } from "./FrequencyChart";
 export { InfoCard, InfoField } from "./InfoCard";
 export { LoadingSpinner } from "./LoadingSpinner";
@@ -9,6 +13,7 @@ export { SearchResults } from "./SearchResults";
 export { SelectedStudent } from "./SelectedStudent";
 export { StatCard } from "./StatCard";
 export { StudentDetails } from "./StudentDetails";
+export { StudentsTab } from "./StudentsTab";
 export { UserDashboardHeader } from "./UserDashboardHeader";
 export { UserInfoCard } from "./UserInfoCard";
 export { UserNavigationCard } from "./UserNavigationCard";
