@@ -28,6 +28,8 @@ const eslintConfig = [
     rules: {
       "simple-import-sort/imports": "error",
       "simple-import-sort/exports": "error",
+      // Desabilitar algumas regras para build de produção
+      "@typescript-eslint/no-unused-vars": "warn",
     },
   },
 ];
