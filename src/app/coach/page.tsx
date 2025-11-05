@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 
-import { logoutAction } from "@/actions/auth/logout-action";
+import { logoutFormAction } from "@/actions/auth/logout-action";
 import {
   getStudentsHealthDataAction,
   StudentHealthData,
@@ -181,7 +181,7 @@ const CoachPage = () => {
           </div>
 
           {/* Botão de Logout */}
-          <form action={logoutAction}>
+          <form action={logoutFormAction}>
             <Button
               type="submit"
               variant="outline"

@@ -8,6 +8,7 @@ import { ClientWrapper } from "@/components/ClientWrapper";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { MainContent } from "@/components/MainContent";
+import { SecurityManager } from "@/components/SecurityManager";
 import { ToastProvider } from "@/components/ToastProvider";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
 
@@ -37,7 +38,11 @@ export const metadata: Metadata = {
   title: "JM Fitness Studio",
   description:
     "Transforme sua vida no JM Fitness Studio. Ambiente acolhedor e profissional dedicado à sua saúde, bem-estar e conquista dos seus objetivos fitness. Venha fazer parte da nossa família fitness!",
-  viewport: "width=device-width, initial-scale=1",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -55,6 +60,7 @@ export default function RootLayout({
         )}
       >
         <ClientWrapper>
+          <SecurityManager />
           <Header />
           <MainContent>{children}</MainContent>
           <Footer />

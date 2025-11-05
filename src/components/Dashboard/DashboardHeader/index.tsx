@@ -1,7 +1,7 @@
 import { LogOut, Sparkles } from "lucide-react";
 import { ReactNode } from "react";
 
-import { logoutAction } from "@/actions/auth/logout-action";
+import { logoutFormAction } from "@/actions/auth/logout-action";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -79,7 +79,7 @@ export function DashboardHeader({
 
               {showLogout && (
                 <form
-                  action={logoutAction}
+                  action={logoutFormAction}
                   className="transition-transform duration-300 hover:scale-110"
                 >
                   <Button

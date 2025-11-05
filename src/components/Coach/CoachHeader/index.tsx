@@ -2,7 +2,7 @@
 
 import { GraduationCap, LogOut } from "lucide-react";
 
-import { logoutAction } from "@/actions/auth/logout-action";
+import { logoutFormAction } from "@/actions/auth/logout-action";
 import { Button } from "@/components/ui/button";
 
 export function CoachHeader() {
@@ -19,7 +19,7 @@ export function CoachHeader() {
           </div>
         </div>
 
-        <form action={logoutAction}>
+        <form action={logoutFormAction}>
           <Button
             type="submit"
             variant="outline"

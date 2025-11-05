@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const nextJest = require("next/jest");
 
 const createJestConfig = nextJest({
@@ -40,6 +41,14 @@ const customJestConfig = {
   coverageDirectory: "coverage",
   coverageReporters: ["text", "lcov", "html"],
   testTimeout: 10000,
+  // Desabilitar watch mode por padrão - execução manual apenas
+  watchman: false,
+  watch: false,
+  watchAll: false,
+  // Não executar testes automaticamente
+  passWithNoTests: true,
+  silent: false,
+  verbose: true,
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

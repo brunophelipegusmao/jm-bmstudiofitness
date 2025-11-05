@@ -1,6 +1,6 @@
 import { Dumbbell, LogOut } from "lucide-react";
 
-import { logoutAction } from "@/actions/auth/logout-action";
+import { logoutFormAction } from "@/actions/auth/logout-action";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -81,7 +81,7 @@ export function UserDashboardHeader({ userName }: UserDashboardHeaderProps) {
 
             {/* Botão de logout estilizado */}
             <form
-              action={logoutAction}
+              action={logoutFormAction}
               className="transition-transform duration-300 hover:scale-105"
             >
               <Button

@@ -1,12 +1,12 @@
 "use client";
-import { Building, CreditCard, Settings, Users } from "lucide-react";
+import { Building, CreditCard, Shield, Users } from "lucide-react";
 import { useState } from "react";
 
 import { StudentFullData } from "@/actions/admin/get-students-full-data-action";
 import { AdministrativeTab } from "@/components/Dashboard/AdministrativeTab";
-import { ConfigurationTab } from "@/components/Dashboard/ConfigurationTab";
 import { FinancialTab } from "@/components/Dashboard/FinancialTab";
 import { StudentsTab } from "@/components/Dashboard/StudentsTab";
+import { UserManagementContainer } from "@/components/Dashboard/UserManagementContainer";
 
 interface AdminTabsProps {
   students: StudentFullData[];
@@ -31,17 +31,17 @@ export function AdminTabs({ students }: AdminTabsProps) {
       color: "from-blue-600 to-cyan-500",
     },
     {
+      id: "users",
+      label: "Usuários",
+      icon: Shield,
+      description: "Gerenciar usuários do sistema e permissões",
+      color: "from-purple-600 to-violet-500",
+    },
+    {
       id: "financial",
       label: "Financeiro",
       icon: CreditCard,
       description: "Relatórios e gestão financeira",
-      color: "from-purple-600 to-violet-500",
-    },
-    {
-      id: "configuration",
-      label: "Configurações",
-      icon: Settings,
-      description: "Opções de layout e sistema",
       color: "from-amber-600 to-yellow-500",
     },
   ];
@@ -115,15 +115,15 @@ export function AdminTabs({ students }: AdminTabsProps) {
           </div>
         )}
 
-        {activeTab === "financial" && (
+        {activeTab === "users" && (
           <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500">
-            <FinancialTab />
+            <UserManagementContainer />
           </div>
         )}
 
-        {activeTab === "configuration" && (
+        {activeTab === "financial" && (
           <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500">
-            <ConfigurationTab />
+            <FinancialTab />
           </div>
         )}
       </div>
