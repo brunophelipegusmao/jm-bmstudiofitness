@@ -106,8 +106,13 @@ export function AdministrativeTab() {
                   Dados Pessoais
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <Label htmlFor="name">Nome Completo *</Label>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="name"
+                      className="font-semibold text-[#C2A537]"
+                    >
+                      Nome Completo *
+                    </Label>
                     <Input
                       id="name"
                       name="name"
@@ -116,8 +121,13 @@ export function AdministrativeTab() {
                       placeholder="Nome completo do aluno"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="email">Email *</Label>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="email"
+                      className="font-semibold text-[#C2A537]"
+                    >
+                      Email *
+                    </Label>
                     <Input
                       id="email"
                       name="email"
@@ -127,8 +137,13 @@ export function AdministrativeTab() {
                       placeholder="email@exemplo.com"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="cpf">CPF *</Label>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="cpf"
+                      className="font-semibold text-[#C2A537]"
+                    >
+                      CPF *
+                    </Label>
                     <Input
                       id="cpf"
                       name="cpf"
@@ -137,8 +152,13 @@ export function AdministrativeTab() {
                       placeholder="000.000.000-00"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="telephone">Telefone *</Label>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="telephone"
+                      className="font-semibold text-[#C2A537]"
+                    >
+                      Telefone *
+                    </Label>
                     <Input
                       id="telephone"
                       name="telephone"
@@ -147,8 +167,13 @@ export function AdministrativeTab() {
                       placeholder="(11) 99999-9999"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="bornDate">Data de Nascimento *</Label>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="bornDate"
+                      className="font-semibold text-[#C2A537]"
+                    >
+                      Data de Nascimento *
+                    </Label>
                     <div className="relative">
                       <Input
                         id="bornDate"
@@ -160,8 +185,13 @@ export function AdministrativeTab() {
                       <CalendarIcon className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     </div>
                   </div>
-                  <div>
-                    <Label htmlFor="bloodType">Tipo Sanguíneo</Label>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="bloodType"
+                      className="font-semibold text-[#C2A537]"
+                    >
+                      Tipo Sanguíneo
+                    </Label>
                     <select
                       id="bloodType"
                       name="bloodType"
@@ -179,8 +209,13 @@ export function AdministrativeTab() {
                     </select>
                   </div>
                 </div>
-                <div>
-                  <Label htmlFor="address">Endereço Completo *</Label>
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="address"
+                    className="font-semibold text-[#C2A537]"
+                  >
+                    Endereço Completo *
+                  </Label>
                   <Input
                     id="address"
                     name="address"
@@ -197,8 +232,13 @@ export function AdministrativeTab() {
                   Dados Financeiros
                 </h3>
                 <div className="grid gap-4 md:grid-cols-3">
-                  <div>
-                    <Label htmlFor="monthlyFee">Mensalidade (R$) *</Label>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="monthlyFee"
+                      className="font-semibold text-[#C2A537]"
+                    >
+                      Mensalidade (R$) *
+                    </Label>
                     <Input
                       id="monthlyFee"
                       name="monthlyFee"
@@ -209,8 +249,13 @@ export function AdministrativeTab() {
                       placeholder="99.99"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="paymentMethod">Método de Pagamento *</Label>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="paymentMethod"
+                      className="font-semibold text-[#C2A537]"
+                    >
+                      Método de Pagamento *
+                    </Label>
                     <select
                       id="paymentMethod"
                       name="paymentMethod"
@@ -225,8 +270,13 @@ export function AdministrativeTab() {
                       <option value="TRANSFERENCIA">Transferência</option>
                     </select>
                   </div>
-                  <div>
-                    <Label htmlFor="dueDate">Dia de Vencimento *</Label>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="dueDate"
+                      className="font-semibold text-[#C2A537]"
+                    >
+                      Dia de Vencimento *
+                    </Label>
                     <Input
                       id="dueDate"
                       name="dueDate"
@@ -247,8 +297,13 @@ export function AdministrativeTab() {
                   Dados Físicos
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <Label htmlFor="heightCm">Altura (cm)</Label>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="heightCm"
+                      className="font-semibold text-[#C2A537]"
+                    >
+                      Altura (cm)
+                    </Label>
                     <Input
                       id="heightCm"
                       name="heightCm"
@@ -257,8 +312,13 @@ export function AdministrativeTab() {
                       placeholder="175"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="weightKg">Peso (kg)</Label>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="weightKg"
+                      className="font-semibold text-[#C2A537]"
+                    >
+                      Peso (kg)
+                    </Label>
                     <Input
                       id="weightKg"
                       name="weightKg"
@@ -277,8 +337,11 @@ export function AdministrativeTab() {
                   Histórico de Saúde
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <Label htmlFor="historyDiseases">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="historyDiseases"
+                      className="font-semibold text-[#C2A537]"
+                    >
                       Histórico de Doenças
                     </Label>
                     <textarea
@@ -289,8 +352,13 @@ export function AdministrativeTab() {
                       placeholder="Descreva doenças anteriores ou atuais"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="medications">Medicamentos</Label>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="medications"
+                      className="font-semibold text-[#C2A537]"
+                    >
+                      Medicamentos
+                    </Label>
                     <textarea
                       id="medications"
                       name="medications"

@@ -3,8 +3,6 @@ import { MenuIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { LogoutButton } from "@/components/Admin/LogoutButton";
-
 import banner from "./logo.svg";
 
 export function AdminHeader() {
@@ -39,9 +37,6 @@ export function AdminHeader() {
             </Link>
           </li>
         </ul>
-
-        {/* Botão de logout */}
-        <LogoutButton />
 
         {/* Ícone de menu para tablets e mobile */}
         <MenuIcon className="text-[#C2A537] md:hidden" />

@@ -7,6 +7,8 @@ import { Anton, Geist, Geist_Mono, Oswald } from "next/font/google";
 import { ClientWrapper } from "@/components/ClientWrapper";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { MainContent } from "@/components/MainContent";
+import { ToastProvider } from "@/components/ToastProvider";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
 
 const geistSans = Geist({
@@ -54,9 +56,10 @@ export default function RootLayout({
       >
         <ClientWrapper>
           <Header />
-          <main className="flex-1 pt-16 sm:pt-20">{children}</main>
+          <MainContent>{children}</MainContent>
           <Footer />
           <WhatsAppFloat />
+          <ToastProvider />
         </ClientWrapper>
       </body>
     </html>

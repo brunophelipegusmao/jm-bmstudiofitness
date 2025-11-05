@@ -7,33 +7,28 @@ import { AdministrativeTab } from "@/components/Dashboard/AdministrativeTab";
 import { ConfigurationTab } from "@/components/Dashboard/ConfigurationTab";
 import { FinancialTab } from "@/components/Dashboard/FinancialTab";
 import { StudentsTab } from "@/components/Dashboard/StudentsTab";
-import { useUserRole } from "@/hooks/useUserRole";
 
 interface AdminTabsProps {
   students: StudentFullData[];
 }
 
 export function AdminTabs({ students }: AdminTabsProps) {
-  const [activeTab, setActiveTab] = useState("students");
-  const { isAdmin, isFuncionario } = useUserRole();
+  const [activeTab, setActiveTab] = useState("administrative");
 
-  // Define abas baseadas no papel do usuário
-  const allTabs = [
-    {
-      id: "students",
-      label: "Alunos",
-      icon: Users,
-      description: "Buscar e visualizar dados completos dos alunos",
-      color: "from-blue-600 to-cyan-500",
-      roles: ["admin", "funcionario", "professor"],
-    },
+  const tabs = [
     {
       id: "administrative",
       label: "Administrativo",
       icon: Building,
       description: "Cadastrar novos alunos e gerenciar dados",
       color: "from-green-600 to-emerald-500",
-      roles: ["admin", "funcionario", "professor"],
+    },
+    {
+      id: "students",
+      label: "Alunos",
+      icon: Users,
+      description: "Buscar e visualizar dados completos dos alunos",
+      color: "from-blue-600 to-cyan-500",
     },
     {
       id: "financial",
@@ -41,7 +36,6 @@ export function AdminTabs({ students }: AdminTabsProps) {
       icon: CreditCard,
       description: "Relatórios e gestão financeira",
       color: "from-purple-600 to-violet-500",
-      roles: ["admin", "funcionario"], // Apenas admin e funcionário
     },
     {
       id: "configuration",
@@ -49,18 +43,8 @@ export function AdminTabs({ students }: AdminTabsProps) {
       icon: Settings,
       description: "Opções de layout e sistema",
       color: "from-amber-600 to-yellow-500",
-      roles: ["admin"], // Apenas admin
     },
   ];
-
-  // Filtra abas baseadas no papel do usuário
-  const availableTabs = allTabs.filter((tab) => {
-    if (isAdmin) return true; // Admin tem acesso a tudo
-    if (isFuncionario) return tab.roles.includes("funcionario");
-    return tab.roles.includes("professor");
-  });
-
-  const tabs = availableTabs;
 
   return (
     <div className="w-full space-y-6">

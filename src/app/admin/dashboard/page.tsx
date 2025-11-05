@@ -7,11 +7,7 @@ import {
   StudentFullData,
 } from "@/actions/admin/get-students-full-data-action";
 import { AdminLayout } from "@/components/Admin/AdminLayout";
-import {
-  AdminTabs,
-  DashboardHeader,
-  LoadingSpinner,
-} from "@/components/Dashboard";
+import { AdminTabs, LoadingSpinner } from "@/components/Dashboard";
 
 export default function AdminDashboardPage() {
   const [students, setStudents] = useState<StudentFullData[]>([]);
@@ -49,14 +45,8 @@ export default function AdminDashboardPage() {
 
   return (
     <AdminLayout>
-      <div className="min-h-screen w-full p-2 lg:p-8 xl:p-12">
-        <div className="mx-auto max-w-7xl space-y-8">
-          {/* Cabeçalho */}
-          <DashboardHeader
-            title="🏋️ Dashboard Administrativo"
-            description="Sistema completo de gestão da academia"
-          />
-
+      <div className="min-h-screen w-full">
+        <div className="mx-auto max-w-7xl space-y-8 p-6">
           {/* Sistema de Abas */}
           <AdminTabs students={students} />
         </div>

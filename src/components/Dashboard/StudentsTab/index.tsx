@@ -2,11 +2,6 @@ import { Activity, Calendar, Eye, EyeOff, Heart, User } from "lucide-react";
 import { useState } from "react";
 
 import { StudentFullData } from "@/actions/admin/get-students-full-data-action";
-import {
-  SearchBar,
-  SearchResults,
-  SelectedStudent,
-} from "@/components/Dashboard";
 import { SensitiveData } from "@/components/SensitiveData";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +21,7 @@ export function StudentsTab({ students }: StudentsTabProps) {
   >("personal");
   const [showPrivateData, setShowPrivateData] = useState(false);
 
-  // Filtrar alunos baseado no termo de busca
+  // Busca simples por nome, email ou CPF
   const filteredStudents = students.filter((student) => {
     if (!searchTerm.trim()) return false;
 
@@ -40,48 +35,192 @@ export function StudentsTab({ students }: StudentsTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Busca de Alunos */}
-      <SearchBar
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        placeholder="🔍 Buscar por nome, email ou CPF..."
-        resultsCount={filteredStudents.length}
-      >
-        {/* Resultados da Busca */}
-        {searchTerm && filteredStudents.length > 0 && (
-          <SearchResults
-            students={filteredStudents.map((student) => ({
-              userId: student.userId,
-              name: student.name,
-              email: student.email,
-              isPaymentUpToDate: student.isPaymentUpToDate,
-            }))}
-            onSelect={(simplifiedStudent) => {
-              const fullStudent = filteredStudents.find(
-                (s) => s.userId === simplifiedStudent.userId,
-              );
-              if (fullStudent) {
-                setSelectedStudent(fullStudent);
-              }
-            }}
-            onClear={() => setSearchTerm("")}
-            selectedStudentId={selectedStudent?.userId}
-          />
-        )}
+      {/* Busca Simples */}
+      <Card className="border-[#C2A537]/30 bg-black/40 backdrop-blur-sm">
+        <CardContent className="p-4">
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-[#C2A537]">
+              Buscar Alunos
+            </h3>
+            <div className="relative">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Digite o nome, email ou CPF do aluno..."
+                className="w-full rounded-lg border border-[#C2A537]/30 bg-black/60 px-4 py-3 text-white placeholder-slate-400 transition-all duration-200 focus:border-[#C2A537] focus:ring-2 focus:ring-[#C2A537]/20 focus:outline-none"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 transition-colors hover:text-[#C2A537]"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+            {searchTerm && (
+              <p className="text-sm text-[#C2A537]">
+                {filteredStudents.length}{" "}
+                {filteredStudents.length === 1 ? "resultado" : "resultados"}{" "}
+                encontrado(s)
+              </p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Aluno Selecionado */}
-        {selectedStudent && (
-          <SelectedStudent
-            student={{
-              userId: selectedStudent.userId,
-              name: selectedStudent.name,
-              email: selectedStudent.email,
-              isPaymentUpToDate: selectedStudent.isPaymentUpToDate,
-            }}
-            onClear={() => setSelectedStudent(null)}
-          />
-        )}
-      </SearchBar>
+      {/* Resultados da Busca */}
+      {searchTerm && filteredStudents.length > 0 && (
+        <Card className="border-[#C2A537]/30 bg-black/40 backdrop-blur-sm">
+          <CardContent className="p-4">
+            <div className="max-h-96 space-y-3 overflow-y-auto">
+              {filteredStudents.map((student) => (
+                <div
+                  key={student.userId}
+                  onClick={() => setSelectedStudent(student)}
+                  className="cursor-pointer rounded-lg border border-[#C2A537]/20 bg-black/40 p-3 transition-all duration-200 hover:border-[#C2A537]/40 hover:bg-[#C2A537]/5"
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="font-semibold text-white">
+                        {student.name}
+                      </h4>
+                      <p className="text-sm text-slate-400">{student.email}</p>
+                      <p className="text-sm text-slate-500">
+                        CPF: {formatCPF(student.cpf)}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {student.isPaymentUpToDate ? (
+                        <span className="text-sm text-green-400">✓ Em dia</span>
+                      ) : (
+                        <span className="text-sm text-red-400">
+                          ⚠ Atrasado
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Aluno Selecionado */}
+      {selectedStudent && (
+        <Card className="border-[#C2A537]/40 bg-black/40 backdrop-blur-sm">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-[#C2A537]">
+                Detalhes do Aluno
+              </CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedStudent(null)}
+                className="border-[#C2A537]/50 text-[#C2A537] hover:bg-[#C2A537]/10"
+              >
+                Fechar
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {/* Informações Pessoais */}
+              <div className="space-y-4">
+                <h4 className="mb-3 font-semibold text-white">
+                  Informações Pessoais
+                </h4>
+                <div className="space-y-2">
+                  <div>
+                    <Label className="text-[#C2A537]">Nome</Label>
+                    <p className="text-white">{selectedStudent.name}</p>
+                  </div>
+                  <div>
+                    <Label className="text-[#C2A537]">Email</Label>
+                    <p className="text-white">{selectedStudent.email}</p>
+                  </div>
+                  <div>
+                    <Label className="text-[#C2A537]">CPF</Label>
+                    <p className="text-white">
+                      {formatCPF(selectedStudent.cpf)}
+                    </p>
+                  </div>
+                  {selectedStudent.telephone && (
+                    <div>
+                      <Label className="text-[#C2A537]">Telefone</Label>
+                      <p className="text-white">{selectedStudent.telephone}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Status */}
+              <div className="space-y-4">
+                <h4 className="mb-3 font-semibold text-white">Status</h4>
+                <div className="space-y-2">
+                  <div>
+                    <Label className="text-[#C2A537]">Pagamento</Label>
+                    <p
+                      className={
+                        selectedStudent.isPaymentUpToDate
+                          ? "text-green-400"
+                          : "text-red-400"
+                      }
+                    >
+                      {selectedStudent.isPaymentUpToDate
+                        ? "✓ Em dia"
+                        : "⚠ Atrasado"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Mensagem quando não há busca ativa */}
+      {!searchTerm && (
+        <Card className="border-[#C2A537]/30 bg-black/40 backdrop-blur-sm">
+          <CardContent className="p-8 text-center">
+            <User className="mx-auto mb-4 h-12 w-12 text-[#C2A537]/50" />
+            <h3 className="mb-2 text-lg font-semibold text-[#C2A537]">
+              Buscar Alunos
+            </h3>
+            <p className="mb-4 text-slate-400">
+              Digite o nome, email ou CPF do aluno no campo de busca acima.
+            </p>
+            <div className="text-sm text-slate-500">
+              Total de alunos cadastrados: {students.length}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Mensagem quando não há resultados */}
+      {searchTerm && filteredStudents.length === 0 && (
+        <Card className="border-red-500/30 bg-red-500/5 backdrop-blur-sm">
+          <CardContent className="p-8 text-center">
+            <User className="mx-auto mb-4 h-12 w-12 text-red-400/50" />
+            <h3 className="mb-2 text-lg font-semibold text-red-400">
+              Nenhum Aluno Encontrado
+            </h3>
+            <p className="mb-4 text-slate-400">
+              Não encontramos alunos com &ldquo;{searchTerm}&rdquo;.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => setSearchTerm("")}
+              className="border-[#C2A537]/50 text-[#C2A537] hover:bg-[#C2A537]/10"
+            >
+              Limpar Busca
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Detalhes do Aluno Selecionado */}
       {selectedStudent && (

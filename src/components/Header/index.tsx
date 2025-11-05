@@ -7,17 +7,47 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
+import { LogoutButton } from "@/components/Admin/LogoutButton";
 import { CoachLink } from "@/components/CoachLink";
 import { StudentLink } from "@/components/StudentLink";
+import { UserAvatar } from "@/components/UserAvatar";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 import banner from "./logo.svg";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { user, loading } = useCurrentUser();
 
   // Verifica se estamos na homepage
   const isHomePage = pathname === "/";
+
+  // Verifica se estamos em páginas administrativas
+  const isAdminPage =
+    pathname.startsWith("/admin") && !pathname.includes("/login");
+  const isCoachPage =
+    pathname.startsWith("/coach") && !pathname.includes("/login");
+  const isDashboardPage = isAdminPage || isCoachPage;
+
+  // Define título e descrição baseado na página
+  const getDashboardInfo = () => {
+    if (isAdminPage) {
+      return {
+        title: "🏋️ Dashboard Administrativo",
+        description: "Sistema completo de gestão da academia",
+      };
+    }
+    if (isCoachPage) {
+      return {
+        title: "💪 Dashboard do Coach",
+        description: "Gerencie seus alunos e treinos",
+      };
+    }
+    return null;
+  };
+
+  const dashboardInfo = getDashboardInfo();
 
   const buttonClasses =
     "px-4 md:px-5 lg:px-6 py-2.5 md:py-3 rounded-xl font-medium transition-all duration-700 ease-out hover:scale-[1.03] active:scale-[0.97] transform";
@@ -33,9 +63,11 @@ export function Header() {
         "flex w-full min-w-full items-center justify-between",
         "px-4 py-2 sm:px-6 sm:py-3",
         "border-b border-[#C2A537]/30 bg-black/95 backdrop-blur-lg",
-        "fixed top-0 right-0 left-0 z-50 h-16 sm:h-20",
+        "fixed top-0 right-0 left-0 z-50",
+        dashboardInfo ? "h-20 sm:h-24" : "h-16 sm:h-20",
       )}
     >
+      {/* Logo */}
       <motion.div
         whileHover={{
           scale: 1.05,
@@ -68,6 +100,23 @@ export function Header() {
           </motion.div>
         </Link>
       </motion.div>
+
+      {/* Título do Dashboard - aparece entre logo e navegação */}
+      {dashboardInfo && (
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="mx-8 hidden flex-1 flex-col items-center justify-center lg:flex"
+        >
+          <h1 className="mb-1 text-xl font-bold text-[#C2A537] xl:text-2xl">
+            {dashboardInfo.title}
+          </h1>
+          <p className="text-center text-sm text-gray-400">
+            {dashboardInfo.description}
+          </p>
+        </motion.div>
+      )}
 
       <nav className="relative">
         {/* Botão de menu mobile */}
@@ -404,6 +453,24 @@ export function Header() {
               Contato
             </Link>
           </motion.li>
+
+          {/* Avatar e Logout - apenas se usuário estiver logado */}
+          {!loading && user && (
+            <motion.li
+              initial={{ opacity: 0, y: -20, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{
+                duration: 0.6,
+                delay: 1.25,
+                ease: "easeOut",
+                type: "spring",
+                stiffness: 100,
+              }}
+              className="ml-4 flex items-center"
+            >
+              <LogoutButton />
+            </motion.li>
+          )}
         </motion.ul>
 
         {/* Menu mobile dropdown */}
@@ -459,6 +526,36 @@ export function Header() {
                 }}
                 className="space-y-4"
               >
+                {/* Título do Dashboard no mobile */}
+                {dashboardInfo && (
+                  <motion.li
+                    variants={{
+                      open: {
+                        opacity: 1,
+                        x: 0,
+                        scale: 1,
+                        rotateY: 0,
+                      },
+                      closed: {
+                        opacity: 0,
+                        x: -25,
+                        scale: 0.8,
+                        rotateY: -15,
+                      },
+                    }}
+                    className="mb-4 border-b border-[#C2A537]/30 pb-4"
+                  >
+                    <div className="text-center">
+                      <h2 className="mb-1 text-lg font-bold text-[#C2A537]">
+                        {dashboardInfo.title}
+                      </h2>
+                      <p className="text-xs text-gray-400">
+                        {dashboardInfo.description}
+                      </p>
+                    </div>
+                  </motion.li>
+                )}
+
                 {/* Só mostra o link Início se não estivermos na homepage */}
                 {!isHomePage && (
                   <motion.li
@@ -654,6 +751,51 @@ export function Header() {
                     </div>
                   </Link>
                 </motion.li>
+
+                {/* Avatar e Logout no menu mobile - apenas se usuário estiver logado */}
+                {!loading && user && (
+                  <motion.li
+                    variants={{
+                      open: {
+                        opacity: 1,
+                        x: 0,
+                        scale: 1,
+                        rotateY: 0,
+                      },
+                      closed: {
+                        opacity: 0,
+                        x: -25,
+                        scale: 0.8,
+                        rotateY: -15,
+                      },
+                    }}
+                    whileHover={{
+                      scale: 1.02,
+                      x: 3,
+                      transition: { duration: 0.2 },
+                    }}
+                    className="mt-3 border-t border-[#C2A537]/30 pt-3"
+                  >
+                    <div className="flex flex-col items-center space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <UserAvatar name={user.name} size="sm" />
+                        <div className="text-sm text-[#C2A537]">
+                          <div className="font-medium">{user.name}</div>
+                          <div className="text-xs text-[#C2A537]/70">
+                            {user.role === "admin"
+                              ? "Administrador"
+                              : user.role === "professor"
+                                ? "Professor"
+                                : user.role === "funcionario"
+                                  ? "Funcionário"
+                                  : user.role}
+                          </div>
+                        </div>
+                      </div>
+                      <LogoutButton />
+                    </div>
+                  </motion.li>
+                )}
               </motion.ul>
             </motion.div>
           )}
