@@ -67,8 +67,8 @@ describe("CreateUserForm", () => {
 
     await user.type(screen.getByLabelText(/Nome Completo/), "João Silva");
     await user.type(screen.getByLabelText(/Email/), "joao@test.com");
-    await user.type(screen.getByLabelText("Senha *"), "123456");
-    await user.type(screen.getByLabelText("Confirmar Senha *"), "123456");
+    await user.type(screen.getByLabelText("Senha *"), "Password123!");
+    await user.type(screen.getByLabelText("Confirmar Senha *"), "Password123!");
 
     const submitButton = screen.getByRole("button", { name: /Criar Usuário/ });
     await user.click(submitButton);
@@ -77,8 +77,8 @@ describe("CreateUserForm", () => {
       expect(mockOnSubmit).toHaveBeenCalledWith({
         name: "João Silva",
         email: "joao@test.com",
-        password: "123456",
-        confirmPassword: "123456",
+        password: "Password123!",
+        confirmPassword: "Password123!",
         role: UserRole.ALUNO, // valor padrão
         cpf: "",
         telephone: "",

@@ -1,10 +1,11 @@
 "use client";
-import { Building, CreditCard, Shield, Users } from "lucide-react";
+import { Building, CreditCard, Shield, UserCheck, Users } from "lucide-react";
 import { useState } from "react";
 
 import { StudentFullData } from "@/actions/admin/get-students-full-data-action";
 import { AdministrativeTab } from "@/components/Dashboard/AdministrativeTab";
 import { FinancialTab } from "@/components/Dashboard/FinancialTab";
+import { StudentManagementTab } from "@/components/Dashboard/StudentManagementTab";
 import { StudentsTab } from "@/components/Dashboard/StudentsTab";
 import { UserManagementContainer } from "@/components/Dashboard/UserManagementContainer";
 
@@ -25,10 +26,17 @@ export function AdminTabs({ students }: AdminTabsProps) {
     },
     {
       id: "students",
-      label: "Alunos",
+      label: "Consultar Alunos",
       icon: Users,
       description: "Buscar e visualizar dados completos dos alunos",
       color: "from-blue-600 to-cyan-500",
+    },
+    {
+      id: "manage-students",
+      label: "Gerenciar Alunos",
+      icon: UserCheck,
+      description: "Gerenciar cadastro, edição e exclusão de alunos",
+      color: "from-cyan-600 to-blue-500",
     },
     {
       id: "users",
@@ -50,7 +58,7 @@ export function AdminTabs({ students }: AdminTabsProps) {
     <div className="w-full space-y-6">
       {/* Enhanced Navigation Tabs */}
       <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#C2A537]/5 to-transparent blur-xl" />
+        <div className="absolute inset-0 bg-linear-to-r from-transparent via-[#C2A537]/5 to-transparent blur-xl" />
         <nav className="relative flex space-x-2 rounded-xl border border-slate-700/50 bg-slate-800/50 p-2 backdrop-blur-sm">
           {tabs.map((tab, index) => {
             const Icon = tab.icon;
@@ -70,7 +78,7 @@ export function AdminTabs({ students }: AdminTabsProps) {
                 {/* Active background gradient */}
                 {isActive && (
                   <div
-                    className={`absolute inset-0 rounded-lg bg-gradient-to-r ${tab.color} animate-pulse opacity-10`}
+                    className={`absolute inset-0 rounded-lg bg-linear-to-r ${tab.color} animate-pulse opacity-10`}
                   />
                 )}
 
@@ -106,6 +114,12 @@ export function AdminTabs({ students }: AdminTabsProps) {
         {activeTab === "students" && (
           <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500">
             <StudentsTab students={students} />
+          </div>
+        )}
+
+        {activeTab === "manage-students" && (
+          <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500">
+            <StudentManagementTab students={students} />
           </div>
         )}
 
