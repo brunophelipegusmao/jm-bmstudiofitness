@@ -13,13 +13,15 @@ import {
   createAlunoAction,
   FormState,
 } from "@/actions/user/create-aluno-action";
+import { ManageStudentsView } from "@/components/Dashboard/ManageStudentsView";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeadfaça oer, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export function AdministrativeTab() {
   const [showForm, setShowForm] = useState(false);
+  const [showManageStudents, setShowManageStudents] = useState(false);
   const [formState, formAction, isPending] = useActionState<
     FormState,
     FormData
@@ -40,7 +42,7 @@ export function AdministrativeTab() {
       description: "Editar, ativar/desativar alunos existentes",
       icon: Users,
       color: "from-blue-600 to-cyan-500",
-      action: () => alert("🚧 Funcionalidade em desenvolvimento"),
+      action: () => setShowManageStudents(true),
     },
     {
       id: "reports",
@@ -59,6 +61,12 @@ export function AdministrativeTab() {
       action: () => alert("🚧 Funcionalidade em desenvolvimento"),
     },
   ];
+
+  if (showManageStudents) {
+    return (
+      <ManageStudentsView onBack={() => setShowManageStudents(false)} />
+    );
+  }
 
   if (showForm) {
     return (
@@ -581,13 +589,13 @@ export function AdministrativeTab() {
             >
               {/* Gradient Background */}
               <div
-                className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-0 transition-opacity duration-300 group-hover:opacity-10`}
+                className={`absolute inset-0 bg-linear-to-br ${action.color} opacity-0 transition-opacity duration-300 group-hover:opacity-10`}
               />
 
               <CardContent className="relative p-6">
                 <div className="flex items-start space-x-4">
                   <div
-                    className={`rounded-lg bg-gradient-to-br p-3 ${action.color} transition-transform duration-300 group-hover:scale-110`}
+                    className={`rounded-lg bg-linear-to-br p-3 ${action.color} transition-transform duration-300 group-hover:scale-110`}
                   >
                     <Icon className="h-6 w-6 text-white" />
                   </div>

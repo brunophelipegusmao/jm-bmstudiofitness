@@ -15,7 +15,7 @@ import { UserRole } from "@/types/user-roles";
 export interface CreateStudentData {
   // Dados básicos
   name: string;
-  
+
   // Dados pessoais
   cpf: string;
   email: string;
@@ -129,7 +129,7 @@ export async function createStudent(data: CreateStudentData) {
   } catch (error) {
     console.error("Error creating student:", error);
     throw new Error(
-      error instanceof Error ? error.message : "Erro ao cadastrar aluno"
+      error instanceof Error ? error.message : "Erro ao cadastrar aluno",
     );
   }
 }
@@ -227,7 +227,7 @@ export async function updateStudent(data: UpdateStudentData) {
   } catch (error) {
     console.error("Error updating student:", error);
     throw new Error(
-      error instanceof Error ? error.message : "Erro ao atualizar aluno"
+      error instanceof Error ? error.message : "Erro ao atualizar aluno",
     );
   }
 }
@@ -246,9 +246,13 @@ export async function deleteStudent(userId: string) {
     }
 
     // Excluir em ordem (devido às foreign keys)
-    await db.delete(healthMetricsTable).where(eq(healthMetricsTable.userId, userId));
+    await db
+      .delete(healthMetricsTable)
+      .where(eq(healthMetricsTable.userId, userId));
     await db.delete(financialTable).where(eq(financialTable.userId, userId));
-    await db.delete(personalDataTable).where(eq(personalDataTable.userId, userId));
+    await db
+      .delete(personalDataTable)
+      .where(eq(personalDataTable.userId, userId));
     await db.delete(usersTable).where(eq(usersTable.id, userId));
 
     revalidatePath("/admin");
@@ -256,15 +260,19 @@ export async function deleteStudent(userId: string) {
   } catch (error) {
     console.error("Error deleting student:", error);
     throw new Error(
-      error instanceof Error ? error.message : "Erro ao excluir aluno"
+      error instanceof Error ? error.message : "Erro ao excluir aluno",
     );
   }
 }
 
-export async function updateStudentPaymentStatus(userId: string, paid: boolean, paymentDate?: string) {
+export async function updateStudentPaymentStatus(
+  userId: string,
+  paid: boolean,
+  paymentDate?: string,
+) {
   try {
     const updateData: { paid: boolean; lastPaymentDate?: string } = { paid };
-    
+
     if (paid && paymentDate) {
       updateData.lastPaymentDate = paymentDate;
     }
