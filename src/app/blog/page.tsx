@@ -31,13 +31,13 @@ export default async function BlogPage() {
   const posts = await getPublishedPostsAction();
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header compacto com gradiente */}
-      <section className="relative bg-black py-6 md:py-8">
-        {/* Gradiente dourado discreto */}
-        <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-[#C2A537]/5 to-transparent"></div>
-        
-        <Container>
+    <div className="relative w-full bg-black text-white">
+      {/* Degradê dourado discreto global */}
+      <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-[#C2A537]/5 to-transparent"></div>
+      
+      {/* Header compacto */}
+      <section className="relative py-6 md:py-8">
+        <Container noMinHeight={true}>
           <div className="relative z-10 text-center">
             <h1 className="mb-3 text-3xl font-bold md:text-4xl">
               <span className="text-[#C2A537]">Blog</span> JM Fitness Studio
@@ -51,9 +51,7 @@ export default async function BlogPage() {
 
       {/* Posts Grid */}
       <section className="relative py-6 md:py-8">
-        {/* Gradiente dourado discreto */}
-        <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-[#C2A537]/5 to-transparent"></div>
-        <Container>
+        <Container noMinHeight={true}>
           <div className="relative z-10">
             {posts.length === 0 ? (
               <div className="py-12 text-center">
@@ -61,7 +59,8 @@ export default async function BlogPage() {
                   Em breve, novos posts!
                 </h2>
                 <p className="text-slate-500">
-                  Estamos preparando conteúdo incrível para você. Volte em breve!
+                  Estamos preparando conteúdo incrível para você. Volte em
+                  breve!
                 </p>
               </div>
             ) : (
@@ -99,7 +98,9 @@ export default async function BlogPage() {
                               />
                             ) : (
                               <div className="flex h-full w-full items-center justify-center bg-gray-800">
-                                <span className="text-gray-500">Sem imagem</span>
+                                <span className="text-gray-500">
+                                  Sem imagem
+                                </span>
                               </div>
                             )}
                           </div>
