@@ -1,0 +1,2 @@
+ALTER TABLE "tb_posts" ALTER COLUMN "author_id" SET DATA TYPE uuid;--> statement-breakpoint
+ALTER TABLE "tb_posts" ADD CONSTRAINT "tb_posts_author_id_tb_users_id_fk" FOREIGN KEY ("author_id") REFERENCES "public"."tb_users"("id") ON DELETE no action ON UPDATE no action;

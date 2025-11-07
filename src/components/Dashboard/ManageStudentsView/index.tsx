@@ -63,33 +63,35 @@ interface ManageStudentsViewProps {
 
 export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "inactive">("all");
+  const [filterStatus, setFilterStatus] = useState<
+    "all" | "active" | "inactive"
+  >("all");
 
   // Filtrar estudantes
   const filteredStudents = mockStudents.filter((student) => {
-    const matchesSearch = 
+    const matchesSearch =
       student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.cpf.includes(searchTerm);
-    
-    const matchesFilter = 
+
+    const matchesFilter =
       filterStatus === "all" || student.status === filterStatus;
-    
+
     return matchesSearch && matchesFilter;
   });
 
   const getStatusBadge = (status: string) => {
     if (status === "active") {
       return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-          <UserCheck className="w-3 h-3 mr-1" />
+        <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+          <UserCheck className="mr-1 h-3 w-3" />
           Ativo
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-        <UserX className="w-3 h-3 mr-1" />
+      <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+        <UserX className="mr-1 h-3 w-3" />
         Inativo
       </span>
     );
@@ -98,18 +100,20 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
   const getPaymentBadge = (paymentStatus: string) => {
     const badges = {
       "up-to-date": "bg-green-100 text-green-800",
-      "overdue": "bg-red-100 text-red-800",
-      "pending": "bg-yellow-100 text-yellow-800",
+      overdue: "bg-red-100 text-red-800",
+      pending: "bg-yellow-100 text-yellow-800",
     };
-    
+
     const labels = {
       "up-to-date": "Em dia",
-      "overdue": "Vencido",
-      "pending": "Pendente",
+      overdue: "Vencido",
+      pending: "Pendente",
     };
 
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badges[paymentStatus as keyof typeof badges]}`}>
+      <span
+        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${badges[paymentStatus as keyof typeof badges]}`}
+      >
         {labels[paymentStatus as keyof typeof labels]}
       </span>
     );
@@ -145,8 +149,12 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-[#C2A537]">Gerenciar Alunos</h2>
-          <p className="text-slate-400">Editar, ativar/desativar alunos existentes</p>
+          <h2 className="text-2xl font-bold text-[#C2A537]">
+            Gerenciar Alunos
+          </h2>
+          <p className="text-slate-400">
+            Editar, ativar/desativar alunos existentes
+          </p>
         </div>
         <Button
           onClick={onBack}
@@ -158,16 +166,18 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <Card className="border-[#C2A537]/30 bg-black/40 backdrop-blur-sm">
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-lg bg-blue-500/20">
+              <div className="rounded-lg bg-blue-500/20 p-2">
                 <User className="h-5 w-5 text-blue-400" />
               </div>
               <div>
                 <p className="text-sm text-gray-400">Total</p>
-                <p className="text-xl font-bold text-white">{mockStudents.length}</p>
+                <p className="text-xl font-bold text-white">
+                  {mockStudents.length}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -176,13 +186,13 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
         <Card className="border-[#C2A537]/30 bg-black/40 backdrop-blur-sm">
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-lg bg-green-500/20">
+              <div className="rounded-lg bg-green-500/20 p-2">
                 <UserCheck className="h-5 w-5 text-green-400" />
               </div>
               <div>
                 <p className="text-sm text-gray-400">Ativos</p>
                 <p className="text-xl font-bold text-white">
-                  {mockStudents.filter(s => s.status === "active").length}
+                  {mockStudents.filter((s) => s.status === "active").length}
                 </p>
               </div>
             </div>
@@ -192,13 +202,13 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
         <Card className="border-[#C2A537]/30 bg-black/40 backdrop-blur-sm">
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-lg bg-red-500/20">
+              <div className="rounded-lg bg-red-500/20 p-2">
                 <UserX className="h-5 w-5 text-red-400" />
               </div>
               <div>
                 <p className="text-sm text-gray-400">Inativos</p>
                 <p className="text-xl font-bold text-white">
-                  {mockStudents.filter(s => s.status === "inactive").length}
+                  {mockStudents.filter((s) => s.status === "inactive").length}
                 </p>
               </div>
             </div>
@@ -208,13 +218,16 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
         <Card className="border-[#C2A537]/30 bg-black/40 backdrop-blur-sm">
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-lg bg-yellow-500/20">
+              <div className="rounded-lg bg-yellow-500/20 p-2">
                 <User className="h-5 w-5 text-yellow-400" />
               </div>
               <div>
                 <p className="text-sm text-gray-400">Pendentes</p>
                 <p className="text-xl font-bold text-white">
-                  {mockStudents.filter(s => s.paymentStatus === "pending").length}
+                  {
+                    mockStudents.filter((s) => s.paymentStatus === "pending")
+                      .length
+                  }
                 </p>
               </div>
             </div>
@@ -228,16 +241,16 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
           <CardTitle className="text-[#C2A537]">Filtros e Busca</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             {/* Search */}
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
               <Input
                 type="text"
                 placeholder="Buscar por nome, email ou CPF..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-black/50 border-[#C2A537]/30 text-white placeholder-gray-400"
+                className="border-[#C2A537]/30 bg-black/50 pl-10 text-white placeholder-gray-400"
               />
             </div>
 
@@ -252,10 +265,12 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
                   key={filter.key}
                   variant={filterStatus === filter.key ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setFilterStatus(filter.key as typeof filterStatus)}
+                  onClick={() =>
+                    setFilterStatus(filter.key as typeof filterStatus)
+                  }
                   className={
                     filterStatus === filter.key
-                      ? "bg-[#C2A537] hover:bg-[#B8A533] text-black"
+                      ? "bg-[#C2A537] text-black hover:bg-[#B8A533]"
                       : "border-[#C2A537]/30 text-[#C2A537] hover:bg-[#C2A537]/10"
                   }
                 >
@@ -275,9 +290,9 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
         <CardContent>
           <div className="space-y-4">
             {filteredStudents.length === 0 ? (
-              <div className="text-center py-8">
-                <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">
+              <div className="py-8 text-center">
+                <User className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                <h3 className="mb-2 text-lg font-semibold text-white">
                   Nenhum aluno encontrado
                 </h3>
                 <p className="text-gray-400">
@@ -290,17 +305,19 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
                   key={student.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="border border-[#C2A537]/20 rounded-lg p-4 bg-black/30 hover:bg-black/50 transition-all duration-300"
+                  className="rounded-lg border border-[#C2A537]/20 bg-black/30 p-4 transition-all duration-300 hover:bg-black/50"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                      <div className="p-2 rounded-lg bg-[#C2A537]/20">
+                      <div className="rounded-lg bg-[#C2A537]/20 p-2">
                         <User className="h-5 w-5 text-[#C2A537]" />
                       </div>
-                      
+
                       <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-1">
-                          <h3 className="font-semibold text-white">{student.name}</h3>
+                        <div className="mb-1 flex items-center space-x-3">
+                          <h3 className="font-semibold text-white">
+                            {student.name}
+                          </h3>
                           {getStatusBadge(student.status)}
                           {getPaymentBadge(student.paymentStatus)}
                         </div>
@@ -321,7 +338,11 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
                         size="sm"
                         onClick={() => handleToggleStatus(student.id)}
                         className="text-gray-400 hover:text-white"
-                        title={student.status === "active" ? "Desativar aluno" : "Ativar aluno"}
+                        title={
+                          student.status === "active"
+                            ? "Desativar aluno"
+                            : "Ativar aluno"
+                        }
                       >
                         {student.status === "active" ? (
                           <ToggleRight className="h-5 w-5 text-green-400" />
@@ -384,10 +405,10 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
       {/* Action Buttons */}
       <div className="flex justify-end space-x-4">
         <Button
-          className="bg-[#C2A537] hover:bg-[#B8A533] text-black font-medium"
+          className="bg-[#C2A537] font-medium text-black hover:bg-[#B8A533]"
           onClick={() => console.log("Add new student")}
         >
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="mr-2 h-4 w-4" />
           Adicionar Novo Aluno
         </Button>
       </div>

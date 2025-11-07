@@ -377,44 +377,80 @@ export function Header() {
               </Link>
             </motion.li>
           )}
-          <motion.li
-            initial={{ opacity: 0, y: -20, scale: 0.8 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{
-              duration: 0.6,
-              delay: 0.65,
-              ease: "easeOut",
-              type: "spring",
-              stiffness: 100,
-            }}
-            whileHover={{
-              scale: [1, 1.08, 1.02],
-              rotate: [0, 5, -2, 0],
-              transition: {
-                duration: 0.5,
-                ease: "easeInOut",
-              },
-            }}
-          >
-            <StudentLink className={primaryButton}>Área do Aluno</StudentLink>
-          </motion.li>
-          <motion.li
-            initial={{ opacity: 0, y: -20, scale: 0.8 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{
-              duration: 0.6,
-              delay: 0.8,
-              ease: "easeOut",
-              type: "spring",
-              stiffness: 100,
-            }}
-            whileHover={{
-              y: -2,
-              transition: { duration: 0.2 },
-            }}
-          >
-            <CoachLink className={secondaryButton}>Área do Coach</CoachLink>
-          </motion.li>
+
+          {/* Links específicos para usuários não-admin ou não logados */}
+          {(!user || user.role !== "admin") && (
+            <>
+              <motion.li
+                initial={{ opacity: 0, y: -20, scale: 0.8 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  duration: 0.6,
+                  delay: 0.65,
+                  ease: "easeOut",
+                  type: "spring",
+                  stiffness: 100,
+                }}
+                whileHover={{
+                  scale: [1, 1.08, 1.02],
+                  rotate: [0, 5, -2, 0],
+                  transition: {
+                    duration: 0.5,
+                    ease: "easeInOut",
+                  },
+                }}
+              >
+                <StudentLink className={primaryButton}>
+                  Área do Aluno
+                </StudentLink>
+              </motion.li>
+              <motion.li
+                initial={{ opacity: 0, y: -20, scale: 0.8 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  duration: 0.6,
+                  delay: 0.8,
+                  ease: "easeOut",
+                  type: "spring",
+                  stiffness: 100,
+                }}
+                whileHover={{
+                  y: -2,
+                  transition: { duration: 0.2 },
+                }}
+              >
+                <CoachLink className={secondaryButton}>Área do Coach</CoachLink>
+              </motion.li>
+            </>
+          )}
+
+          {/* Links para admin logado */}
+          {user && user.role === "admin" && (
+            <motion.li
+              initial={{ opacity: 0, y: -20, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{
+                duration: 0.6,
+                delay: 0.65,
+                ease: "easeOut",
+                type: "spring",
+                stiffness: 100,
+              }}
+              whileHover={{
+                scale: [1, 1.08, 1.02],
+                rotate: [0, 5, -2, 0],
+                transition: {
+                  duration: 0.5,
+                  ease: "easeInOut",
+                },
+              }}
+            >
+              <Link href="/admin/dashboard" className={primaryButton}>
+                Dashboard Admin
+              </Link>
+            </motion.li>
+          )}
+
           <motion.li
             initial={{ opacity: 0, y: -20, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -597,84 +633,137 @@ export function Header() {
                     </Link>
                   </motion.li>
                 )}
-                <motion.li
-                  variants={{
-                    open: {
-                      opacity: 1,
-                      x: 0,
-                      scale: 1,
-                      rotateY: 0,
-                    },
-                    closed: {
-                      opacity: 0,
-                      x: -25,
-                      scale: 0.8,
-                      rotateY: -15,
-                    },
-                  }}
-                  whileHover={{
-                    scale: [1, 1.08, 1.02],
-                    rotate: [0, 3, -1, 0],
-                    x: [0, 8, 5],
-                    transition: {
-                      duration: 0.6,
-                      ease: "easeInOut",
-                    },
-                  }}
-                >
-                  <StudentLink
-                    className={`${primaryButton} block w-full text-center`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <div className="flex items-center justify-center space-x-2">
-                      <svg
-                        className="h-4 w-4"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
+
+                {/* Links específicos para usuários não-admin ou não logados */}
+                {(!user || user.role !== "admin") && (
+                  <>
+                    <motion.li
+                      variants={{
+                        open: {
+                          opacity: 1,
+                          x: 0,
+                          scale: 1,
+                          rotateY: 0,
+                        },
+                        closed: {
+                          opacity: 0,
+                          x: -25,
+                          scale: 0.8,
+                          rotateY: -15,
+                        },
+                      }}
+                      whileHover={{
+                        scale: [1, 1.08, 1.02],
+                        rotate: [0, 3, -1, 0],
+                        x: [0, 8, 5],
+                        transition: {
+                          duration: 0.6,
+                          ease: "easeInOut",
+                        },
+                      }}
+                    >
+                      <StudentLink
+                        className={`${primaryButton} block w-full text-center`}
+                        onClick={() => setIsMenuOpen(false)}
                       >
-                        <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 4V2H9V4L3 7V9H5V20H19V9H21ZM7 9H17V18H7V9Z" />
-                      </svg>
-                      <span>Área do Aluno</span>
-                    </div>
-                  </StudentLink>
-                </motion.li>
-                <motion.li
-                  variants={{
-                    open: {
-                      opacity: 1,
-                      x: 0,
-                      scale: 1,
-                      rotateY: 0,
-                    },
-                    closed: {
-                      opacity: 0,
-                      x: -25,
-                      scale: 0.8,
-                      rotateY: -15,
-                    },
-                  }}
-                  whileHover={{
-                    scale: 1.02,
-                    x: 3,
-                    transition: { duration: 0.2 },
-                  }}
-                >
-                  <CoachLink
-                    className={`${secondaryButton} block w-full text-center`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <div className="flex items-center justify-center space-x-2">
-                      <svg
-                        className="h-4 w-4"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
+                        <div className="flex items-center justify-center space-x-2">
+                          <svg
+                            className="h-4 w-4"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                          >
+                            <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 4V2H9V4L3 7V9H5V20H19V9H21ZM7 9H17V18H7V9Z" />
+                          </svg>
+                          <span>Área do Aluno</span>
+                        </div>
+                      </StudentLink>
+                    </motion.li>
+                    <motion.li
+                      variants={{
+                        open: {
+                          opacity: 1,
+                          x: 0,
+                          scale: 1,
+                          rotateY: 0,
+                        },
+                        closed: {
+                          opacity: 0,
+                          x: -25,
+                          scale: 0.8,
+                          rotateY: -15,
+                        },
+                      }}
+                      whileHover={{
+                        scale: 1.02,
+                        x: 3,
+                        transition: { duration: 0.2 },
+                      }}
+                    >
+                      <CoachLink
+                        className={`${secondaryButton} block w-full text-center`}
+                        onClick={() => setIsMenuOpen(false)}
                       >
-                        <path d="M12 12.75c1.63 0 3.07.39 4.24.9c1.08.48 1.76 1.56 1.76 2.73V18H6v-1.61c0-1.18.68-2.26 1.76-2.73c1.17-.52 2.61-.91 4.24-.91zM4 13c1.1 0 2-.9 2-2c0-1.1-.9-2-2-2s-2 .9-2 2c0 1.1.9 2 2 2zm1.13 1.1c-.37-.06-.74-.1-1.13-.1c-.99 0-1.93.21-2.78.58C.48 14.9 0 15.62 0 16.43V18h4.5v-1.61c0-.83.23-1.61.63-2.29zM20 13c1.1 0 2-.9 2-2c0-1.1-.9-2-2-2s-2 .9-2 2c0 1.1.9 2 2 2zm4 3.43c0-.81-.48-1.53-1.22-1.85C21.93 14.21 20.99 14 20 14c-.39 0-.76.04-1.13.1c.4.68.63 1.46.63 2.29V18H24v-1.57zM12 6c1.66 0 3 1.34 3 3c0 1.66-1.34 3-3 3s-3-1.34-3-3c0-1.66 1.34-3 3-3z" />
-                      </svg>
-                      <span>Área do Coach</span>
-                    </div>
-                  </CoachLink>
-                </motion.li>
+                        <div className="flex items-center justify-center space-x-2">
+                          <svg
+                            className="h-4 w-4"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                          >
+                            <path d="M12 12.75c1.63 0 3.07.39 4.24.9c1.08.48 1.76 1.56 1.76 2.73V18H6v-1.61c0-1.18.68-2.26 1.76-2.73c1.17-.52 2.61-.91 4.24-.91zM4 13c1.1 0 2-.9 2-2c0-1.1-.9-2-2-2s-2 .9-2 2c0 1.1.9 2 2 2zm1.13 1.1c-.37-.06-.74-.1-1.13-.1c-.99 0-1.93.21-2.78.58C.48 14.9 0 15.62 0 16.43V18h4.5v-1.61c0-.83.23-1.61.63-2.29zM20 13c1.1 0 2-.9 2-2c0-1.1-.9-2-2-2s-2 .9-2 2c0 1.1.9 2 2 2zm4 3.43c0-.81-.48-1.53-1.22-1.85C21.93 14.21 20.99 14 20 14c-.39 0-.76.04-1.13.1c.4.68.63 1.46.63 2.29V18H24v-1.57zM12 6c1.66 0 3 1.34 3 3c0 1.66-1.34 3-3 3s-3-1.34-3-3c0-1.66 1.34-3 3-3z" />
+                          </svg>
+                          <span>Área do Coach</span>
+                        </div>
+                      </CoachLink>
+                    </motion.li>
+                  </>
+                )}
+
+                {/* Links para admin logado */}
+                {user && user.role === "admin" && (
+                  <motion.li
+                    variants={{
+                      open: {
+                        opacity: 1,
+                        x: 0,
+                        scale: 1,
+                        rotateY: 0,
+                      },
+                      closed: {
+                        opacity: 0,
+                        x: -25,
+                        scale: 0.8,
+                        rotateY: -15,
+                      },
+                    }}
+                    whileHover={{
+                      scale: [1, 1.08, 1.02],
+                      rotate: [0, 3, -1, 0],
+                      x: [0, 8, 5],
+                      transition: {
+                        duration: 0.6,
+                        ease: "easeInOut",
+                      },
+                    }}
+                  >
+                    <Link
+                      href="/admin/dashboard"
+                      className={`${primaryButton} block w-full text-center`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <div className="flex items-center justify-center space-x-2">
+                        <svg
+                          className="h-4 w-4"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+                        </svg>
+                        <span>Dashboard Admin</span>
+                      </div>
+                    </Link>
+                  </motion.li>
+                )}
+
                 <motion.li
                   variants={{
                     open: {

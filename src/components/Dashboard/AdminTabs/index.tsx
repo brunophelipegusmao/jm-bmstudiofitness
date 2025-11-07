@@ -1,9 +1,10 @@
 "use client";
-import { Building, CreditCard, Shield, Users } from "lucide-react";
+import { Building, CreditCard, FileText, Shield, Users } from "lucide-react";
 import { useState } from "react";
 
 import { StudentFullData } from "@/actions/admin/get-students-full-data-action";
 import { AdministrativeTab } from "@/components/Dashboard/AdministrativeTab";
+import { BlogTab } from "@/components/Dashboard/BlogTab";
 import { FinancialTab } from "@/components/Dashboard/FinancialTab";
 import { StudentsTab } from "@/components/Dashboard/StudentsTab";
 import { UserManagementContainer } from "@/components/Dashboard/UserManagementContainer";
@@ -43,6 +44,13 @@ export function AdminTabs({ students }: AdminTabsProps) {
       icon: CreditCard,
       description: "Relatórios e gestão financeira",
       color: "from-amber-600 to-yellow-500",
+    },
+    {
+      id: "blog",
+      label: "Blog",
+      icon: FileText,
+      description: "Gerenciar posts e conteúdo do blog",
+      color: "from-rose-600 to-pink-500",
     },
   ];
 
@@ -124,6 +132,12 @@ export function AdminTabs({ students }: AdminTabsProps) {
         {activeTab === "financial" && (
           <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500">
             <FinancialTab />
+          </div>
+        )}
+
+        {activeTab === "blog" && (
+          <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500">
+            <BlogTab />
           </div>
         )}
       </div>

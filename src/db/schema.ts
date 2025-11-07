@@ -229,3 +229,112 @@ export const studentHealthHistoryRelations = relations(
     }),
   }),
 );
+
+// Tabela para posts do blog
+export const posts = pgTable("tb_posts", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  excerpt: text("excerpt").notNull(),
+  imageUrl: text("image_url"),
+  published: boolean("published").notNull().default(false),
+  authorId: integer("author_id").notNull(),
+  categoryId: integer("category_id").references(() => categories.id),
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  metaKeywords: text("meta_keywords"),
+  slug: text("slug").notNull().unique(),
+  readTime: integer("read_time"), // tempo de leitura em minutos
+  views: integer("views").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Tabela para categorias dos posts
+export const categories = pgTable("tb_categories", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: text("name").notNull().unique(),
+  slug: text("slug").notNull().unique(),
+  description: text("description"),
+  color: text("color").notNull().default("#64748b"), // cor hex para UI
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Tabela para tags
+export const tags = pgTable("tb_tags", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: text("name").notNull().unique(),
+  slug: text("slug").notNull().unique(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Tabela de relacionamento entre posts e tags (many-to-many)
+export const postTags = pgTable(
+  "tb_post_tags",
+  {
+    postId: integer("post_id")
+      .notNull()
+      .references(() => posts.id, { onDelete: "cascade" }),
+    tagId: integer("tag_id")
+      .notNull()
+      .references(() => tags.id, { onDelete: "cascade" }),
+  },
+  (table) => ({
+    pk: { primaryKey: [table.postId, table.tagId] },
+  }),
+);
+
+// Tabela para comentários dos posts
+export const comments = pgTable("tb_comments", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  postId: integer("post_id")
+    .notNull()
+    .references(() => posts.id, { onDelete: "cascade" }),
+  parentId: integer("parent_id"), // para respostas - referência adicionada nas relations
+  authorName: text("author_name").notNull(),
+  authorEmail: text("author_email").notNull(),
+  content: text("content").notNull(),
+  approved: boolean("approved").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Relations
+export const postsRelations = relations(posts, ({ one, many }) => ({
+  category: one(categories, {
+    fields: [posts.categoryId],
+    references: [categories.id],
+  }),
+  postTags: many(postTags),
+  comments: many(comments),
+}));
+
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  posts: many(posts),
+}));
+
+export const tagsRelations = relations(tags, ({ many }) => ({
+  postTags: many(postTags),
+}));
+
+export const postTagsRelations = relations(postTags, ({ one }) => ({
+  post: one(posts, {
+    fields: [postTags.postId],
+    references: [posts.id],
+  }),
+  tag: one(tags, {
+    fields: [postTags.tagId],
+    references: [tags.id],
+  }),
+}));
+
+export const commentsRelations = relations(comments, ({ one, many }) => ({
+  post: one(posts, {
+    fields: [comments.postId],
+    references: [posts.id],
+  }),
+  parent: one(comments, {
+    fields: [comments.parentId],
+    references: [comments.id],
+  }),
+  replies: many(comments),
+}));

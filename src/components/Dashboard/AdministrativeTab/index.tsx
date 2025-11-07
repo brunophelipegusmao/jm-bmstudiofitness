@@ -13,15 +13,19 @@ import {
   createAlunoAction,
   FormState,
 } from "@/actions/user/create-aluno-action";
+import { AcademySettingsView } from "@/components/Dashboard/AcademySettingsView";
 import { ManageStudentsView } from "@/components/Dashboard/ManageStudentsView";
+import { ReportsView } from "@/components/Dashboard/ReportsView";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeadfaça oer, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export function AdministrativeTab() {
   const [showForm, setShowForm] = useState(false);
   const [showManageStudents, setShowManageStudents] = useState(false);
+  const [showReports, setShowReports] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [formState, formAction, isPending] = useActionState<
     FormState,
     FormData
@@ -50,7 +54,7 @@ export function AdministrativeTab() {
       description: "Gerar relatórios de alunos e pagamentos",
       icon: FileText,
       color: "from-purple-600 to-violet-500",
-      action: () => alert("🚧 Funcionalidade em desenvolvimento"),
+      action: () => setShowReports(true),
     },
     {
       id: "settings",
@@ -58,14 +62,20 @@ export function AdministrativeTab() {
       description: "Configurar horários, valores e políticas",
       icon: Settings,
       color: "from-amber-600 to-yellow-500",
-      action: () => alert("🚧 Funcionalidade em desenvolvimento"),
+      action: () => setShowSettings(true),
     },
   ];
 
   if (showManageStudents) {
-    return (
-      <ManageStudentsView onBack={() => setShowManageStudents(false)} />
-    );
+    return <ManageStudentsView onBack={() => setShowManageStudents(false)} />;
+  }
+
+  if (showReports) {
+    return <ReportsView onBack={() => setShowReports(false)} />;
+  }
+
+  if (showSettings) {
+    return <AcademySettingsView onBack={() => setShowSettings(false)} />;
   }
 
   if (showForm) {

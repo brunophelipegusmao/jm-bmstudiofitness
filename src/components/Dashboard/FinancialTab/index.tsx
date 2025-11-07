@@ -2,15 +2,39 @@ import {
   BarChart3,
   Calendar,
   CreditCard,
-  DollarSign,
   TrendingDown,
   TrendingUp,
   Users,
 } from "lucide-react";
+import { useState } from "react";
 
+import { FinancialDashboardView } from "@/components/Dashboard/FinancialDashboardView";
+import { FinancialReportsView } from "@/components/Dashboard/FinancialReportsView";
+import { PaymentManagementView } from "@/components/Dashboard/PaymentManagementView";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function FinancialTab() {
+  const [showFinancialReports, setShowFinancialReports] = useState(false);
+  const [showPaymentManagement, setShowPaymentManagement] = useState(false);
+  const [showFinancialDashboard, setShowFinancialDashboard] = useState(false);
+
+  if (showFinancialReports) {
+    return (
+      <FinancialReportsView onBack={() => setShowFinancialReports(false)} />
+    );
+  }
+
+  if (showPaymentManagement) {
+    return (
+      <PaymentManagementView onBack={() => setShowPaymentManagement(false)} />
+    );
+  }
+
+  if (showFinancialDashboard) {
+    return (
+      <FinancialDashboardView onBack={() => setShowFinancialDashboard(false)} />
+    );
+  }
   return (
     <div className="space-y-6">
       {/* Visão Geral */}
@@ -75,7 +99,10 @@ export function FinancialTab() {
       {/* Seções de Funcionalidades Futuras */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Relatórios */}
-        <Card className="border-slate-700/50 bg-slate-800/30">
+        <Card
+          className="cursor-pointer border-slate-700/50 bg-slate-800/30 transition-all duration-200 hover:border-[#C2A537]/50 hover:bg-slate-800/50"
+          onClick={() => setShowFinancialReports(true)}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-[#C2A537]">
               <BarChart3 className="h-5 w-5" />
@@ -91,8 +118,8 @@ export function FinancialTab() {
                     Receitas, despesas e margem de lucro
                   </p>
                 </div>
-                <div className="rounded bg-slate-600 px-3 py-1 text-xs text-slate-300">
-                  Em breve
+                <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
+                  Disponível
                 </div>
               </div>
 
@@ -105,8 +132,8 @@ export function FinancialTab() {
                     Tracking e previsão de pagamentos
                   </p>
                 </div>
-                <div className="rounded bg-slate-600 px-3 py-1 text-xs text-slate-300">
-                  Em breve
+                <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
+                  Disponível
                 </div>
               </div>
 
@@ -119,8 +146,8 @@ export function FinancialTab() {
                     Estimativas baseadas em histórico
                   </p>
                 </div>
-                <div className="rounded bg-slate-600 px-3 py-1 text-xs text-slate-300">
-                  Em breve
+                <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
+                  Disponível
                 </div>
               </div>
             </div>
@@ -128,7 +155,10 @@ export function FinancialTab() {
         </Card>
 
         {/* Gestão de Pagamentos */}
-        <Card className="border-slate-700/50 bg-slate-800/30">
+        <Card
+          className="cursor-pointer border-slate-700/50 bg-slate-800/30 transition-all duration-200 hover:border-[#C2A537]/50 hover:bg-slate-800/50"
+          onClick={() => setShowPaymentManagement(true)}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-[#C2A537]">
               <CreditCard className="h-5 w-5" />
@@ -146,8 +176,8 @@ export function FinancialTab() {
                     Integração com PIX, cartão e boleto
                   </p>
                 </div>
-                <div className="rounded bg-slate-600 px-3 py-1 text-xs text-slate-300">
-                  Em breve
+                <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
+                  Disponível
                 </div>
               </div>
 
@@ -160,8 +190,8 @@ export function FinancialTab() {
                     Lembretes por email e WhatsApp
                   </p>
                 </div>
-                <div className="rounded bg-slate-600 px-3 py-1 text-xs text-slate-300">
-                  Em breve
+                <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
+                  Disponível
                 </div>
               </div>
 
@@ -172,8 +202,8 @@ export function FinancialTab() {
                     Gestão de diferentes modalidades
                   </p>
                 </div>
-                <div className="rounded bg-slate-600 px-3 py-1 text-xs text-slate-300">
-                  Em breve
+                <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
+                  Disponível
                 </div>
               </div>
             </div>
@@ -182,7 +212,10 @@ export function FinancialTab() {
       </div>
 
       {/* Dashboard de Acompanhamento */}
-      <Card className="border-slate-700/50 bg-slate-800/30">
+      <Card
+        className="cursor-pointer border-slate-700/50 bg-slate-800/30 transition-all duration-200 hover:border-[#C2A537]/50 hover:bg-slate-800/50"
+        onClick={() => setShowFinancialDashboard(true)}
+      >
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-[#C2A537]">
             <Calendar className="h-5 w-5" />
@@ -216,28 +249,18 @@ export function FinancialTab() {
             </div>
           </div>
 
-          <div className="mt-6 rounded-lg border border-slate-600 bg-slate-700/50 p-6 text-center">
-            <DollarSign className="mx-auto mb-4 h-12 w-12 text-slate-500" />
-            <h3 className="mb-2 text-lg font-medium text-slate-300">
-              Sistema Financeiro Completo
-            </h3>
-            <p className="mb-4 text-sm text-slate-400">
-              Funcionalidades avançadas de gestão financeira serão implementadas
-              nas próximas versões
-            </p>
-            <div className="flex flex-wrap justify-center gap-2">
-              <span className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
-                Controle de Fluxo de Caixa
-              </span>
-              <span className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
-                Integração Bancária
-              </span>
-              <span className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
-                Relatórios Fiscais
-              </span>
-              <span className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
-                Analytics Avançados
-              </span>
+          <div className="mt-6 flex items-center justify-between rounded-lg border border-slate-600 bg-slate-700/50 p-6">
+            <div>
+              <h3 className="text-lg font-medium text-white">
+                Sistema de Acompanhamento Completo
+              </h3>
+              <p className="text-sm text-slate-400">
+                Dashboard completo com análise de vencimentos, pagamentos e
+                inadimplência
+              </p>
+            </div>
+            <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
+              Disponível
             </div>
           </div>
         </CardContent>

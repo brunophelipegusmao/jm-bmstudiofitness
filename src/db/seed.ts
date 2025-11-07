@@ -5,10 +5,13 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { hashPassword } from "../lib/auth-utils";
 import { UserRole } from "../types/user-roles";
 import {
+  categories,
   checkInTable,
   financialTable,
   healthMetricsTable,
   personalDataTable,
+  posts,
+  userConfirmationTokensTable,
   usersTable,
 } from "./schema";
 
@@ -17,15 +20,18 @@ const connectionString = process.env.DATABASE_URL!;
 const db = drizzle(connectionString);
 
 async function main() {
-  // Limpar dados existentes
+  // Limpar dados existentes (ordem importante devido às foreign keys)
+  await db.delete(userConfirmationTokensTable);
   await db.delete(checkInTable);
   await db.delete(financialTable);
   await db.delete(healthMetricsTable);
   await db.delete(personalDataTable);
+  await db.delete(posts);
+  await db.delete(categories);
   await db.delete(usersTable);
 
   // 1) Criar usuários com diferentes roles e senhas
-  const adminPassword = await hashPassword("admin123"); // Senha: admin123
+  const adminPassword = await hashPassword("PrincesaJu@1996"); // Senha: PrincesaJu@1996
   const professorPassword = await hashPassword("prof123"); // Senha: prof123
   const funcionarioPassword = await hashPassword("func123"); // Senha: func123
   const alunoPassword = await hashPassword("aluno123"); // Senha: aluno123
@@ -34,7 +40,7 @@ async function main() {
     .insert(usersTable)
     .values([
       {
-        name: "João Silva",
+        name: "Juliana Martins",
         userRole: UserRole.ADMIN,
         password: adminPassword,
         createdAt: "2025-01-15",
@@ -89,7 +95,7 @@ async function main() {
     {
       userId: admin.id,
       cpf: "11111111111",
-      email: "admin@bmstudio.com",
+      email: "julianamartins@jmfitnessstudio.com.br",
       bornDate: "1985-05-20",
       address: "Rua Administração, 1 - São Paulo/SP",
       telephone: "+55 11 99999-0001",
@@ -409,6 +415,458 @@ async function main() {
 
   await db.insert(checkInTable).values(checkInsData);
 
+  // 8) Criar categorias para o blog
+  const blogCategories = await db
+    .insert(categories)
+    .values([
+      {
+        name: "Treino",
+        slug: "treino",
+        description: "Dicas e informações sobre treinos e exercícios",
+        color: "#3b82f6", // azul
+      },
+      {
+        name: "Nutrição",
+        slug: "nutricao",
+        description: "Alimentação e suplementação para o fitness",
+        color: "#10b981", // verde
+      },
+      {
+        name: "Motivação",
+        slug: "motivacao",
+        description: "Dicas para manter a motivação e foco nos objetivos",
+        color: "#f59e0b", // amarelo
+      },
+      {
+        name: "Novidades",
+        slug: "novidades",
+        description: "Últimas novidades da academia e do mundo fitness",
+        color: "#8b5cf6", // roxo
+      },
+    ])
+    .returning({ id: categories.id, name: categories.name });
+
+  const [treino, nutricao, motivacao, novidades] = blogCategories;
+
+  // 9) Criar posts para o blog
+  const blogPosts = [
+    {
+      title: "Benefícios do Treino Funcional para Iniciantes",
+      content: `O treino funcional tem ganhado cada vez mais adeptos nas academias ao redor do mundo, e não é para menos. Este tipo de exercício trabalha o corpo de forma integrada, simulando movimentos do dia a dia e proporcionando benefícios únicos para quem está começando a se exercitar.
+
+**O que é treino funcional?**
+
+O treino funcional consiste em exercícios que reproduzem movimentos naturais do corpo humano, como agachar, puxar, empurrar, girar e caminhar. Diferente dos exercícios tradicionais que isolam músculos específicos, o funcional trabalha múltiplos grupos musculares simultaneamente.
+
+**Principais benefícios:**
+
+1. **Melhora da coordenação motora**: Os exercícios funcionais exigem equilíbrio e coordenação, desenvolvendo essas habilidades naturalmente.
+
+2. **Fortalecimento do core**: A musculatura do abdômen e lombar é constantemente ativada para estabilizar o corpo durante os movimentos.
+
+3. **Prevenção de lesões**: Ao fortalecer o corpo de forma equilibrada, reduz-se o risco de lesões no dia a dia.
+
+4. **Versatilidade**: Pode ser praticado com equipamentos simples ou apenas com o peso do próprio corpo.
+
+5. **Queima de calorias**: Os exercícios compostos gastam mais energia, contribuindo para o emagrecimento.
+
+**Dicas para iniciantes:**
+
+- Comece com movimentos básicos e progressões adaptadas
+- Foque na execução correta antes de aumentar a intensidade
+- Mantenha regularidade nos treinos (3x por semana é ideal)
+- Busque orientação profissional para um programa personalizado
+
+Aqui na BM Studio Fitness, nossos professores são especializados em treino funcional e podem te ajudar a iniciar sua jornada de forma segura e eficiente!`,
+      excerpt:
+        "Descubra como o treino funcional pode transformar sua rotina de exercícios e melhorar sua qualidade de vida com movimentos naturais e eficientes.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+      published: true,
+      authorId: 1, // Admin
+      categoryId: treino.id, // Categoria Treino
+      metaTitle:
+        "Benefícios do Treino Funcional para Iniciantes - BM Studio Fitness",
+      metaDescription:
+        "Descubra como o treino funcional pode transformar sua rotina de exercícios com movimentos naturais e eficientes. Guia completo para iniciantes.",
+      metaKeywords:
+        "treino funcional, exercícios funcionais, iniciantes, academia, BM Studio Fitness",
+      slug: "beneficios-treino-funcional-iniciantes",
+      readTime: 5,
+      createdAt: new Date("2025-11-01"),
+      updatedAt: new Date("2025-11-01"),
+    },
+    {
+      title: "Como Manter a Motivação para Treinar no Inverno",
+      content: `O inverno pode ser um grande desafio para manter a consistência nos treinos. O frio, os dias mais curtos e a vontade de ficar embaixo das cobertas podem fazer com que muitas pessoas abandonem sua rotina de exercícios. Mas com algumas estratégias simples, você pode manter sua motivação em alta durante toda a estação.
+
+**1. Estabeleça objetivos específicos**
+
+Em vez de objetivos vagos como "ficar em forma", defina metas específicas e mensuráveis. Por exemplo: "treinar 4 vezes por semana durante 3 meses" ou "aumentar minha força em 15% até o final do inverno".
+
+**2. Crie uma rotina matinal**
+
+Treinar pela manhã pode ser mais fácil no inverno, pois você não terá o dia inteiro para criar desculpas. Prepare suas roupas de treino na noite anterior e defina um horário fixo para acordar.
+
+**3. Encontre um parceiro de treino**
+
+Ter alguém contando com você aumenta significativamente sua chance de aparecer para o treino. Além disso, treinar com um amigo torna a experiência mais divertida e social.
+
+**4. Varie seus exercícios**
+
+A monotonia é inimiga da motivação. Experimente novas modalidades, participe de aulas diferentes ou mude seu programa de treino a cada 6-8 semanas.
+
+**5. Foque nos benefícios imediatos**
+
+Lembre-se de como você se sente bem após o treino: mais disposto, menos estressado e com mais energia. Esses benefícios imediatos podem ser mais motivadores que objetivos de longo prazo.
+
+**6. Use a tecnologia a seu favor**
+
+Apps de treino, playlists energizantes e dispositivos de monitoramento podem tornar seus exercícios mais interessantes e ajudar você a acompanhar seu progresso.
+
+**7. Recompense-se**
+
+Estabeleça um sistema de recompensas para quando atingir suas metas semanais ou mensais. Pode ser uma massagem, uma roupa nova ou um programa especial.
+
+Lembre-se: o inverno não precisa ser sinônimo de sedentarismo. Com as estratégias certas, você pode usar essa época para fortalecer seus hábitos e chegar no verão em melhor forma do que nunca!`,
+      excerpt:
+        "Estratégias práticas para manter sua rotina de exercícios durante o inverno e não deixar o frio atrapalhar seus objetivos fitness.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+      published: true,
+      authorId: 1, // Admin
+      categoryId: motivacao.id, // Categoria Motivação
+      metaTitle:
+        "Como Manter a Motivação para Treinar no Inverno - BM Studio Fitness",
+      metaDescription:
+        "Estratégias práticas para manter sua rotina de exercícios durante o inverno e não deixar o frio atrapalhar seus objetivos fitness.",
+      metaKeywords:
+        "motivação, treino inverno, exercícios frio, rotina fitness, academia",
+      slug: "motivacao-treinar-inverno",
+      readTime: 4,
+      createdAt: new Date("2025-10-28"),
+      updatedAt: new Date("2025-10-28"),
+    },
+    {
+      title: "Nutrição Pré e Pós-Treino: O Que Você Precisa Saber",
+      content: `A alimentação adequada antes e depois do treino é fundamental para maximizar seus resultados e acelerar a recuperação. Muitas pessoas subestimam o impacto da nutrição no desempenho físico, mas a verdade é que o que você come pode fazer toda a diferença em seus treinos.
+
+**NUTRIÇÃO PRÉ-TREINO**
+
+**Timing:** 30 minutos a 2 horas antes do treino
+
+**Objetivos:**
+- Fornecer energia para o exercício
+- Prevenir hipoglicemia
+- Minimizar a fadiga
+- Preservar massa muscular
+
+**O que comer:**
+
+*Carboidratos de rápida absorção (30-60min antes):*
+- Banana com mel
+- Tamarindo
+- Água de coco
+- Frutas em geral
+
+*Refeição completa (1-2h antes):*
+- Aveia com frutas
+- Pão integral com geléia
+- Batata doce
+- Arroz com frango
+
+**NUTRIÇÃO PÓS-TREINO**
+
+**Timing:** Até 30 minutos após o treino (janela anabólica)
+
+**Objetivos:**
+- Repor estoques de glicogênio
+- Estimular síntese proteica
+- Acelerar recuperação
+- Reduzir catabolismo muscular
+
+**O que comer:**
+
+*Imediatamente após (0-30min):*
+- Whey protein com banana
+- Leite com achocolatado
+- Sanduíche de peito de peru
+- Iogurte com frutas
+
+*Refeição completa (30min-2h após):*
+- Arroz, frango e salada
+- Batata doce com ovos
+- Macarrão com atum
+- Quinoa com legumes e peixe
+
+**HIDRATAÇÃO**
+
+Não esqueça da hidratação! Beba:
+- 500ml de água 2h antes do treino
+- 150-250ml a cada 15-20min durante o exercício
+- 150% do peso perdido em suor após o treino
+
+**SUPLEMENTAÇÃO**
+
+Alguns suplementos podem ser úteis:
+- Whey protein: facilita o consumo proteico
+- Creatina: melhora performance em exercícios de alta intensidade
+- BCAA: pode ajudar na recuperação
+- Cafeína: aumenta energia e foco
+
+**DICAS IMPORTANTES:**
+
+1. Evite alimentos ricos em fibras e gorduras antes do treino
+2. Teste diferentes alimentos para descobrir o que funciona melhor para você
+3. Mantenha-se hidratado durante todo o dia
+4. A suplementação não substitui uma alimentação equilibrada
+5. Consulte um nutricionista para um plano personalizado
+
+Lembre-se: a nutrição é individual. O que funciona para uma pessoa pode não funcionar para outra. Experimente, observe como seu corpo responde e ajuste conforme necessário!`,
+      excerpt:
+        "Guia completo sobre alimentação antes e depois dos treinos para maximizar resultados e acelerar a recuperação muscular.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2053&q=80",
+      published: true,
+      authorId: 1, // Admin
+      categoryId: nutricao.id, // Categoria Nutrição
+      metaTitle: "Nutrição Pré e Pós-Treino: Guia Completo - BM Studio Fitness",
+      metaDescription:
+        "Guia completo sobre alimentação antes e depois dos treinos para maximizar resultados e acelerar a recuperação muscular.",
+      metaKeywords:
+        "nutrição pré treino, nutrição pós treino, alimentação fitness, suplementação, recuperação muscular",
+      slug: "nutricao-pre-pos-treino",
+      readTime: 6,
+      createdAt: new Date("2025-10-25"),
+      updatedAt: new Date("2025-10-25"),
+    },
+    {
+      title: "Exercícios para Fortalecer o Core em Casa",
+      content: `Um core forte é a base de praticamente todos os movimentos que fazemos, seja na academia ou nas atividades do dia a dia. Felizmente, você não precisa de equipamentos caros ou ir à academia para fortalecer essa região. Com alguns exercícios simples, você pode trabalhar seu core efetivamente em casa.
+
+**O QUE É O CORE?**
+
+O core é mais do que apenas os músculos abdominais visíveis. Inclui:
+- Diafragma (parte superior)
+- Músculos do assoalho pélvico (parte inferior)
+- Multífidos e erectores da espinha (parte posterior)
+- Transverso do abdômen (parte profunda)
+- Oblíquos internos e externos (laterais)
+- Reto abdominal (parte frontal)
+
+**EXERCÍCIOS PARA INICIANTES**
+
+**1. Prancha (Plank)**
+- Mantenha o corpo reto, apoiando-se nos antebraços e pés
+- Inicie com 20-30 segundos, evoluindo gradualmente
+- 3 séries
+
+**2. Dead Bug**
+- Deitado, braços estendidos para cima, joelhos a 90°
+- Estenda braço e perna opostos simultaneamente
+- 10-12 repetições cada lado, 3 séries
+
+**3. Bird Dog**
+- Em 4 apoios, estenda braço e perna opostos
+- Mantenha quadril alinhado
+- 10-12 repetições cada lado, 3 séries
+
+**4. Ponte (Glute Bridge)**
+- Deitado, joelhos flexionados, eleve o quadril
+- Contraia abdômen e glúteos
+- 15-20 repetições, 3 séries
+
+**EXERCÍCIOS INTERMEDIÁRIOS**
+
+**5. Prancha Lateral**
+- Apoie-se no antebraço, corpo em linha reta
+- 20-30 segundos cada lado, 3 séries
+
+**6. Mountain Climbers**
+- Posição de prancha, alterne joelhos ao peito
+- 30 segundos, 3 séries
+
+**7. Russian Twist**
+- Sentado, pés elevados, gire o tronco
+- 20 repetições (10 cada lado), 3 séries
+
+**8. Hollow Hold**
+- Deitado, eleve ombros e pernas do chão
+- Mantenha lombar no solo
+- 20-30 segundos, 3 séries
+
+**EXERCÍCIOS AVANÇADOS**
+
+**9. Prancha com Elevação de Perna**
+- Posição de prancha, eleve uma perna por vez
+- 10 repetições cada perna, 3 séries
+
+**10. V-Ups**
+- Deitado, eleve tronco e pernas simultaneamente
+- 12-15 repetições, 3 séries
+
+**PROGRAMA SEMANAL SUGERIDO**
+
+**Segunda/Quarta/Sexta:**
+- Aquecimento: 5 minutos de movimento livre
+- Circuito: Exercícios 1, 2, 3, 4 (iniciantes)
+- ou 1, 5, 6, 7 (intermediários)
+- ou 1, 8, 9, 10 (avançados)
+- Cooldown: Alongamento 5 minutos
+
+**DICAS IMPORTANTES:**
+
+1. **Qualidade antes de quantidade**: Execute os movimentos corretamente
+2. **Respiração**: Expire na contração, inspire no relaxamento
+3. **Progressão gradual**: Aumente tempo/repetições semanalmente
+4. **Consistência**: 3x por semana é mais efetivo que 1x intenso
+5. **Escute seu corpo**: Pare se sentir dor nas costas
+
+**BENEFÍCIOS DE UM CORE FORTE:**
+
+- Melhora da postura
+- Redução de dores nas costas
+- Maior estabilidade e equilíbrio
+- Melhor desempenho em outros exercícios
+- Prevenção de lesões
+- Maior eficiência nos movimentos diários
+
+Lembre-se: a consistência é mais importante que a intensidade. Comece devagar, foque na técnica correta e evolua gradualmente. Seu core (e suas costas) agradecerão!`,
+      excerpt:
+        "Rotina completa de exercícios para fortalecer o core sem sair de casa, com progressões para todos os níveis de condicionamento físico.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1506629905607-84287f8c82e8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+      published: false,
+      authorId: 1, // Admin - rascunho
+      categoryId: treino.id, // Categoria Treino
+      metaTitle:
+        "Exercícios para Fortalecer o Core em Casa - BM Studio Fitness",
+      metaDescription:
+        "Rotina completa de exercícios para fortalecer o core sem sair de casa, com progressões para todos os níveis de condicionamento físico.",
+      metaKeywords:
+        "core, exercícios core, treino em casa, abdominal, fortalecimento core",
+      slug: "exercicios-fortalecer-core-casa",
+      readTime: 7,
+      createdAt: new Date("2025-11-02"),
+      updatedAt: new Date("2025-11-02"),
+    },
+    {
+      title: "Novidades da Academia: Novas Modalidades e Equipamentos",
+      content: `Estamos sempre buscando formas de melhorar a experiência dos nossos alunos aqui na BM Studio Fitness. Este mês trazemos novidades incríveis que vão revolucionar seus treinos!
+
+**NOVAS MODALIDADES**
+
+**1. CrossTraining**
+Uma modalidade que combina exercícios funcionais, levantamento de peso e cardio em alta intensidade. Perfeito para quem busca condicionamento físico completo.
+- Horários: Seg/Qua/Sex às 6h30 e 19h30
+- Duração: 45 minutos
+- Vagas limitadas: 12 pessoas por aula
+
+**2. Yoga Fitness**
+Unindo os benefícios tradicionais do yoga com exercícios de fortalecimento, criamos uma modalidade única que trabalha flexibilidade, força e mindfulness.
+- Horários: Ter/Qui às 7h e 18h, Sáb às 9h
+- Duração: 50 minutos
+- Ambiente climatizado e música relaxante
+
+**3. HIIT Dance**
+Dança + treino intervalado = queima de calorias garantida! Uma aula divertida que combina coreografias com exercícios de alta intensidade.
+- Horários: Seg/Qua às 19h, Sáb às 10h30
+- Duração: 40 minutos
+- Para todos os níveis de dança
+
+**NOVOS EQUIPAMENTOS**
+
+**Área de Functional Training Renovada**
+- 2 TRX adicionais
+- Kettlebells de diferentes pesos
+- Caixas pliométricas
+- Cordas navais
+- Discos de equilíbrio
+
+**Área Cardio Ampliada**
+- 3 novas esteiras com telas touch
+- 2 elípticos ergométricos
+- 1 simulador de escada
+- Sistema de som individual
+
+**Zona de Alongamento Premium**
+- Tatames de alta qualidade
+- Rolos de liberação miofascial
+- Faixas elásticas de resistência
+- Bolas suíças de diferentes tamanhos
+
+**MELHORIAS NA INFRAESTRUTURA**
+
+**1. Vestiários Renovados**
+- Novos armários digitais
+- Chuveiros com sistema de aquecimento
+- Área de secador de cabelo
+- Produtos de higiene cortesia
+
+**2. Área de Descanso**
+- Poltronas ergonômicas
+- Estação de hidratação com água gelada e natural
+- Carregadores wireless para celular
+- Revistas especializadas em fitness
+
+**3. Sistema de Ar Condicionado**
+- Climatização inteligente por zona
+- Filtros HEPA para purificação do ar
+- Controle automático de temperatura
+
+**PROGRAMA DE AVALIAÇÃO GRATUITA**
+
+Para celebrar as novidades, estamos oferecendo:
+- Avaliação física completa gratuita
+- Análise de composição corporal
+- Planejamento de treino personalizado
+- Aula experimental nas novas modalidades
+
+**HORÁRIOS ESPECIAIS DE FUNCIONAMENTO**
+
+A partir deste mês:
+- Segunda a Sexta: 5h30 às 23h
+- Sábados: 6h às 20h
+- Domingos: 8h às 18h
+
+**NOVA EQUIPE DE PROFESSORES**
+
+Recebemos dois novos profissionais especializados:
+- **Carlos Silva**: Especialista em CrossTraining, formado em Educação Física pela USP
+- **Marina Costa**: Instrutora de Yoga certificada internacionalmente
+
+**COMO PARTICIPAR**
+
+1. Fale com a recepção para agendar sua avaliação gratuita
+2. Baixe nosso novo app "BM Studio" na App Store ou Google Play
+3. Acompanhe nossas redes sociais para dicas exclusivas
+4. Indique um amigo e ganhe uma semana gratuita
+
+Estamos ansiosos para que você experimente todas essas novidades! Nossa missão é proporcionar a melhor experiência fitness da região, e essas melhorias são mais um passo nessa direção.
+
+Venha conhecer as novidades e descubra como podemos potencializar ainda mais seus resultados!`,
+      excerpt:
+        "Conheça as novidades da BM Studio Fitness: novas modalidades, equipamentos modernos e melhorias na infraestrutura para uma experiência única.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+      published: true,
+      authorId: 1, // Admin
+      categoryId: novidades.id, // Categoria Novidades
+      metaTitle:
+        "Novidades da Academia: Novas Modalidades e Equipamentos - BM Studio Fitness",
+      metaDescription:
+        "Conheça as novidades da BM Studio Fitness: novas modalidades, equipamentos modernos e melhorias na infraestrutura para uma experiência única.",
+      metaKeywords:
+        "novidades academia, novas modalidades, equipamentos fitness, BM Studio Fitness, CrossTraining, HIIT Dance",
+      slug: "novidades-academia-modalidades-equipamentos",
+      readTime: 8,
+      createdAt: new Date("2025-11-05"),
+      updatedAt: new Date("2025-11-05"),
+    },
+  ];
+
+  await db.insert(posts).values(blogPosts);
+
   console.log("✅ Seed concluído com sucesso!");
   console.log("📊 Dados criados:");
   console.log(`  - 1 Administrador: ${admin.name}`);
@@ -423,6 +881,9 @@ async function main() {
     "  - Dados financeiros variados (alguns pagos, outros pendentes)",
   );
   console.log("  - Métricas de saúde completas para todos os alunos");
+  console.log(
+    `  - ${blogPosts.length} posts para o blog (4 publicados, 1 rascunho)`,
+  );
 }
 
 main().catch((err) => {
