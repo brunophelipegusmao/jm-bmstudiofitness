@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Eye, EyeOff,Loader2, Shield } from "lucide-react";
+import { Eye, EyeOff, Loader2, Shield } from "lucide-react";
 import { useActionState, useState } from "react";
 
 import { loginAction } from "@/actions/auth/login-action";

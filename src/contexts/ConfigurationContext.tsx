@@ -1,5 +1,5 @@
 "use client";
-import { createContext, ReactNode,useContext, useState } from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
 
 import { ConfigurationValidator } from "@/lib/configurationValidator";
 
