@@ -1,53 +1,63 @@
-# 🏋️‍♂️ JM Fitness Studio - Sistema de Gerenciamento
+# 🏋️‍♂️ JM Fitness Studio - Complete Gym Management System
 
 <div align="center">
 
-![Status](https://img.shields.io/badge/Status-Produção-success?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Production-success?style=for-the-badge)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-336791?style=for-the-badge&logo=postgresql)
 ![Tailwind](https://img.shields.io/badge/Tailwind-3.4-06B6D4?style=for-the-badge&logo=tailwindcss)
+![Jest](https://img.shields.io/badge/Jest-Testing-C21325?style=for-the-badge&logo=jest)
 
-**Sistema completo de gerenciamento para academias e estúdios de fitness**
+**Complete management system for gyms and fitness studios with modern tech stack**
 
-[📱 Demo](#-demo) • [⚙️ Instalação](#%EF%B8%8F-instalação) • [📖 Documentação](#-documentação) • [🎯 Features](#-funcionalidades-principais) • [👨‍💻 Desenvolvedor](#-desenvolvido-por)
+[� Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🎯 Features](#-key-features) • [🔒 Security](#-security) • [🧪 Testing](#-testing)
 
 </div>
 
 ---
 
-## 🌟 Sobre o Projeto
+## 🌟 About the Project
 
-O **JM Fitness Studio** é um sistema completo de gerenciamento para academias, desenvolvido com as mais modernas tecnologias web. Combina uma interface elegante e intuitiva com funcionalidades robustas para administração, controle de frequência, gestão financeira e muito mais.
+**JM Fitness Studio** is a comprehensive gym management system built with cutting-edge web technologies. It combines an elegant, intuitive interface with robust features for administration, attendance tracking, financial management, and much more.
 
-### **🎯 Características Principais**
+### **🎯 Key Features**
 
-- ✅ **Sistema Completo**: Dashboard administrativo, área do usuário e landing page
-- ✅ **Controle de Frequência**: Check-ins inteligentes com validações automáticas
-- ✅ **Gestão Financeira**: Controle completo de mensalidades e pagamentos
-- ✅ **Interface Moderna**: Design responsivo com tema escuro premium
-- ✅ **Autenticação Segura**: JWT tokens com proteção de rotas
-- ✅ **Performance Otimizada**: SSR, Edge Runtime e caching estratégico
+- ✅ **Complete System**: Admin dashboard, user area, blog, and landing page
+- ✅ **Attendance Control**: Smart check-ins with automatic validations
+- ✅ **Financial Management**: Complete control of memberships and payments
+- ✅ **Modern Interface**: Responsive design with premium dark theme
+- ✅ **Secure Authentication**: JWT tokens with route protection
+- ✅ **Blog System**: Rich text editor with SEO optimization
+- ✅ **User Management**: Role-based access control system
+- ✅ **Email Integration**: Automated notifications and confirmations
+- ✅ **Performance Optimized**: SSR, Edge Runtime, and strategic caching
 
 ---
 
-## 📚 Índice
+## 📚 Table of Contents
 
-- [🌟 Sobre o Projeto](#-sobre-o-projeto)
-- [🎯 Funcionalidades Principais](#-funcionalidades-principais)
-- [🛠️ Tecnologias](#%EF%B8%8F-tecnologias)
-- [🏗️ Arquitetura](#%EF%B8%8F-arquitetura)
-- [⚙️ Instalação](#%EF%B8%8F-instalação)
-- [📱 Páginas e Funcionalidades](#-páginas-e-funcionalidades)
-- [🔐 Sistema de Autenticação](#-sistema-de-autenticação)
-- [💳 Sistema Financeiro](#-sistema-financeiro)
-- [📊 Dashboard e Relatórios](#-dashboard-e-relatórios)
+- [🌟 About the Project](#-about-the-project)
+- [🎯 Key Features](#-key-features)
+- [🛠️ Tech Stack](#%EF%B8%8F-tech-stack)
+- [🏗️ Architecture](#%EF%B8%8F-architecture)
+- [🚀 Quick Start](#-quick-start)
+- [⚙️ Installation](#%EF%B8%8F-installation)
+- [📱 Pages and Features](#-pages-and-features)
+- [🔐 Authentication System](#-authentication-system)
+- [💳 Financial System](#-financial-system)
+- [📝 Blog System](#-blog-system)
+- [📊 Dashboard and Reports](#-dashboard-and-reports)
+- [👥 User Management](#-user-management)
+- [📧 Email Configuration](#-email-configuration)
+- [🔒 Security](#-security)
+- [🧪 Testing](#-testing)
 - [🌐 API Reference](#-api-reference)
-- [🚀 Scripts e Comandos](#-scripts-e-comandos)
-- [🎯 Deploy e Produção](#-deploy-e-produção)
-- [🔧 Configurações Avançadas](#-configurações-avançadas)
-- [📚 Documentação Técnica](#-documentação-técnica)
+- [🚀 Scripts and Commands](#-scripts-and-commands)
+- [🎯 Deploy and Production](#-deploy-and-production)
+- [🔧 Advanced Settings](#-advanced-settings)
+- [📚 Technical Documentation](#-technical-documentation)
 - [🐛 Solução de Problemas](#-solução-de-problemas)
 - [📈 Roadmap](#-roadmap-e-futuras-implementações)
 - [🏆 Métricas e Performance](#-métricas-e-performance)
@@ -236,24 +246,22 @@ xl: 1280px   /* Desktop grande */
 2xl: 1536px  /* Desktop extra grande */
 ```
 
----
+## 🚀 Quick Start
 
-## ⚙️ Instalação
+### **Prerequisites**
 
-### **Pré-requisitos**
+- **Node.js** 18.0 or higher
+- **PostgreSQL** 14 or higher
+- **npm**, **yarn** or **pnpm**
 
-- **Node.js** 18.0 ou superior
-- **PostgreSQL** 14 ou superior
-- **npm**, **yarn** ou **pnpm**
-
-### **1. Clone o Repositório**
+### **1. Clone Repository**
 
 ```bash
 git clone https://github.com/bmulim/jm-bmstudiofitness.git
 cd jm-bmstudiofitness
 ```
 
-### **2. Instale as Dependências**
+### **2. Install Dependencies**
 
 ```bash
 # npm
@@ -266,64 +274,167 @@ yarn install
 pnpm install
 ```
 
-### **3. Configure o Banco de Dados**
+### **3. Setup Database**
 
 ```bash
-# Crie um banco PostgreSQL
+# Create PostgreSQL database
 createdb jm_fitness_studio
 
-# Copie o arquivo de exemplo
+# Copy environment file
 cp .env.example .env.local
 ```
 
-### **4. Configure as Variáveis de Ambiente**
+### **4. Configure Environment Variables**
 
 ```env
 # .env.local
-DATABASE_URL="postgresql://usuario:senha@localhost:5432/jm_fitness_studio"
-JWT_SECRET="seu-jwt-secret-super-seguro-aqui"
+DATABASE_URL="postgresql://user:password@localhost:5432/jm_fitness_studio"
+JWT_SECRET="your-super-secure-jwt-secret-here"
 NEXTAUTH_URL="http://localhost:3000"
 
-# Sistema de E-mail (Opcional)
-EMAIL_PROVIDER="resend" # ou "smtp"
-RESEND_API_KEY="sua-api-key"
+# Email System (Optional)
+EMAIL_PROVIDER="resend" # or "smtp"
+RESEND_API_KEY="your-api-key"
 EMAIL_FROM="noreply@jmfitnesstudio.com"
 EMAIL_FROM_NAME="JM Fitness Studio"
 ```
 
-### **5. Execute as Migrações**
+### **5. Run Migrations**
 
 ```bash
 npx drizzle-kit push
 ```
 
-### **6. Seed de Dados (Opcional)**
+### **6. Seed Data (Optional)**
 
 ```bash
 npx tsx src/db/seed.ts
 ```
 
-### **7. Inicie o Servidor de Desenvolvimento**
+### **7. Start Development Server**
 
 ```bash
 npm run dev
 ```
 
-### **8. Acesse a Aplicação**
+### **8. Access Application**
 
-Abra [http://localhost:3000](http://localhost:3000) no navegador.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### **🎯 Usuários de Teste (após seed)**
+### **🎯 Test Users (after seed)**
 
 ```
-Administrador:
+Administrator:
 Email: admin@jmfitnesstudio.com
-Senha: admin123
+Password: admin123
 
-Aluno:
+Student:
 Email: joao@email.com
-Senha: 123456
+Password: 123456
 ```
+
+---
+
+## ⚙️ Installation
+
+### **🛠️ Tech Stack**
+
+### **Frontend**
+
+- **[Next.js 15](https://nextjs.org/)** - React framework with App Router
+- **[React 19](https://react.dev/)** - User interface library
+- **[TypeScript](https://www.typescriptlang.org/)** - Static typing
+- **[Tailwind CSS](https://tailwindcss.com/)** - Styling framework
+- **[Shadcn/ui](https://ui.shadcn.com/)** - UI components
+- **[Framer Motion](https://www.framer.com/motion/)** - Smooth animations
+- **[Lucide React](https://lucide.dev/)** - Modern icons
+
+### **Backend**
+
+- **[Next.js API Routes](https://nextjs.org/docs/api-routes/introduction)** - RESTful endpoints
+- **[Server Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions)** - Server functions
+- **[José](https://github.com/panva/jose)** - JWT for Edge Runtime
+- **[Middleware](https://nextjs.org/docs/app/building-your-application/routing/middleware)** - Route protection
+
+### **Database**
+
+- **[PostgreSQL](https://www.postgresql.org/)** - Main relational database
+- **[Drizzle ORM](https://orm.drizzle.team/)** - Modern type-safe ORM
+- **[Drizzle Kit](https://orm.drizzle.team/kit-docs/overview)** - Automatic migrations
+
+### **Security & Authentication**
+
+- **[bcryptjs](https://www.npmjs.com/package/bcryptjs)** - Password hashing
+- **JWT Tokens** - Stateless authentication
+- **Edge Runtime** - Optimized performance
+- **CORS** - Access control
+
+### **Development**
+
+- **[ESLint](https://eslint.org/)** - Code linting
+- **[Prettier](https://prettier.io/)** - Automatic formatting
+- **[Husky](https://typicode.github.io/husky/)** - Git hooks
+- **[Jest](https://jestjs.io/)** - Testing framework
+
+---
+
+## 🏗️ Architecture
+
+### **Project Structure**
+
+```
+📦 jm-bmstudiofitness/
+├── 📁 src/
+│   ├── 📁 app/                    # App Router (Next.js 15)
+│   │   ├── 📁 admin/             # 🔒 Administrative Area
+│   │   ├── 📁 blog/              # 📝 Blog System
+│   │   ├── 📁 api/               # 🌐 API Routes
+│   │   ├── 📁 contact/           # 📞 Contact page
+│   │   ├── 📁 services/          # 🏋️‍♂️ Services page
+│   │   ├── 📁 user/              # 👤 User area
+│   │   ├── layout.tsx            # Main layout
+│   │   ├── page.tsx              # Homepage
+│   │   └── globals.css           # Global styles
+│   ├── 📁 actions/               # 🎬 Server Actions
+│   │   ├── 📁 admin/             # Admin actions
+│   │   ├── 📁 auth/              # Authentication
+│   │   ├── 📁 public/            # Public actions
+│   │   └── 📁 user/              # User actions
+│   ├── 📁 components/            # 🧩 React Components
+│   │   ├── 📁 Admin/             # Admin components
+│   │   ├── 📁 Dashboard/         # Dashboard components
+│   │   ├── 📁 RichTextEditor/    # Blog editor
+│   │   ├── 📁 ui/                # Base components (Shadcn)
+│   │   └── ...                   # Other components
+│   ├── 📁 db/                    # 🗄️ Database
+│   │   ├── schema.ts             # PostgreSQL schema
+│   │   ├── seed.ts               # Sample data
+│   │   └── index.ts              # Drizzle configuration
+│   ├── 📁 lib/                   # 🔧 Utilities
+│   │   ├── auth-edge.ts          # Edge authentication
+│   │   ├── auth-server.ts        # Server authentication
+│   │   ├── auth-utils.ts         # Auth utilities
+│   │   ├── email.ts              # Email system
+│   │   └── utils.ts              # General utilities
+│   ├── 📁 types/                 # 📝 TypeScript Types
+│   │   └── globals.d.ts          # Global types
+│   └── middleware.ts             # 🛡️ Protection middleware
+├── 📁 drizzle/                   # 📊 Migrations
+├── 📁 public/                    # 🖼️ Static files
+├── 📁 tests/                     # 🧪 Test files
+├── 📄 .env.example              # Environment variables example
+├── 📄 package.json              # Dependencies
+└── 📄 README.md                 # Documentation
+```
+
+### **Architecture Patterns**
+
+- **App Router**: New Next.js 15 architecture
+- **Server Components**: Server-side rendering
+- **Client Components**: Client-side interactivity
+- **API Routes**: Native RESTful endpoints
+- **Middleware**: Protection and authentication
+- **TypeScript First**: Typing throughout the project
 
 ---
 
@@ -577,44 +688,762 @@ type PaymentStatus =
 
 ---
 
-## 📊 Dashboard e Relatórios Avançados
+## � Blog System
 
-### **Métricas em Tempo Real**
+### **Complete Blog Management**
+
+The blog system provides a comprehensive content management solution with modern features:
+
+- ✅ **Rich Text Editor**: WYSIWYG markdown editor with toolbar and preview
+- ✅ **Categories & Tags**: Content organization system
+- ✅ **SEO Optimization**: Meta tags and search engine optimization
+- ✅ **Admin-Only Posting**: Restricted content creation for administrators
+- ✅ **Comment System**: Database structure ready for reader interaction
+- ✅ **Responsive Design**: Mobile-friendly blog pages
+
+### **Blog Features**
+
+#### **Rich Text Editor Component**
+
+```tsx
+import { RichTextEditor } from "@/components/RichTextEditor";
+
+<RichTextEditor
+  content={content}
+  onChange={setContent}
+  placeholder="Write your blog post content..."
+  className="min-h-[400px]"
+/>
+```
+
+**Editor Features:**
+- **Markdown Support**: Real-time preview and editing
+- **Toolbar**: Bold, italic, headers, lists, links, images
+- **Preview Mode**: Side-by-side preview functionality
+- **Auto-save**: Prevents content loss
+- **Image Upload**: Direct image insertion support
+
+#### **Blog Management Actions**
 
 ```typescript
-interface DashboardMetrics {
-  totalStudents: number; // Total de alunos
-  activeStudents: number; // Alunos ativos
-  todayCheckins: number; // Check-ins hoje
-  weekCheckins: number; // Check-ins da semana
-  monthlyRevenue: number; // Receita mensal
-  overduePayments: number; // Pagamentos em atraso
-  checkinRate: number; // Taxa de frequência
-  newStudentsMonth: number; // Novos alunos no mês
+// Create new blog post (Admin only)
+await createPostAction({
+  title: "Post Title",
+  content: "Markdown content",
+  excerpt: "Brief description",
+  published: true,
+  categoryId: 1,
+  metaTitle: "SEO Title",
+  metaDescription: "SEO Description",
+  tags: ["fitness", "health"]
+});
+
+// Get published posts (Public)
+const posts = await getPublishedPostsAction();
+
+// Update post (Admin only)
+await updatePostAction(postId, {
+  title: "Updated Title",
+  content: "Updated content"
+});
+```
+
+#### **SEO Implementation**
+
+```typescript
+// Automatic meta tag generation
+export async function generateMetadata({ params }: BlogPostProps): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await getPostBySlugAction(slug);
+  
+  return {
+    title: post.metaTitle || post.title,
+    description: post.metaDescription || post.excerpt,
+    keywords: post.metaKeywords?.split(','),
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      images: post.imageUrl ? [post.imageUrl] : [],
+    },
+  };
 }
 ```
 
-### **Relatórios Disponíveis**
+### **Blog Pages**
 
-- **📈 Frequência Detalhada**: Check-ins por período com gráficos
-- **💰 Relatório Financeiro**: Receitas, inadimplência e projeções
-- **👥 Gestão de Alunos**: Cadastros, atividade e retenção
-- **📅 Calendário Visual**: Interface mensal de frequência
-- **🎯 Performance**: Métricas de crescimento e KPIs
-
-### **Visualizações Interativas**
-
-- **Chart.js**: Biblioteca moderna de gráficos
-- **Responsivo**: Adaptável a todos os dispositivos
-- **Tempo Real**: Dados atualizados automaticamente
-- **Filtros**: Personalizáveis por período e categoria
-- **Exportação**: PDF e CSV para relatórios
+- **`/blog`**: Main blog listing with categories
+- **`/blog/[slug]`**: Individual post pages with comments
+- **`/admin/dashboard`**: Blog tab for content management
 
 ---
 
-## 🌐 API Reference Completa
+## 👥 User Management
 
-### **Autenticação**
+### **Comprehensive User Management System**
+
+The user management system provides complete control over all system users with different access levels:
+
+### **User Roles & Permissions**
+
+#### **👑 Administrator (admin)**
+- ✅ **Full Access**: Complete system functionality
+- ✅ **User Management**: Create, edit, delete any user
+- ✅ **Financial Data**: Complete access to financial reports
+- ✅ **System Settings**: Full control over system configurations
+- ✅ **Coach Notes**: Access to private instructor observations
+- 🔑 **Area**: `/admin` (complete administrative dashboard)
+
+#### **👨‍🏫 Instructor (professor)**
+- ✅ **Student Management**: Register and edit student data
+- ✅ **Health Data**: Complete access to student health data
+- ✅ **Coach Notes**: Create and edit private observations
+- ❌ **Financial Data**: No access to financial data
+- ❌ **System Settings**: No access to system settings
+- 🔑 **Area**: `/coach` (instructor-specific area)
+
+#### **💼 Staff (funcionario)**
+- ✅ **Student Management**: Register and edit student data
+- ✅ **Financial Data**: Access to student financial data
+- ✅ **Reports**: View financial reports
+- ❌ **Coach Notes**: No access to private observations
+- ❌ **System Settings**: No access to system settings
+- 🔑 **Area**: `/admin` (limited administrative dashboard)
+
+#### **🏋️‍♂️ Student (aluno)**
+- ✅ **Personal Data**: View and edit own personal data
+- ✅ **Health Data**: View own health data (except coach notes)
+- ✅ **Financial Data**: View own financial data
+- ❌ **Other Users**: No access to other users' data
+- 🔑 **Area**: `/user` (personal student dashboard)
+
+### **User Management Features**
+
+#### **✅ User Creation**
+- Complete form with validation
+- Required fields: Name, Email, Password, Role
+- Optional fields: CPF, Phone, Address, Birth Date
+- Unique email and CPF validation
+- Password hashing with bcryptjs
+
+#### **✅ User Listing & Search**
+- List all registered users
+- Search by name, email, or CPF
+- Filter by role (Admin, Staff, Instructor, Student)
+- Active user statistics by role
+
+#### **✅ User Actions**
+- Edit user information
+- Delete user with confirmation
+- Active/inactive status management
+
+### **Implementation Example**
+
+```typescript
+// Create new user (Admin only)
+const createUserAction = async (userData: UserCreateData) => {
+  await requireAdmin(); // Security check
+  
+  const hashedPassword = await hashPassword(userData.password);
+  
+  const newUser = await db.insert(usersTable).values({
+    name: userData.name,
+    email: userData.email.toLowerCase(),
+    cpf: userData.cpf,
+    passwordHash: hashedPassword,
+    role: userData.role,
+    phone: userData.phone,
+    birthDate: userData.birthDate,
+  });
+  
+  return newUser;
+};
+
+// List users with search and filters
+const getUsersAction = async (filters: UserFilters) => {
+  await requireAdmin();
+  
+  let query = db.select().from(usersTable);
+  
+  if (filters.search) {
+    query = query.where(
+      or(
+        ilike(usersTable.name, `%${filters.search}%`),
+        ilike(usersTable.email, `%${filters.search}%`),
+        ilike(usersTable.cpf, `%${filters.search}%`)
+      )
+    );
+  }
+  
+  if (filters.role) {
+    query = query.where(eq(usersTable.role, filters.role));
+  }
+  
+  return await query;
+};
+```
+
+---
+
+## 📧 Email Configuration
+
+### **Multi-Provider Email System**
+
+The system supports multiple email providers for maximum flexibility and reliability:
+
+### **🔥 1. RESEND (Recommended)**
+
+**Why use:** Easy, reliable, good pricing, developer-friendly.
+
+**Setup:**
+1. **Create account:** https://resend.com
+2. **Get API Key:** Dashboard → API Keys → Create API Key
+3. **Configure domain:** Domains → Add Domain (optional, can use resend.dev)
+4. **Configure .env:**
+
+```bash
+EMAIL_PROVIDER="resend"
+RESEND_API_KEY="re_123456789_your_api_key_here"
+EMAIL_FROM="noreply@yourdomain.com"  # or "onboarding@resend.dev"
+EMAIL_FROM_NAME="JM Fitness Studio"
+```
+
+**Pricing:** 3,000 emails/month free, then $20/month for 50k emails.
+
+### **📧 2. GMAIL/SMTP**
+
+**Why use:** Free, easy if you already have Gmail.
+
+**Setup:**
+1. **Enable 2FA** on your Google account
+2. **Create app password:**
+   - Google Account → Security → 2-Step Verification → App passwords
+   - Generate 16-character password
+3. **Configure .env:**
+
+```bash
+EMAIL_PROVIDER="smtp"
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_SECURE="false"
+SMTP_USER="your@gmail.com"
+SMTP_PASS="your-16-char-app-password"
+EMAIL_FROM="your@gmail.com"
+EMAIL_FROM_NAME="JM Fitness Studio"
+```
+
+### **⚡ 3. MAILGUN**
+
+**Setup:**
+```bash
+EMAIL_PROVIDER="mailgun"
+MAILGUN_API_KEY="your-api-key"
+MAILGUN_DOMAIN="mg.yourdomain.com"
+EMAIL_FROM="noreply@yourdomain.com"
+EMAIL_FROM_NAME="JM Fitness Studio"
+```
+
+### **🚀 4. SENDGRID**
+
+**Setup:**
+```bash
+EMAIL_PROVIDER="sendgrid"
+SENDGRID_API_KEY="SG.your-api-key"
+EMAIL_FROM="noreply@yourdomain.com"
+EMAIL_FROM_NAME="JM Fitness Studio"
+```
+
+### **Email Templates & Features**
+
+```typescript
+// Welcome email for new students
+await sendWelcomeEmail({
+  to: student.email,
+  name: student.name,
+  confirmationToken: token,
+  loginUrl: `${process.env.NEXTAUTH_URL}/user/login`
+});
+
+// Payment reminder emails
+await sendPaymentReminder({
+  to: student.email,
+  name: student.name,
+  amount: payment.amount,
+  dueDate: payment.dueDate,
+  paymentUrl: `${process.env.NEXTAUTH_URL}/user/payments`
+});
+
+// Check-in confirmation
+await sendCheckinConfirmation({
+  to: student.email,
+  name: student.name,
+  checkinTime: new Date(),
+  location: "JM Fitness Studio"
+});
+```
+
+### **Email Testing**
+
+```bash
+# Test email configuration
+npm run test:email
+
+# Send test email
+curl -X POST http://localhost:3000/api/test-email \
+  -H "Content-Type: application/json" \
+  -d '{"to": "test@example.com"}'
+```
+
+---
+
+## 🔒 Security
+
+### **Multi-Layer Security System**
+
+The system implements comprehensive security measures to protect sensitive student data and system integrity:
+
+### **🛡️ Authentication Security**
+
+#### **JWT Token Security**
+```typescript
+interface JWTPayload {
+  userId: string;
+  email: string;
+  role: "admin" | "professor" | "funcionario" | "aluno";
+  iat?: number;
+  exp?: number;
+}
+
+// Secure token generation
+const token = await new SignJWT(payload)
+  .setProtectedHeader({ alg: "HS256" })
+  .setIssuedAt()
+  .setExpirationTime("7d")
+  .sign(JWT_SECRET);
+```
+
+#### **Secure Cookie Configuration**
+```typescript
+cookieStore.set("auth-token", token, {
+  httpOnly: true,                    // ✅ Not accessible via JavaScript
+  secure: process.env.NODE_ENV === "production", // ✅ HTTPS in production
+  sameSite: "lax",                   // ✅ CSRF protection
+  maxAge: 7 * 24 * 60 * 60,         // ✅ 7 days expiration
+  path: "/",                         // ✅ Application scope
+});
+```
+
+### **🛡️ Route Protection Middleware**
+
+```typescript
+export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  
+  // Protect administrative routes
+  if (pathname.startsWith("/admin")) {
+    const user = await getUserFromRequestEdge(request);
+    
+    if (!user) {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
+    
+    if (!["admin", "funcionario"].includes(user.role)) {
+      return NextResponse.redirect(new URL("/unauthorized", request.url));
+    }
+  }
+  
+  return NextResponse.next();
+}
+```
+
+### **🔒 Server Action Protection**
+
+```typescript
+// All administrative actions are protected
+export async function requireAdmin() {
+  const user = await getCurrentUser();
+  
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+  
+  if (user.role !== "admin") {
+    throw new Error("Access denied. Only administrators can perform this action.");
+  }
+  
+  return user;
+}
+
+// Example protected action
+export async function createPostAction(data: PostData) {
+  await requireAdmin(); // Blocks execution if not admin
+  // ... rest of the logic
+}
+```
+
+### **🗄️ Database Security**
+
+#### **SQL Injection Protection**
+```typescript
+// Parameterized queries (anti SQL injection)
+const userQuery = await db
+  .select({...})
+  .from(usersTable)
+  .innerJoin(personalDataTable, eq(usersTable.id, personalDataTable.userId))
+  .where(eq(personalDataTable.cpf, validatedData.identifier))
+  .limit(1);
+```
+
+#### **Data Validation with Zod**
+```typescript
+const cadastroAlunoSchema = z.object({
+  name: z.string().min(2, "Name must have at least 2 characters"),
+  cpf: z.string().regex(/^\d{11}$/, "CPF must have 11 digits"),
+  email: z.string().email("Email must have a valid format"),
+  phone: z.string().regex(/^\(\d{2}\)\s\d{4,5}-\d{4}$/, "Invalid phone format"),
+});
+```
+
+### **🔐 Sensitive Data Protection**
+
+#### **SensitiveData Component**
+```tsx
+import { SensitiveData } from "@/components/SensitiveData";
+
+<SensitiveData
+  data="123.456.789-00"
+  type="cpf"
+  studentId="user-123"
+  label="CPF"
+  className="text-white"
+  showToggle={true}
+/>
+```
+
+**Supported types:**
+- `cpf` - Documents
+- `phone` - Phone numbers
+- `email` - Email addresses
+- `address` - Addresses
+- `medical` - Medical data
+- `payment` - Financial data
+
+#### **SecurityModal Component**
+```tsx
+import { SecurityModal } from "@/components/SecurityModal";
+
+<SecurityModal
+  isOpen={showModal}
+  onClose={() => setShowModal(false)}
+  onValidate={handlePasswordValidation}
+  title="Access to Sensitive Data"
+  description="Confirm your password to continue."
+/>
+```
+
+### **�📊 Security Audit Results**
+
+| Category | Status | Score |
+|----------|--------|-------|
+| Authentication | ✅ Approved | 20/20 |
+| Authorization | ✅ Approved | 20/20 |
+| Server Actions | ✅ Approved | 20/20 |
+| Database | ✅ Approved | 18/20* |
+| Sessions/Cookies | ✅ Approved | 20/20 |
+| **TOTAL** | ✅ **APPROVED** | **98/100** |
+
+*(-2 points): Missing rate limiting on login actions
+
+### **🚨 Security Recommendations**
+
+#### **1. Rate Limiting (Low Priority)**
+```typescript
+// Implement rate limiting on login
+export async function loginAction() {
+  await rateLimit(request.ip, { max: 5, window: '15m' });
+  // ... rest of logic
+}
+```
+
+#### **2. Security Logging (Low Priority)**
+```typescript
+// Add security logs
+console.log(`🔒 Login attempt: ${email} from ${request.ip}`);
+console.log(`🚫 Unauthorized access attempt: ${pathname}`);
+```
+
+---
+
+## 🧪 Testing
+
+### **Comprehensive Testing Infrastructure**
+
+The system includes a robust testing setup with Jest and Testing Library for component and integration testing:
+
+### **🎯 Testing Strategy**
+
+#### **Manual Execution Only**
+Tests are configured for **MANUAL EXECUTION ONLY**. No automatic execution when saving files.
+
+### **🚀 Available Commands**
+
+#### **Basic Execution**
+```bash
+# Run all tests once
+npm test
+
+# Run tests with detailed report
+npm test -- --verbose
+
+# Run only tests that failed in last execution
+npm test -- --onlyFailures
+```
+
+#### **Watch Mode (Manual)**
+```bash
+# Run tests in watch mode (waits for you to save to re-execute)
+npm run test:watch
+
+# Watch mode with coverage
+npm run test:coverage -- --watch
+```
+
+#### **Code Coverage**
+```bash
+# Run tests with coverage report
+npm run test:coverage
+
+# Generate HTML coverage report
+npm run test:coverage -- --coverage --coverageDirectory=coverage
+```
+
+#### **Specific Execution**
+```bash
+# Run tests from specific file
+npm test -- CreateUserForm.test.tsx
+
+# Run tests matching pattern
+npm test -- --testNamePattern="password validation"
+
+# Run tests from specific directory
+npm test -- tests/components/
+```
+
+### **📊 Test Results Summary**
+
+#### **✅ Current Status**
+All tests have been successfully fixed! We identified and resolved all major issues:
+
+#### **🐛 Issues Found and Resolved:**
+
+1. **TypeScript Errors**:
+   - ✅ Incomplete `StudentFullData` interface in mocks
+   - ✅ Unorganized imports
+   - ✅ jest-dom matchers not recognized
+
+2. **Test Logic**:
+   - ✅ Simple test confirmed component works correctly
+   - ✅ Search actually filters data appropriately
+   - ✅ Component doesn't show students without active search
+
+#### **📈 Test Coverage**
+
+#### **ToastProvider: 100% ✅**
+- 7/7 tests passing
+- Complete feature coverage
+
+#### **StudentsTab: Functional ✅**
+- Simple test confirmed functionality
+- Search and filtering tested
+
+### **🔧 Testing Infrastructure Created**
+
+1. **Jest Configuration**: `jest.config.js`
+2. **Global Setup**: `tests/setup/jest.setup.js`
+3. **Utilities**: `tests/utils/test-utils.tsx` and `tests/utils/mocks.ts`
+4. **Automation**: npm scripts, CI/CD, pre-commit hooks
+5. **Coverage**: HTML and LCOV reports
+
+### **📊 Performance Metrics**
+
+```
+📦 Bundle Size:        ~2.1MB (gzipped: ~650KB)
+🏗️ Build Time:         ~45s (average)
+🧪 Test Coverage:     85% (goal: 90%)
+📱 Performance:       95/100 (Lighthouse)
+♿ Accessibility:     98/100 (Lighthouse)
+🎨 UI Components:     45+ custom
+📄 Pages:             15+ pages
+🔧 API Routes:        12 endpoints
+🗄️ Database Tables:   8 main tables
+```
+
+### **⚡ Performance Optimizations**
+
+- **Image Optimization**: Next.js automatic optimization
+- **Code Splitting**: Route-based automatic splitting
+- **Server-Side Caching**: Strategic caching implementation
+- **Bundle Analysis**: Regular bundle size monitoring
+- **Edge Runtime**: Optimized for Vercel Edge
+
+### **🎯 Core Web Vitals**
+
+- **LCP (Largest Contentful Paint)**: < 2.5s
+- **FID (First Input Delay)**: < 100ms
+- **CLS (Cumulative Layout Shift)**: < 0.1
+- **TTFB (Time to First Byte)**: < 800ms
+
+---
+
+## 📱 Pages and Features
+
+### **🏠 Homepage (`/`)**
+
+- **Hero Section**: Studio presentation with animations
+- **Features Section**: Highlight main services
+- **History**: About JM Fitness Studio with timeline
+- **Call-to-Action**: Buttons for registration and contact
+- **Design**: Premium dark theme with golden elements
+
+### **🏋️‍♂️ Services (`/services`)**
+
+- **6 Detailed Training Plans**:
+  - 💪 **Personalized Weight Training** - $89.90/month
+  - 🏃‍♂️ **Intensive Cardio** - $79.90/month
+  - 🤸‍♂️ **Functional & CrossFit** - $99.90/month
+  - 🧘‍♀️ **Yoga & Pilates** - $69.90/month
+  - 👥 **Group Training** - $59.90/month
+  - 🎯 **Personal Training** - $149.90/month
+- **Detailed Features**: Complete list of benefits
+- **Popular Badges**: Highlight most sought-after plans
+- **Direct CTA**: Link to contact page
+
+### **📞 Contact (`/contact`)**
+
+- **4 Essential Information Cards**:
+  - 📱 **Phone**: (21) 98099-5749
+  - ✉️ **Email**: contato@jmfitnesstudio.com
+  - 📍 **Address**: Rua General Câmara, 18, sala 311 - 25 de Agosto, Duque de Caxias/RJ
+  - 🕐 **Hours**: Mon-Fri 05:00-22:00, Sat-Sun 07:00-20:00
+- **Complete Form**: Name, email, phone and message
+- **Interactive Map**: Google Maps integrated with real location
+- **Social Networks**: Instagram and WhatsApp with golden hover
+- **Responsive Layout**: Aligned and organized cards
+
+### **🔐 Administrative Area (`/admin`)**
+
+#### **Main Dashboard**
+- **Real-Time Metrics**: Active students, daily check-ins, monthly revenue, default rate
+- **Interactive Charts**: Weekly frequency, financial evolution, top 10 students
+- **Visual Alerts**: Overdue payments highlighted
+
+#### **Complete Student Management**
+- **Smart List**: Advanced search and multiple filters
+- **Robust Registration**: Form with real-time validation
+- **Complete Editing**: Update all data
+- **Detailed Health Form**: Physical data, medical history, allergies, medications
+- **Integrated Financial Control**: Payment status, preferred method, due date
+
+#### **Advanced Check-in Reports**
+- **Visual Calendar**: Intuitive monthly frequency interface
+- **Powerful Filters**: By student, period, payment status
+- **Export**: Structured data in CSV
+
+### **👤 User Area (`/user`)**
+
+#### **Secure Login (`/user/login`)**
+- **Robust Authentication**: Email and password with encryption
+- **Visual Validation**: Immediate error feedback
+- **Smart Redirection**: Based on user profile
+
+#### **Personalized Dashboard (`/user/[id]`)**
+- **Complete Profile**: Personal data and profile photo
+- **Detailed History**: Latest frequencies with dates
+- **Financial Status**: Current payment situation
+- **Quick Check-in**: Fast access for attendance
+
+---
+
+## 💳 Financial System
+
+### **Complete Payment Control**
+
+- ✅ **Monthly Fee Field** in student registration
+- ✅ **Payment Method** (cash, PIX, card, transfer)
+- ✅ **Flexible Due Date** limited between days 1-10 of month
+- ✅ **Automatic Verification** of up-to-date payment
+- ✅ **Check-in Block** for defaulters
+
+### **🗄️ Database Structure**
+
+#### Financial Table Schema
+```sql
+tb_financial (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES tb_users(id),
+  monthly_fee_value_in_cents INTEGER NOT NULL,    -- Monthly fee in cents
+  payment_method TEXT NOT NULL,                   -- Payment method
+  due_date INTEGER NOT NULL,                      -- Due day (1-10)
+  paid BOOLEAN DEFAULT FALSE,                     -- Payment status
+  last_payment_date DATE,                         -- Last payment date
+  updated_at DATE NOT NULL,
+  created_at DATE NOT NULL
+)
+```
+
+#### Available Payment Methods
+- **cash** - Cash payment
+- **pix** - Instant transfer
+- **credit_card** - Credit card
+- **debit_card** - Debit card
+- **bank_transfer** - Bank transfer
+
+### **📋 Updated Registration Form**
+
+New fields added in "Financial Data" section:
+1. **Monthly Fee Amount**: Numeric input with decimals, validation: $50.00 - $1,000.00
+2. **Payment Method**: Select with predefined options, required field
+3. **Due Date**: Select day 1-10 of month
+
+---
+
+## 📊 Dashboard and Advanced Reports
+
+### **Real-Time Metrics**
+
+```typescript
+interface DashboardMetrics {
+  totalStudents: number;     // Total students
+  activeStudents: number;    // Active students
+  todayCheckins: number;     // Check-ins today
+  weekCheckins: number;      // Check-ins this week
+  monthlyRevenue: number;    // Monthly revenue
+  overduePayments: number;   // Overdue payments
+  checkinRate: number;       // Attendance rate
+  newStudentsMonth: number;  // New students this month
+}
+```
+
+### **Available Reports**
+
+- **📈 Detailed Frequency**: Check-ins by period with charts
+- **💰 Financial Report**: Revenue, defaults and projections
+- **👥 Student Management**: Registrations, activity and retention
+- **📅 Visual Calendar**: Monthly frequency interface
+- **🎯 Performance**: Growth metrics and KPIs
+
+### **Interactive Visualizations**
+
+- **Chart.js**: Modern chart library
+- **Responsive**: Adaptable to all devices
+- **Real Time**: Automatically updated data
+- **Filters**: Customizable by period and category
+- **Export**: PDF and CSV for reports
+
+---
+
+## 🌐 API Reference
+
+### **Authentication**
 
 ```http
 POST /api/auth/login
@@ -631,7 +1460,7 @@ Response:
   "data": {
     "user": {
       "id": "uuid",
-      "name": "Administrador",
+      "name": "Administrator",
       "email": "admin@jmfitnesstudio.com",
       "role": "admin"
     },
@@ -654,7 +1483,7 @@ Content-Type: application/json
 Response:
 {
   "success": true,
-  "message": "Check-in realizado com sucesso!",
+  "message": "Check-in successful!",
   "data": {
     "checkinId": "uuid",
     "timestamp": "2025-01-01T10:00:00Z",
@@ -663,7 +1492,7 @@ Response:
 }
 ```
 
-### **Gestão de Estudantes**
+### **Student Management**
 
 ```http
 GET /api/students
@@ -688,7 +1517,7 @@ Content-Type: application/json
 }
 ```
 
-### **Padrão de Resposta**
+### **Response Pattern**
 
 ```typescript
 interface APIResponse<T = any> {
@@ -702,45 +1531,50 @@ interface APIResponse<T = any> {
 
 ---
 
-## 🚀 Scripts e Comandos
+## 🚀 Scripts and Commands
 
 ```bash
-# 🔧 Desenvolvimento
-npm run dev          # Servidor de desenvolvimento (localhost:3000)
-npm run build        # Build otimizado para produção
-npm run start        # Servidor de produção
-npm run lint         # Análise de código com ESLint
-npm run type-check   # Verificação de tipos TypeScript
+# 🔧 Development
+npm run dev          # Development server (localhost:3000)
+npm run build        # Optimized production build
+npm run start        # Production server
+npm run lint         # Code analysis with ESLint
+npm run type-check   # TypeScript type checking
 
-# 🗄️ Banco de Dados
-npx drizzle-kit push         # Aplicar mudanças no schema
-npx drizzle-kit studio       # Interface visual do banco
-npx drizzle-kit generate     # Gerar migrações
-npx tsx src/db/seed.ts       # Executar seed de dados
+# 🗄️ Database
+npx drizzle-kit push         # Apply schema changes
+npx drizzle-kit studio       # Visual database interface
+npx drizzle-kit generate     # Generate migrations
+npx tsx src/db/seed.ts       # Execute data seed
 
-# 🧪 Qualidade
-npm run format       # Formatação automática com Prettier
-npm run test         # Executar testes (quando implementados)
-npm run test:watch   # Testes em modo watch
+# 🧪 Quality
+npm run format       # Automatic formatting with Prettier
+npm run test         # Execute tests
+npm run test:watch   # Tests in watch mode
+npm run test:coverage # Coverage report
+
+# 📊 Analysis
+npm run build -- --analyze  # Bundle analysis
+npm run lighthouse          # Performance audit
 ```
 
 ---
 
-## 🎯 Deploy e Produção
+## 🎯 Deploy and Production
 
-### **Vercel (Recomendado)**
+### **Vercel (Recommended)**
 
 ```bash
-# 1. Instale a CLI da Vercel
+# 1. Install Vercel CLI
 npm i -g vercel
 
-# 2. Faça login
+# 2. Login
 vercel login
 
 # 3. Deploy
 vercel
 
-# 4. Configure variáveis de ambiente na dashboard
+# 4. Configure environment variables in dashboard
 ```
 
 ### **Docker**
@@ -768,15 +1602,15 @@ EXPOSE 3000
 CMD ["npm", "start"]
 ```
 
-### **Variáveis de Produção**
+### **Production Variables**
 
 ```env
-# Produção
+# Production
 DATABASE_URL="postgresql://user:pass@host:5432/db"
 JWT_SECRET="production-super-secret-key"
 NEXTAUTH_URL="https://jmfitnesstudio.com"
 
-# Email (Recomendado: Resend)
+# Email (Recommended: Resend)
 EMAIL_PROVIDER="resend"
 RESEND_API_KEY="re_xxxxxxxxxxxxx"
 EMAIL_FROM="noreply@jmfitnesstudio.com"
@@ -785,12 +1619,12 @@ EMAIL_FROM_NAME="JM Fitness Studio"
 
 ---
 
-## 🔧 Configurações Avançadas
+## 🔧 Advanced Settings
 
-### **Sistema de Email**
+### **Email System Configuration**
 
 ```typescript
-// Configuração Resend (Recomendado)
+// Resend Configuration (Recommended)
 const resendConfig = {
   provider: "resend",
   apiKey: process.env.RESEND_API_KEY,
@@ -798,39 +1632,38 @@ const resendConfig = {
   fromName: "JM Fitness Studio",
 };
 
-// Configuração SMTP (Alternativa)
+// SMTP Configuration (Alternative)
 const smtpConfig = {
   provider: "smtp",
   host: "smtp.gmail.com",
   port: 587,
   secure: false,
   auth: {
-    user: "seu@email.com",
-    pass: "senha-de-app-16-digitos",
+    user: "your@email.com",
+    pass: "16-digit-app-password",
   },
 };
 ```
 
-### **Otimizações de Performance**
+### **Performance Optimizations**
 
-- **🖼️ Image Optimization**: Next.js Image component automático
-- **📦 Bundle Analysis**: Análise de tamanho com `@next/bundle-analyzer`
-- **✂️ Code Splitting**: Divisão automática pelo Next.js
-- **💾 Caching**: Server-side caching estratégico
-- **⚡ Edge Runtime**: Execução otimizada
+- **🖼️ Image Optimization**: Automatic Next.js Image component
+- **📦 Bundle Analysis**: Size analysis with `@next/bundle-analyzer`
+- **✂️ Code Splitting**: Automatic splitting by Next.js
+- **💾 Caching**: Strategic server-side caching
+- **⚡ Edge Runtime**: Optimized execution
 
-### **SEO e Metadata**
+### **SEO and Metadata**
 
 ```typescript
 export const metadata: Metadata = {
-  title: "JM Fitness Studio - Academia em Duque de Caxias",
-  description:
-    "Transforme sua vida no JM Fitness Studio. Academia moderna com equipamentos de ponta em Duque de Caxias.",
-  keywords: "academia, fitness, musculação, duque de caxias, ginástica",
+  title: "JM Fitness Studio - Gym in Duque de Caxias",
+  description: "Transform your life at JM Fitness Studio. Modern gym with cutting-edge equipment in Duque de Caxias.",
+  keywords: "gym, fitness, weight training, duque de caxias, gymnastics",
   authors: [{ name: "Bruno Mulim" }],
   openGraph: {
     title: "JM Fitness Studio",
-    description: "Transforme sua vida com a gente",
+    description: "Transform your life with us",
     url: "https://jmfitnesstudio.com",
     siteName: "JM Fitness Studio",
     images: [
@@ -841,41 +1674,24 @@ export const metadata: Metadata = {
         alt: "JM Fitness Studio",
       },
     ],
-    locale: "pt_BR",
+    locale: "en_US",
     type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "JM Fitness Studio",
-    description: "Academia moderna em Duque de Caxias",
-    images: ["/twitter-image.jpg"],
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-  verification: {
-    google: "google-site-verification-code",
   },
 };
 ```
 
 ---
 
-## 📚 Documentação Técnica
+## 📚 Technical Documentation
 
-### **Schema do Banco de Dados**
+### **Database Schema**
 
-````sql
 ```sql
--- Tabela de usuários (admin, professor, funcionario, aluno)
+-- Users table (admin, instructor, staff, student)
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(255) NOT NULL,
@@ -888,221 +1704,194 @@ CREATE TABLE users (
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
-````
 
--- Dados de saúde dos alunos
+-- Student health data
 CREATE TABLE health_data (
-id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-height DECIMAL(5,2), -- altura em cm
-weight DECIMAL(5,2), -- peso em kg
-allergies TEXT[],
-medications TEXT[],
-injuries TEXT[],
-diet_info TEXT,
-supplements TEXT[],
-instructor_notes TEXT,
-created_at TIMESTAMP DEFAULT NOW(),
-updated_at TIMESTAMP DEFAULT NOW()
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  height DECIMAL(5,2),     -- height in cm
+  weight DECIMAL(5,2),     -- weight in kg
+  allergies TEXT[],
+  medications TEXT[],
+  injuries TEXT[],
+  diet_info TEXT,
+  supplements TEXT[],
+  instructor_notes TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Registro de check-ins
+-- Check-in records
 CREATE TABLE checkins (
-id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-created_at TIMESTAMP DEFAULT NOW()
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Controle financeiro
+-- Financial control
 CREATE TABLE payments (
-id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-amount DECIMAL(10,2) NOT NULL,
-due_date DATE NOT NULL,
-payment_date DATE,
-method VARCHAR(20) NOT NULL,
-status VARCHAR(20) NOT NULL CHECK (status IN ('paid', 'pending', 'overdue')),
-notes TEXT,
-created_at TIMESTAMP DEFAULT NOW(),
-updated_at TIMESTAMP DEFAULT NOW()
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  amount DECIMAL(10,2) NOT NULL,
+  due_date DATE NOT NULL,
+  payment_date DATE,
+  method VARCHAR(20) NOT NULL,
+  status VARCHAR(20) NOT NULL CHECK (status IN ('paid', 'pending', 'overdue')),
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Índices para performance
+-- Blog system
+CREATE TABLE posts (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  excerpt TEXT,
+  slug VARCHAR(255) UNIQUE NOT NULL,
+  published BOOLEAN DEFAULT FALSE,
+  author_id UUID REFERENCES users(id),
+  category_id INTEGER REFERENCES categories(id),
+  meta_title TEXT,
+  meta_description TEXT,
+  meta_keywords TEXT,
+  image_url TEXT,
+  read_time INTEGER DEFAULT 5,
+  views INTEGER DEFAULT 0,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Performance indexes
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_cpf ON users(cpf);
 CREATE INDEX idx_users_role ON users(role);
 CREATE INDEX idx_checkins_user_date ON checkins(user_id, created_at);
 CREATE INDEX idx_payments_user_status ON payments(user_id, status);
 CREATE INDEX idx_payments_due_date ON payments(due_date);
+CREATE INDEX idx_posts_published ON posts(published);
+CREATE INDEX idx_posts_slug ON posts(slug);
+```
 
-````
+### **Important Configuration Files**
 
-### **Arquivos de Configuração Importantes**
-
-- **📄 `next.config.js`**: Configurações do Next.js
-- **📄 `tailwind.config.js`**: Personalização do Tailwind
-- **📄 `drizzle.config.ts`**: Configuração do ORM
-- **📄 `middleware.ts`**: Proteção de rotas
-- **📄 `components.json`**: Configuração do Shadcn/ui
+- **📄 `next.config.js`**: Next.js configurations
+- **📄 `tailwind.config.js`**: Tailwind customization
+- **📄 `drizzle.config.ts`**: ORM configuration
+- **📄 `middleware.ts`**: Route protection
+- **📄 `components.json`**: Shadcn/ui configuration
 
 ---
 
-## 🐛 Solução de Problemas
+## 🐛 Troubleshooting
 
-### **Problemas Comuns e Soluções**
+### **Common Problems and Solutions**
 
-**❌ Erro de conexão com banco de dados**
+**❌ Database connection error**
 
 ```bash
-# Verifique se o PostgreSQL está rodando
+# Check if PostgreSQL is running
 sudo service postgresql start
-# ou no macOS
+# or on macOS
 brew services start postgresql
 
-# Teste a conexão
-psql postgresql://usuario:senha@localhost:5432/jm_fitness_studio
+# Test connection
+psql postgresql://user:password@localhost:5432/jm_fitness_studio
 
-# Verifique as variáveis de ambiente
+# Check environment variables
 echo $DATABASE_URL
-````
+```
 
-**❌ Erro de autenticação / Token inválido**
+**❌ Authentication error / Invalid token**
 
 ```bash
-# Limpe os cookies do navegador
-# No console do navegador:
+# Clear browser cookies
+# In browser console:
 document.cookie.split(";").forEach(c => {
   document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
 });
 
-# Verifique o JWT_SECRET
+# Check JWT_SECRET
 echo $JWT_SECRET
 ```
 
-**❌ Build falha / Erro de TypeScript**
+**❌ Build fails / TypeScript error**
 
 ```bash
-# Limpe o cache do Next.js
+# Clear Next.js cache
 rm -rf .next
 
-# Reinstale as dependências
+# Reinstall dependencies
 rm -rf node_modules package-lock.json
 npm install
 
-# Execute a verificação de tipos
+# Run type checking
 npm run type-check
 
-# Build novamente
+# Build again
 npm run build
 ```
 
-**❌ Check-in não funciona**
+### **Debug and Logs**
 
 ```bash
-# Verifique se é dia útil (segunda a sexta)
-date
-
-# Confirme se o usuário existe
-psql -c "SELECT name, email FROM users WHERE cpf = '123.456.789-00';"
-
-# Verifique o status de pagamento
-psql -c "SELECT status, due_date FROM payments WHERE user_id = 'uuid' ORDER BY due_date DESC LIMIT 1;"
-```
-
-### **Debug e Logs**
-
-```bash
-# Execute com debug detalhado
+# Run with detailed debug
 DEBUG=* npm run dev
 
-# Ou apenas Next.js
+# Or just Next.js
 DEBUG=next:* npm run dev
 
-# Logs do banco de dados
+# Database logs
 DEBUG=drizzle:* npm run dev
 
-# Análise de bundle
+# Bundle analysis
 npm run build -- --analyze
 ```
 
 ---
 
-## 📈 Roadmap e Futuras Implementações
+## 📈 Roadmap and Future Implementations
 
-### **🎯 Próximas Funcionalidades (Q1 2025)**
+### **🎯 Next Features (Q1 2025)**
 
-- [ ] **📱 Aplicativo Mobile**:
-  - React Native para iOS e Android
-  - Push notifications para check-ins
-  - Modo offline para consultas básicas
-- [ ] **💬 Sistema de Comunicação**:
-  - Chat em tempo real instrutor-aluno
-  - Notificações de sistema
-  - Avisos e comunicados
+- [ ] **📱 Mobile App**: React Native for iOS and Android
+- [ ] **💬 Communication System**: Real-time chat instructor-student
+- [ ] **📊 Advanced Analytics**: Detailed metrics dashboard
+- [ ] **🔔 Push Notifications**: Mobile and web notifications
 
-- [ ] **📊 Analytics Avançado**:
-  - Dashboard com métricas detalhadas
-  - Relatórios de performance
-  - Insights de comportamento
+### **🚀 Technical Improvements (Q2 2025)**
 
-### **🚀 Melhorias Técnicas (Q2 2025)**
+- [ ] **🧪 Automated Testing**: Complete coverage with Jest
+- [ ] **🔍 Monitoring**: Sentry integration for error tracking
+- [ ] **🌍 Internationalization**: Multi-language support
+- [ ] **⚡ Performance**: Advanced optimizations
 
-- [ ] **🧪 Testes Automatizados**:
-  - Cobertura completa com Jest
-  - Testes E2E com Playwright
-  - CI/CD com GitHub Actions
+### **🎨 Advanced Features (Q3-Q4 2025)**
 
-- [ ] **🔍 Monitoramento**:
-  - Integração com Sentry
-  - Performance monitoring
-  - Error tracking
-
-- [ ] **🌍 Internacionalização**:
-  - Suporte multi-idiomas
-  - Formatação de moeda regional
-  - Datas e horários localizados
-
-### **🎨 Funcionalidades Avançadas (Q3-Q4 2025)**
-
-- [ ] **💳 Gateway de Pagamento**:
-  - Integração com Stripe
-  - Pagamento recorrente automático
-  - Split de comissões
-
-- [ ] **🎯 Sistema de Metas**:
-  - Objetivos personalizados
-  - Acompanhamento de progresso
-  - Gamificação com recompensas
-
-- [ ] **📅 Agendamento de Aulas**:
-  - Reserva de horários
-  - Gestão de capacidade
-  - Lista de espera
-
-- [ ] **🏆 Programa de Fidelidade**:
-  - Sistema de pontos
-  - Recompensas por frequência
-  - Indicação de novos alunos
+- [ ] **💳 Payment Gateway**: Stripe integration
+- [ ] **🎯 Goal System**: Personalized objectives
+- [ ] **📅 Class Scheduling**: Reservation system
+- [ ] **🏆 Loyalty Program**: Points and rewards system
 
 ---
 
-## 🏆 Métricas e Performance
+## 🏆 Metrics and Performance
 
-### **📊 Estatísticas do Projeto**
+### **📊 Project Statistics**
 
 ```
 📦 Bundle Size:        ~2.1MB (gzipped: ~650KB)
-🏗️ Build Time:         ~45s (média)
-🧪 Test Coverage:     85% (meta: 90%)
+🏗️ Build Time:         ~45s (average)
+🧪 Test Coverage:     85% (goal: 90%)
 📱 Performance:       95/100 (Lighthouse)
 ♿ Accessibility:     98/100 (Lighthouse)
-🎨 UI Components:     45+ personalizados
-📄 Pages:             15+ páginas
+🎨 UI Components:     45+ custom components
+📄 Pages:             15+ pages
 🔧 API Routes:        12 endpoints
-🗄️ Database Tables:   8 principais
+🗄️ Database Tables:   8 main tables
 ```
 
-### **⚡ Performance Otimizations**
+### **⚡ Performance Optimizations**
 
 - **Image Optimization**: Next.js automatic optimization
 - **Code Splitting**: Route-based automatic splitting
@@ -1119,36 +1908,30 @@ npm run build -- --analyze
 
 ---
 
-## 🙏 Agradecimentos e Reconhecimentos
+## 🙏 Acknowledgments
 
-### **🛠️ Tecnologias e Ferramentas**
+### **🛠️ Technologies and Tools**
 
-Agradecimentos especiais às tecnologias que tornaram este projeto possível:
+Special thanks to the technologies that made this project possible:
 
-- **[Next.js Team](https://nextjs.org/)** - Framework excepcional e documentação clara
-- **[Vercel](https://vercel.com/)** - Plataforma de deploy revolucionária
-- **[Shadcn](https://ui.shadcn.com/)** - Componentes de interface de alta qualidade
-- **[Tailwind CSS](https://tailwindcss.com/)** - Framework CSS utility-first
-- **[Drizzle Team](https://orm.drizzle.team/)** - ORM moderno e type-safe
-- **[PostgreSQL Community](https://www.postgresql.org/)** - Banco de dados robusto e confiável
+- **[Next.js Team](https://nextjs.org/)** - Exceptional framework and clear documentation
+- **[Vercel](https://vercel.com/)** - Revolutionary deployment platform
+- **[Shadcn](https://ui.shadcn.com/)** - High-quality interface components
+- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[Drizzle Team](https://orm.drizzle.team/)** - Modern and type-safe ORM
+- **[PostgreSQL Community](https://www.postgresql.org/)** - Robust and reliable database
 
-### **🎨 Design e Inspirações**
+### **👥 Community**
 
-- **Modern Fitness Apps**: Inspiração em interfaces modernas de fitness
-- **Dashboard Design**: Melhores práticas de UX/UI para dashboards
-- **Performance Optimization**: Técnicas de grandes aplicações web
-
-### **👥 Comunidade**
-
-- **React Community**: Contribuições e bibliotecas incríveis
-- **TypeScript Team**: Tipagem que transformou o desenvolvimento
-- **Open Source Contributors**: Desenvolvedores que tornam tudo possível
+- **React Community**: Incredible contributions and libraries
+- **TypeScript Team**: Typing that transformed development
+- **Open Source Contributors**: Developers who make everything possible
 
 ---
 
-## 📄 Licença
+## 📄 License
 
-Este projeto está licenciado sob a **MIT License** - veja os detalhes abaixo:
+This project is licensed under the **MIT License** - see details below:
 
 ```
 MIT License
@@ -1174,18 +1957,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-### **📋 Termos de Uso**
+### **📋 Terms of Use**
 
-- ✅ **Uso Comercial**: Permitido
-- ✅ **Modificação**: Permitida
-- ✅ **Distribuição**: Permitida
-- ✅ **Uso Privado**: Permitido
-- ❌ **Responsabilidade**: Limitada
-- ❌ **Garantia**: Não fornecida
+- ✅ **Commercial Use**: Allowed
+- ✅ **Modification**: Allowed
+- ✅ **Distribution**: Allowed
+- ✅ **Private Use**: Allowed
+- ❌ **Liability**: Limited
+- ❌ **Warranty**: Not provided
 
 ---
 
-## 👨‍💻 Desenvolvido por
+## 👨‍💻 Developed by
 
 <div align="center">
 
@@ -1195,24 +1978,24 @@ _Full Stack Developer_
 [![GitHub](https://img.shields.io/badge/GitHub-bmulim-181717?style=for-the-badge&logo=github)](https://github.com/bmulim)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-brunomulim-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/brunomulim)
 [![Portfolio](https://img.shields.io/badge/Portfolio-brunomulim.dev-FF5722?style=for-the-badge&logo=firefox)](https://mypage-two-jade.vercel.app/)
-[![Email](https://img.shields.io/badge/Email-contato-EA4335?style=for-the-badge&logo=gmail)](mailto:brunomulim@gmail.com)
+[![Email](https://img.shields.io/badge/Email-contact-EA4335?style=for-the-badge&logo=gmail)](mailto:brunomulim@gmail.com)
 
 </div>
 
-### **🚀 Especialidades**
+### **🚀 Specialties**
 
 - **Frontend**: React, Next.js, TypeScript, Tailwind CSS
-- **Backend**: Node.js, PostgreSQL, API REST
+- **Backend**: Node.js, PostgreSQL, REST API
 - **Mobile**: React Native, Flutter
 - **Cloud**: Vercel, AWS, Docker
 - **Tools**: Git, VS Code, Figma
 
-### **💼 Experiência**
+### **💼 Experience**
 
-- **5+ anos** desenvolvendo aplicações web modernas
-- **Especialista** em React e ecossistema Next.js
-- **Foco** em performance, UX e código limpo
-- **Experiência** com sistemas de gerenciamento complexos
+- **5+ years** developing modern web applications
+- **Expert** in React and Next.js ecosystem
+- **Focus** on performance, UX and clean code
+- **Experience** with complex management systems
 
 ---
 
@@ -1220,19 +2003,19 @@ _Full Stack Developer_
 
 ### 🏋️‍♂️ **JM Fitness Studio**
 
-### **Transformando vidas através da tecnologia e do fitness!**
+### **Transforming lives through technology and fitness!**
 
-_Sistema desenvolvido com ❤️ e muito ☕ por [Bruno Mulim](https://github.com/bmulim)_
+_System developed with ❤️ and lots of ☕ by [Bruno Mulim](https://github.com/bmulim)_
 
 ---
 
-**⭐ Se este projeto te ajudou, considere dar uma estrela!**
+**⭐ If this project helped you, consider giving it a star!**
 
 [![Stars](https://img.shields.io/github/stars/bmulim/jm-bmstudiofitness?style=social)](https://github.com/bmulim/jm-bmstudiofitness/stargazers)
 [![Forks](https://img.shields.io/github/forks/bmulim/jm-bmstudiofitness?style=social)](https://github.com/bmulim/jm-bmstudiofitness/network/members)
 [![Issues](https://img.shields.io/github/issues/bmulim/jm-bmstudiofitness)](https://github.com/bmulim/jm-bmstudiofitness/issues)
 [![License](https://img.shields.io/github/license/bmulim/jm-bmstudiofitness)](https://github.com/bmulim/jm-bmstudiofitness/blob/main/LICENSE)
 
-**© 2025 JM Fitness Studio. Todos os direitos reservados.**
+**© 2025 JM Fitness Studio. All rights reserved.**
 
 </div>
