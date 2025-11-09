@@ -1,7 +1,7 @@
 {
   "name": "jm-bmstudiofitness",
   "version": "0.1.0",
-  "description": "Sistema completo de gerenciamento para academias com check-ins, controle financeiro e administração de alunos",
+  "description": "Sistema completo de gerenciamento para estúdios fitness com check-ins, controle financeiro e administração de alunos",
   "author": "Bruno Mulim <bmulim@gmail.com>",
   "private": true,
   "scripts": {
@@ -38,6 +38,8 @@
     "framer-motion": "^12.23.24",
     "jose": "^6.1.0",
     "jsonwebtoken": "^9.0.2",
+    "jspdf": "^3.0.3",
+    "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.547.0",
     "next": "15.5.6",
     "pg": "^8.16.3",
@@ -46,9 +48,11 @@
     "react-dom": "19.1.0",
     "react-hook-form": "^7.66.0",
     "react-toastify": "^11.0.5",
+    "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^13.0.0",
+    "xlsx": "^0.18.5",
     "zod": "^4.1.12"
   },
   "devDependencies": {

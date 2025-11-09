@@ -221,7 +221,7 @@ export default function SectionHistory() {
                 viewport={{ once: true }}
                 className="mt-6 text-center text-sm text-gray-400"
               >
-                Interior da nossa moderna academia com equipamentos de ponta
+                Interior do nosso moderno estúdio com equipamentos de ponta
               </motion.p>
             </motion.div>
           </motion.div>

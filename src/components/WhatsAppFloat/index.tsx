@@ -15,7 +15,7 @@ export function WhatsAppFloat() {
   }
 
   const handleWhatsAppClick = () => {
-    // Número do WhatsApp (substitua pelo número real da academia)
+    // Número do WhatsApp (substitua pelo número real do estúdio)
     const phoneNumber = "5521980995749"; // Formato: código do país + DDD + número
     const message = encodeURIComponent(
       "Olá! Gostaria de saber mais sobre o JM Fitness Studio.",

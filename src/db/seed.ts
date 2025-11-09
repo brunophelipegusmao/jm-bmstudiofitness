@@ -103,7 +103,7 @@ async function main() {
     {
       userId: professor.id,
       cpf: "22222222222",
-      email: "maria.professor@bmstudio.com",
+      email: "maria.professor@jmfitness.com",
       bornDate: "1990-03-15",
       address: "Rua dos Professores, 200 - São Paulo/SP",
       telephone: "+55 11 99999-0002",
@@ -440,7 +440,7 @@ async function main() {
       {
         name: "Novidades",
         slug: "novidades",
-        description: "Últimas novidades da academia e do mundo fitness",
+        description: "Últimas novidades do estúdio e do mundo fitness",
         color: "#8b5cf6", // roxo
       },
     ])
@@ -452,7 +452,7 @@ async function main() {
   const blogPosts = [
     {
       title: "Benefícios do Treino Funcional para Iniciantes",
-      content: `O treino funcional tem ganhado cada vez mais adeptos nas academias ao redor do mundo, e não é para menos. Este tipo de exercício trabalha o corpo de forma integrada, simulando movimentos do dia a dia e proporcionando benefícios únicos para quem está começando a se exercitar.
+      content: `O treino funcional tem ganhado cada vez mais adeptos nos estúdios fitness ao redor do mundo, e não é para menos. Este tipo de exercício trabalha o corpo de forma integrada, simulando movimentos do dia a dia e proporcionando benefícios únicos para quem está começando a se exercitar.
 
 **O que é treino funcional?**
 
@@ -477,7 +477,7 @@ O treino funcional consiste em exercícios que reproduzem movimentos naturais do
 - Mantenha regularidade nos treinos (3x por semana é ideal)
 - Busque orientação profissional para um programa personalizado
 
-Aqui na BM Studio Fitness, nossos professores são especializados em treino funcional e podem te ajudar a iniciar sua jornada de forma segura e eficiente!`,
+Aqui na JM Fitness Studio, nossos professores são especializados em treino funcional e podem te ajudar a iniciar sua jornada de forma segura e eficiente!`,
       excerpt:
         "Descubra como o treino funcional pode transformar sua rotina de exercícios e melhorar sua qualidade de vida com movimentos naturais e eficientes.",
       imageUrl:
@@ -486,11 +486,11 @@ Aqui na BM Studio Fitness, nossos professores são especializados em treino func
       authorId: 1, // Admin
       categoryId: treino.id, // Categoria Treino
       metaTitle:
-        "Benefícios do Treino Funcional para Iniciantes - BM Studio Fitness",
+        "Benefícios do Treino Funcional para Iniciantes - JM Fitness Studio",
       metaDescription:
         "Descubra como o treino funcional pode transformar sua rotina de exercícios com movimentos naturais e eficientes. Guia completo para iniciantes.",
       metaKeywords:
-        "treino funcional, exercícios funcionais, iniciantes, academia, BM Studio Fitness",
+        "treino funcional, exercícios funcionais, iniciantes, estúdio fitness, JM Fitness Studio",
       slug: "beneficios-treino-funcional-iniciantes",
       readTime: 5,
       createdAt: new Date("2025-11-01"),
@@ -537,11 +537,11 @@ Lembre-se: o inverno não precisa ser sinônimo de sedentarismo. Com as estraté
       authorId: 1, // Admin
       categoryId: motivacao.id, // Categoria Motivação
       metaTitle:
-        "Como Manter a Motivação para Treinar no Inverno - BM Studio Fitness",
+        "Como Manter a Motivação para Treinar no Inverno - JM Fitness Studio",
       metaDescription:
         "Estratégias práticas para manter sua rotina de exercícios durante o inverno e não deixar o frio atrapalhar seus objetivos fitness.",
       metaKeywords:
-        "motivação, treino inverno, exercícios frio, rotina fitness, academia",
+        "motivação, treino inverno, exercícios frio, rotina fitness, estúdio",
       slug: "motivacao-treinar-inverno",
       readTime: 4,
       createdAt: new Date("2025-10-28"),
@@ -630,7 +630,7 @@ Lembre-se: a nutrição é individual. O que funciona para uma pessoa pode não 
       published: true,
       authorId: 1, // Admin
       categoryId: nutricao.id, // Categoria Nutrição
-      metaTitle: "Nutrição Pré e Pós-Treino: Guia Completo - BM Studio Fitness",
+      metaTitle: "Nutrição Pré e Pós-Treino: Guia Completo - JM Fitness Studio",
       metaDescription:
         "Guia completo sobre alimentação antes e depois dos treinos para maximizar resultados e acelerar a recuperação muscular.",
       metaKeywords:
@@ -642,7 +642,7 @@ Lembre-se: a nutrição é individual. O que funciona para uma pessoa pode não 
     },
     {
       title: "Exercícios para Fortalecer o Core em Casa",
-      content: `Um core forte é a base de praticamente todos os movimentos que fazemos, seja na academia ou nas atividades do dia a dia. Felizmente, você não precisa de equipamentos caros ou ir à academia para fortalecer essa região. Com alguns exercícios simples, você pode trabalhar seu core efetivamente em casa.
+      content: `Um core forte é a base de praticamente todos os movimentos que fazemos, seja no estúdio fitness ou nas atividades do dia a dia. Felizmente, você não precisa de equipamentos caros ou ir ao estúdio para fortalecer essa região. Com alguns exercícios simples, você pode trabalhar seu core efetivamente em casa.
 
 **O QUE É O CORE?**
 
@@ -740,7 +740,7 @@ Lembre-se: a consistência é mais importante que a intensidade. Comece devagar,
       authorId: 1, // Admin - rascunho
       categoryId: treino.id, // Categoria Treino
       metaTitle:
-        "Exercícios para Fortalecer o Core em Casa - BM Studio Fitness",
+        "Exercícios para Fortalecer o Core em Casa - JM Fitness Studio",
       metaDescription:
         "Rotina completa de exercícios para fortalecer o core sem sair de casa, com progressões para todos os níveis de condicionamento físico.",
       metaKeywords:
@@ -751,8 +751,8 @@ Lembre-se: a consistência é mais importante que a intensidade. Comece devagar,
       updatedAt: new Date("2025-11-02"),
     },
     {
-      title: "Novidades da Academia: Novas Modalidades e Equipamentos",
-      content: `Estamos sempre buscando formas de melhorar a experiência dos nossos alunos aqui na BM Studio Fitness. Este mês trazemos novidades incríveis que vão revolucionar seus treinos!
+      title: "Novidades do Estúdio: Novas Modalidades e Equipamentos",
+      content: `Estamos sempre buscando formas de melhorar a experiência dos nossos alunos aqui na JM Fitness Studio. Este mês trazemos novidades incríveis que vão revolucionar seus treinos!
 
 **NOVAS MODALIDADES**
 
@@ -838,7 +838,7 @@ Recebemos dois novos profissionais especializados:
 **COMO PARTICIPAR**
 
 1. Fale com a recepção para agendar sua avaliação gratuita
-2. Baixe nosso novo app "BM Studio" na App Store ou Google Play
+2. Baixe nosso novo app "JM Fitness" na App Store ou Google Play
 3. Acompanhe nossas redes sociais para dicas exclusivas
 4. Indique um amigo e ganhe uma semana gratuita
 
@@ -846,19 +846,19 @@ Estamos ansiosos para que você experimente todas essas novidades! Nossa missão
 
 Venha conhecer as novidades e descubra como podemos potencializar ainda mais seus resultados!`,
       excerpt:
-        "Conheça as novidades da BM Studio Fitness: novas modalidades, equipamentos modernos e melhorias na infraestrutura para uma experiência única.",
+        "Conheça as novidades da JM Fitness Studio: novas modalidades, equipamentos modernos e melhorias na infraestrutura para uma experiência única.",
       imageUrl:
         "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
       published: true,
       authorId: 1, // Admin
       categoryId: novidades.id, // Categoria Novidades
       metaTitle:
-        "Novidades da Academia: Novas Modalidades e Equipamentos - BM Studio Fitness",
+        "Novidades do Estúdio: Novas Modalidades e Equipamentos - JM Fitness Studio",
       metaDescription:
-        "Conheça as novidades da BM Studio Fitness: novas modalidades, equipamentos modernos e melhorias na infraestrutura para uma experiência única.",
+        "Conheça as novidades da JM Fitness Studio: novas modalidades, equipamentos modernos e melhorias na infraestrutura para uma experiência única.",
       metaKeywords:
-        "novidades academia, novas modalidades, equipamentos fitness, BM Studio Fitness, CrossTraining, HIIT Dance",
-      slug: "novidades-academia-modalidades-equipamentos",
+        "novidades estúdio fitness, novas modalidades, equipamentos fitness, JM Fitness Studio, CrossTraining, HIIT Dance",
+      slug: "novidades-estudio-modalidades-equipamentos",
       readTime: 8,
       createdAt: new Date("2025-11-05"),
       updatedAt: new Date("2025-11-05"),

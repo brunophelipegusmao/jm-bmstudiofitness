@@ -1,6 +1,6 @@
 "use client";
 import { useSearchParams } from "next/navigation";
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 
 import { StudentFullData } from "@/actions/admin/get-students-full-data-action";
 import { AdminSidebar } from "@/components/Admin/AdminSidebar";
@@ -44,7 +44,7 @@ export function AdminTabs({ students }: AdminTabsProps) {
             </h1>
             <p className="text-slate-400">
               {activeTab === "administrative" &&
-                "Cadastre novos alunos e gerencie dados da academia"}
+                "Cadastre novos alunos e gerencie dados do estúdio"}
               {activeTab === "students" &&
                 "Busque e visualize dados completos dos alunos"}
               {activeTab === "users" &&

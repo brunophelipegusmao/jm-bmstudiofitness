@@ -67,7 +67,7 @@ export const mockCheckinData = {
   id: "checkin-1",
   userId: "student-1",
   timestamp: new Date(),
-  location: "Academia Central",
+  location: "Estúdio Central",
 };
 
 // Helper para criar mocks de funções

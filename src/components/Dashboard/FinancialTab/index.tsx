@@ -6,22 +6,68 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect,useState } from "react";
 
+import { getFinancialReportsAction } from "@/actions/admin/get-financial-reports-action";
+import { getPaymentDueDatesAction } from "@/actions/admin/get-payment-due-dates-action";
 import { FinancialDashboardView } from "@/components/Dashboard/FinancialDashboardView";
-import { FinancialReportsView } from "@/components/Dashboard/FinancialReportsView";
 import { PaymentManagementView } from "@/components/Dashboard/PaymentManagementView";
+import { ReportsView } from "@/components/Dashboard/ReportsView";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function FinancialTab() {
   const [showFinancialReports, setShowFinancialReports] = useState(false);
   const [showPaymentManagement, setShowPaymentManagement] = useState(false);
   const [showFinancialDashboard, setShowFinancialDashboard] = useState(false);
+  const [overview, setOverview] = useState({
+    totalRevenue: "R$ 0,00",
+    activeStudents: 0,
+    totalPending: "R$ 0,00",
+    paymentRate: 0,
+  });
+  const [dueDates, setDueDates] = useState({
+    dueToday: 0,
+    dueNext7Days: 0,
+    overdue: 0,
+  });
+
+  // Carregar dados ao montar o componente
+  useEffect(() => {
+    loadOverviewData();
+    loadDueDatesData();
+  }, []);
+
+  const loadOverviewData = async () => {
+    try {
+      const result = await getFinancialReportsAction();
+
+      if (result.success && result.data) {
+        setOverview({
+          totalRevenue: result.data.overview.totalRevenue,
+          activeStudents: result.data.overview.activeStudents,
+          totalPending: result.data.overview.pendingPayments,
+          paymentRate: result.data.overview.paymentRate,
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao carregar dados financeiros:", error);
+    }
+  };
+
+  const loadDueDatesData = async () => {
+    try {
+      const result = await getPaymentDueDatesAction();
+
+      if (result.success && result.data) {
+        setDueDates(result.data);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar vencimentos:", error);
+    }
+  };
 
   if (showFinancialReports) {
-    return (
-      <FinancialReportsView onBack={() => setShowFinancialReports(false)} />
-    );
+    return <ReportsView onBack={() => setShowFinancialReports(false)} />;
   }
 
   if (showPaymentManagement) {
@@ -48,11 +94,9 @@ export function FinancialTab() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-300">
-              R$ 12.450,00
+              {overview.totalRevenue}
             </div>
-            <p className="text-xs text-green-400">
-              +8% em relação ao mês anterior
-            </p>
+            <p className="text-xs text-green-400">Total de mensalidades</p>
           </CardContent>
         </Card>
 
@@ -64,8 +108,10 @@ export function FinancialTab() {
             <Users className="h-4 w-4 text-blue-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-300">83</div>
-            <p className="text-xs text-blue-400">+5 novos este mês</p>
+            <div className="text-2xl font-bold text-blue-300">
+              {overview.activeStudents}
+            </div>
+            <p className="text-xs text-blue-400">Com pagamento em dia</p>
           </CardContent>
         </Card>
 
@@ -77,8 +123,10 @@ export function FinancialTab() {
             <TrendingDown className="h-4 w-4 text-red-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-300">R$ 2.100,00</div>
-            <p className="text-xs text-red-400">14 alunos em atraso</p>
+            <div className="text-2xl font-bold text-red-300">
+              {overview.totalPending}
+            </div>
+            <p className="text-xs text-red-400">Pagamentos pendentes</p>
           </CardContent>
         </Card>
 
@@ -90,7 +138,9 @@ export function FinancialTab() {
             <BarChart3 className="h-4 w-4 text-[#C2A537]" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-[#C2A537]">94%</div>
+            <div className="text-2xl font-bold text-[#C2A537]">
+              {overview.paymentRate}%
+            </div>
             <p className="text-xs text-[#C2A537]">Pagamentos no prazo</p>
           </CardContent>
         </Card>
@@ -227,7 +277,9 @@ export function FinancialTab() {
             <div className="space-y-3">
               <h4 className="font-medium text-white">Vencimentos Hoje</h4>
               <div className="rounded-lg border border-slate-600 bg-slate-700/50 p-4">
-                <p className="text-2xl font-bold text-orange-400">7</p>
+                <p className="text-2xl font-bold text-orange-400">
+                  {dueDates.dueToday}
+                </p>
                 <p className="text-sm text-slate-400">mensalidades</p>
               </div>
             </div>
@@ -235,7 +287,9 @@ export function FinancialTab() {
             <div className="space-y-3">
               <h4 className="font-medium text-white">Próximos 7 dias</h4>
               <div className="rounded-lg border border-slate-600 bg-slate-700/50 p-4">
-                <p className="text-2xl font-bold text-yellow-400">23</p>
+                <p className="text-2xl font-bold text-yellow-400">
+                  {dueDates.dueNext7Days}
+                </p>
                 <p className="text-sm text-slate-400">vencimentos</p>
               </div>
             </div>
@@ -243,7 +297,9 @@ export function FinancialTab() {
             <div className="space-y-3">
               <h4 className="font-medium text-white">Em Atraso</h4>
               <div className="rounded-lg border border-slate-600 bg-slate-700/50 p-4">
-                <p className="text-2xl font-bold text-red-400">14</p>
+                <p className="text-2xl font-bold text-red-400">
+                  {dueDates.overdue}
+                </p>
                 <p className="text-sm text-slate-400">mensalidades</p>
               </div>
             </div>

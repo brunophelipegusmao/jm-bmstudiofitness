@@ -23,7 +23,7 @@ export default function SectionFeatured() {
   const carouselImages = [
     {
       src: "/banner-01.png",
-      alt: "Academia - Equipamentos de Musculação",
+      alt: "Estúdio - Equipamentos de Musculação",
       href: "/equipamentos",
     },
     {
@@ -43,7 +43,7 @@ export default function SectionFeatured() {
     },
     {
       src: "/banner-06.png",
-      alt: "Ambiente da Academia",
+      alt: "Ambiente do Estúdio",
       href: "/sobre",
     },
   ];
@@ -202,7 +202,7 @@ export default function SectionFeatured() {
                               {image.alt}
                             </h3>
                             <p className="text-sm opacity-90">
-                              Explore nossa academia
+                              Explore nosso estúdio
                             </p>
                           </div>
                         </div>

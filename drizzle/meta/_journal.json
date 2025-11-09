@@ -71,6 +71,13 @@
       "when": 1762701583129,
       "tag": "0009_nice_falcon",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1762707117800,
+      "tag": "0010_worried_kabuki",
+      "breakpoints": true
     }
   ]
 }

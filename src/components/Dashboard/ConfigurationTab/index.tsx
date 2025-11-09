@@ -322,7 +322,7 @@ export function ConfigurationTab() {
         </CardContent>
       </Card>
 
-      {/* Configurações da Academia */}
+      {/* Configurações do Estúdio */}
       <Card
         className="animate-in fade-in-50 slide-in-from-bottom-4 border-[#C2A537]/50 bg-black/60 backdrop-blur-sm"
         style={{ animationDelay: "200ms" }}
@@ -330,13 +330,13 @@ export function ConfigurationTab() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-[#C2A537]">
             <Users className="h-5 w-5" />
-            Informações da Academia
+            Informações do Estúdio
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label htmlFor="gymName">Nome da Academia</Label>
+              <Label htmlFor="gymName">Nome do Estúdio</Label>
               <Input
                 id="gymName"
                 value={settings.gymName}
@@ -678,7 +678,7 @@ export function ConfigurationTab() {
                     {(() => {
                       try {
                         const logs = JSON.parse(
-                          localStorage.getItem("bmstudio-access-logs") || "[]",
+                          localStorage.getItem("jmfitness-access-logs") || "[]",
                         );
                         return logs.length;
                       } catch {
@@ -694,7 +694,7 @@ export function ConfigurationTab() {
                     {(() => {
                       try {
                         const logs = JSON.parse(
-                          localStorage.getItem("bmstudio-access-logs") || "[]",
+                          localStorage.getItem("jmfitness-access-logs") || "[]",
                         );
                         if (logs.length > 0) {
                           const lastLog = logs[logs.length - 1];

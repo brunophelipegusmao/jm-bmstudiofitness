@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 
 import { db } from "@/db";
 import { financialTable, personalDataTable, usersTable } from "@/db/schema";
@@ -30,7 +30,7 @@ export async function getStudentsPaymentsAction(): Promise<
   StudentPaymentData[]
 > {
   try {
-    // Buscar todos os alunos com dados financeiros
+    // Buscar todos os alunos com dados financeiros (excluindo deletados)
     const students = await db
       .select({
         userId: usersTable.id,
@@ -46,7 +46,12 @@ export async function getStudentsPaymentsAction(): Promise<
       .from(usersTable)
       .innerJoin(personalDataTable, eq(usersTable.id, personalDataTable.userId))
       .innerJoin(financialTable, eq(usersTable.id, financialTable.userId))
-      .where(eq(usersTable.userRole, UserRole.ALUNO))
+      .where(
+        and(
+          eq(usersTable.userRole, UserRole.ALUNO),
+          isNull(usersTable.deletedAt),
+        ),
+      )
       .orderBy(usersTable.name);
 
     // Processar dados com informações adicionais

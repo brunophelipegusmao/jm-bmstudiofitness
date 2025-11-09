@@ -489,7 +489,7 @@ export function FinancialReportsView({ onBack }: FinancialReportsViewProps) {
             Relatórios Financeiros
           </h2>
           <p className="text-slate-400">
-            Análises detalhadas da situação financeira da academia
+            Análises detalhadas da situação financeira do estúdio
           </p>
         </div>
         <Button

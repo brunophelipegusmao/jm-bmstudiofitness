@@ -168,7 +168,7 @@ export default function QuickCheckInCard() {
                     className="text-center"
                   >
                     <p className="text-sm text-slate-400">
-                      O check-in registra sua presença na academia hoje
+                      O check-in registra sua presença no estúdio hoje
                     </p>
                   </motion.div>
                 </form>

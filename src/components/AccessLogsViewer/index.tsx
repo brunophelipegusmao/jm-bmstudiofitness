@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Clock, Download,Eye, FileText, User } from "lucide-react";
+import { Calendar, Clock, Download, Eye, FileText, User } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,7 @@ export function AccessLogsViewer({
   const loadLogs = () => {
     setIsLoading(true);
     try {
-      const savedLogs = localStorage.getItem("bmstudio-access-logs");
+      const savedLogs = localStorage.getItem("jmfitness-access-logs");
       if (savedLogs) {
         const allLogs: AccessLog[] = JSON.parse(savedLogs);
 

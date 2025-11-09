@@ -98,7 +98,7 @@ export function AdministrativeTab() {
     },
     {
       id: "settings",
-      title: "Configurações da Academia",
+      title: "Configurações do Estúdio",
       description: "Configurar horários, valores e políticas",
       icon: Settings,
       color: "from-amber-600 to-yellow-500",

@@ -68,7 +68,7 @@ export function useSecurityValidation() {
 
       // Salvar no localStorage (em produção, enviar para API)
       const logs = JSON.parse(
-        localStorage.getItem("bmstudio-access-logs") || "[]",
+        localStorage.getItem("jmfitness-access-logs") || "[]",
       );
       logs.push(logEntry);
 
@@ -77,7 +77,7 @@ export function useSecurityValidation() {
         logs.splice(0, logs.length - 1000);
       }
 
-      localStorage.setItem("bmstudio-access-logs", JSON.stringify(logs));
+      localStorage.setItem("jmfitness-access-logs", JSON.stringify(logs));
     },
     [settings.logDataAccess],
   );

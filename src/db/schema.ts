@@ -339,3 +339,58 @@ export const commentsRelations = relations(comments, ({ one, many }) => ({
   }),
   replies: many(comments),
 }));
+
+// Tabela para configurações do estúdio
+export const studioSettingsTable = pgTable("tb_studio_settings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  // Informações básicas
+  studioName: text("studio_name").notNull().default("JM Fitness Studio"),
+  email: text("email").notNull().default("contato@jmfitness.com"),
+  phone: text("phone").notNull().default("(21) 98099-5749"),
+  address: text("address").notNull().default("Rua das Flores, 123"),
+  city: text("city").notNull().default("Rio de Janeiro"),
+  state: text("state").notNull().default("RJ"),
+  zipCode: text("zip_code").notNull().default("20000-000"),
+
+  // Horários de funcionamento
+  mondayOpen: text("monday_open").notNull().default("06:00"),
+  mondayClose: text("monday_close").notNull().default("22:00"),
+  tuesdayOpen: text("tuesday_open").notNull().default("06:00"),
+  tuesdayClose: text("tuesday_close").notNull().default("22:00"),
+  wednesdayOpen: text("wednesday_open").notNull().default("06:00"),
+  wednesdayClose: text("wednesday_close").notNull().default("22:00"),
+  thursdayOpen: text("thursday_open").notNull().default("06:00"),
+  thursdayClose: text("thursday_close").notNull().default("22:00"),
+  fridayOpen: text("friday_open").notNull().default("06:00"),
+  fridayClose: text("friday_close").notNull().default("22:00"),
+  saturdayOpen: text("saturday_open"),
+  saturdayClose: text("saturday_close"),
+  sundayOpen: text("sunday_open"),
+  sundayClose: text("sunday_close"),
+
+  // Valores e planos
+  monthlyFeeDefault: integer("monthly_fee_default").notNull().default(15000), // em centavos (R$ 150,00)
+  registrationFee: integer("registration_fee").notNull().default(5000), // em centavos (R$ 50,00)
+  personalTrainingHourlyRate: integer("personal_training_hourly_rate")
+    .notNull()
+    .default(10000), // em centavos (R$ 100,00)
+
+  // Políticas
+  paymentDueDateDefault: integer("payment_due_date_default")
+    .notNull()
+    .default(10), // dia do mês
+  gracePeriodDays: integer("grace_period_days").notNull().default(5), // dias após vencimento
+  maxCheckInsPerDay: integer("max_check_ins_per_day").notNull().default(2),
+  allowWeekendCheckIn: boolean("allow_weekend_check_in")
+    .notNull()
+    .default(false),
+
+  // Termos e políticas de texto
+  termsAndConditions: text("terms_and_conditions"),
+  privacyPolicy: text("privacy_policy"),
+  cancellationPolicy: text("cancellation_policy"),
+
+  // Metadados
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});

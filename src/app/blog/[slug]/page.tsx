@@ -25,12 +25,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (!post) {
       return {
-        title: "Post não encontrado | BM Studio Fitness",
+        title: "Post não encontrado | JM Fitness Studio",
       };
     }
 
     return {
-      title: post.metaTitle || `${post.title} | BM Studio Fitness`,
+      title: post.metaTitle || `${post.title} | JM Fitness Studio`,
       description: post.metaDescription || post.excerpt,
       keywords: post.tags?.map((tag) => tag.name) || [],
       openGraph: {
@@ -110,7 +110,7 @@ export default async function PostPage({ params }: Props) {
               <div className="mb-8 flex flex-wrap items-center gap-6 text-slate-400">
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4" />
-                  <span>BM Studio Fitness</span>
+                  <span>JM Fitness Studio</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />

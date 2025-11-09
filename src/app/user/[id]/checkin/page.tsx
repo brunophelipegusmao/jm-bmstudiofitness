@@ -131,7 +131,7 @@ export default function CheckInPage() {
                   <span className="text-2xl">🚫</span>
                 </div>
                 <p className="font-medium">
-                  Academia fechada nos finais de semana
+                  Estúdio fechado nos finais de semana
                 </p>
                 <p className="mt-2 text-sm opacity-80">
                   Check-ins são permitidos apenas de segunda a sexta-feira.

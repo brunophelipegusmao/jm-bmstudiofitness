@@ -102,7 +102,7 @@ export default function StudentCheckInsPage() {
                   Histórico de Check-ins
                 </CardTitle>
                 <CardDescription className="text-lg text-slate-300">
-                  Acompanhe sua frequência na academia
+                  Acompanhe sua frequência no estúdio
                 </CardDescription>
               </div>
 

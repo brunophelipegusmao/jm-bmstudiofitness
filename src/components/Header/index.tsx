@@ -35,7 +35,7 @@ export function Header() {
     if (isAdminPage) {
       return {
         title: "🏋️ Dashboard Administrativo",
-        description: "Sistema completo de gestão da academia",
+        description: "Sistema completo de gestão do estúdio",
       };
     }
     if (isCoachPage) {

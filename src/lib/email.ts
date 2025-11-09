@@ -45,7 +45,7 @@ function generateConfirmationEmailTemplate(
       <div style="background: #f9f9f9; padding: 30px; border-radius: 10px; margin-bottom: 30px;">
         <h2 style="color: #C2A537; margin-top: 0;">Olá, ${name}! 👋</h2>
         
-        <p>Sua conta foi criada com sucesso! Para começar a usar todos os recursos da nossa academia, você precisa confirmar seus dados e criar sua senha.</p>
+        <p>Sua conta foi criada com sucesso! Para começar a usar todos os recursos do nosso estúdio, você precisa confirmar seus dados e criar sua senha.</p>
         
         <p><strong>⚠️ Importante:</strong> Este link expira em 24 horas.</p>
         
@@ -64,7 +64,7 @@ function generateConfirmationEmailTemplate(
         <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
           <li style="margin: 10px 0;">🔐 Você criará sua senha pessoal</li>
           <li style="margin: 10px 0;">📱 Terá acesso ao seu dashboard</li>
-          <li style="margin: 10px 0;">✅ Poderá fazer check-ins na academia</li>
+          <li style="margin: 10px 0;">✅ Poderá fazer check-ins no estúdio</li>
           <li style="margin: 10px 0;">📊 Acompanhará seu histórico de treinos</li>
         </ul>
       </div>
@@ -83,7 +83,7 @@ function generateConfirmationEmailTemplate(
     
     Olá, ${name}!
     
-    Sua conta foi criada com sucesso! Para começar a usar todos os recursos da nossa academia, você precisa confirmar seus dados e criar sua senha.
+    Sua conta foi criada com sucesso! Para começar a usar todos os recursos do nosso estúdio, você precisa confirmar seus dados e criar sua senha.
     
     Acesse o link abaixo para confirmar sua conta:
     ${confirmationUrl}
@@ -93,7 +93,7 @@ function generateConfirmationEmailTemplate(
     O que acontece depois?
     - Você criará sua senha pessoal
     - Terá acesso ao seu dashboard
-    - Poderá fazer check-ins na academia
+    - Poderá fazer check-ins no estúdio
     - Acompanhará seu histórico de treinos
     
     Se você não se cadastrou na JM Fitness Studio, pode ignorar esta mensagem.

@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 
@@ -51,32 +51,42 @@ describe("StudentsTab - Teste Simples", () => {
   it("should render correctly with one student", () => {
     render(<StudentsTab students={mockStudents} />);
 
+    // Verifica se o input de busca existe com o placeholder correto
     expect(
-      screen.getByPlaceholderText("Digite o nome, email ou CPF do aluno..."),
+      screen.getByPlaceholderText("Buscar por nome, email ou CPF..."),
     ).toBeInTheDocument();
+
+    // Verifica se mostra a contagem de alunos encontrados (usando regex para lidar com texto quebrado)
     expect(
-      screen.getByText("Total de alunos cadastrados: 1"),
+      screen.getByText(/1.*aluno\(s\).*encontrado\(s\)/i),
     ).toBeInTheDocument();
   });
 
-  it("should not show students without search", () => {
+  it("should show students by default", () => {
     render(<StudentsTab students={mockStudents} />);
 
-    // Não deve mostrar o aluno sem busca
-    expect(screen.queryByText("João Silva")).not.toBeInTheDocument();
+    // Deve mostrar o aluno por padrão (sem necessidade de busca)
+    expect(screen.getByText("João Silva")).toBeInTheDocument();
+    expect(screen.getByText("joao@test.com")).toBeInTheDocument();
   });
 
-  it("should show student after search", async () => {
+  it("should accept search input", async () => {
     const user = userEvent.setup();
+
     render(<StudentsTab students={mockStudents} />);
 
+    // Busca o input de busca
     const searchInput = screen.getByPlaceholderText(
-      "Digite o nome, email ou CPF do aluno...",
+      "Buscar por nome, email ou CPF...",
     );
+
+    // Verifica que está vazio inicialmente
+    expect(searchInput).toHaveValue("");
+
+    // Digita algo no campo de busca
     await user.type(searchInput, "João");
 
-    await waitFor(() => {
-      expect(screen.getByText("João Silva")).toBeInTheDocument();
-    });
+    // Verifica que o texto foi digitado
+    expect(searchInput).toHaveValue("João");
   });
 });

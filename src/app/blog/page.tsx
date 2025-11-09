@@ -9,21 +9,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "Blog | BM Studio Fitness",
+  title: "Blog | JM Fitness Studio",
   description:
-    "Descubra dicas de treino, nutrição e bem-estar no blog da BM Studio Fitness. Conteúdo especializado para você alcançar seus objetivos fitness.",
+    "Descubra dicas de treino, nutrição e bem-estar no blog da JM Fitness Studio. Conteúdo especializado para você alcançar seus objetivos fitness.",
   keywords: [
     "blog fitness",
     "dicas de treino",
     "nutrição esportiva",
     "exercícios",
-    "academia",
+    "estúdio",
     "musculação",
   ],
   openGraph: {
-    title: "Blog | BM Studio Fitness",
+    title: "Blog | JM Fitness Studio",
     description:
-      "Descubra dicas de treino, nutrição e bem-estar no blog da BM Studio Fitness.",
+      "Descubra dicas de treino, nutrição e bem-estar no blog da JM Fitness Studio.",
     type: "website",
     locale: "pt_BR",
   },
@@ -39,7 +39,7 @@ export default async function BlogPage() {
         <Container>
           <div className="text-center">
             <h1 className="mb-6 text-4xl font-bold md:text-6xl">
-              <span className="text-[#C2A537]">Blog</span> BM Studio
+              <span className="text-[#C2A537]">Blog</span> JM Fitness Studio
             </h1>
             <p className="mx-auto max-w-3xl text-xl text-slate-300">
               Descubra dicas de treino, nutrição e bem-estar para alcançar seus
