@@ -44,8 +44,8 @@ export async function getStudentsPaymentsAction(): Promise<
         lastPaymentDate: financialTable.lastPaymentDate,
       })
       .from(usersTable)
-      .innerJoin(personalDataTable, eq(usersTable.id, personalDataTable.userId))
-      .innerJoin(financialTable, eq(usersTable.id, financialTable.userId))
+      .leftJoin(personalDataTable, eq(usersTable.id, personalDataTable.userId))
+      .leftJoin(financialTable, eq(usersTable.id, financialTable.userId))
       .where(
         and(
           eq(usersTable.userRole, UserRole.ALUNO),
@@ -56,6 +56,26 @@ export async function getStudentsPaymentsAction(): Promise<
 
     // Processar dados com informações adicionais
     const processedStudents: StudentPaymentData[] = students.map((student) => {
+      // Se não tem dados financeiros, considera como pendente
+      if (
+        !student.dueDate ||
+        student.paid === null ||
+        !student.monthlyFeeValueInCents
+      ) {
+        return {
+          ...student,
+          isUpToDate: false,
+          daysUntilDue: 0,
+          formattedValue: "Não configurado",
+          monthlyFeeValueInCents: 0,
+          paid: false,
+          dueDate: 1,
+          email: student.email || "Não configurado",
+          cpf: student.cpf || "Não configurado",
+          paymentMethod: student.paymentMethod || "Não configurado",
+        };
+      }
+
       const isUpToDate = isPaymentUpToDate(
         student.dueDate,
         student.lastPaymentDate,

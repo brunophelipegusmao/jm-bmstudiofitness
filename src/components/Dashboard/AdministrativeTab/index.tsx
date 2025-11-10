@@ -15,9 +15,16 @@ import {
   getDashboardStatsAction,
 } from "@/actions/admin/get-dashboard-stats-action";
 import {
+  getStudentsPaymentsAction,
+  StudentPaymentData,
+} from "@/actions/admin/get-students-payments-action";
+import { updatePaymentAction } from "@/actions/admin/update-payment-action";
+import {
   createAlunoAction,
   FormState,
 } from "@/actions/user/create-aluno-action";
+import { PaymentStatusModal } from "@/components/Admin/PaymentStatusModal";
+import { StudentCredentialsModal } from "@/components/Admin/StudentCredentialsModal";
 import { AcademySettingsView } from "@/components/Dashboard/AcademySettingsView";
 import { ManageStudentsView } from "@/components/Dashboard/ManageStudentsView";
 import { ReportsView } from "@/components/Dashboard/ReportsView";
@@ -34,10 +41,29 @@ export function AdministrativeTab() {
   const [showSettings, setShowSettings] = useState(false);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
+  const [showUpToDateModal, setShowUpToDateModal] = useState(false);
+  const [showOverdueModal, setShowOverdueModal] = useState(false);
+  const [studentsData, setStudentsData] = useState<StudentPaymentData[]>([]);
+  const [updating, setUpdating] = useState<string | null>(null);
+  const [isLoadingStudents, setIsLoadingStudents] = useState(false);
   const [formState, formAction, isPending] = useActionState<
     FormState,
     FormData
   >(createAlunoAction, { success: false, message: "" });
+
+  const [showCredentialsModal, setShowCredentialsModal] = useState(false);
+
+  const loadStudentsData = async () => {
+    try {
+      setIsLoadingStudents(true);
+      const data = await getStudentsPaymentsAction();
+      setStudentsData(data.filter((student) => student.isUpToDate));
+    } catch (error) {
+      console.error("Erro ao carregar dados dos alunos:", error);
+    } finally {
+      setIsLoadingStudents(false);
+    }
+  };
 
   // Carregar estatísticas ao montar o componente
   useEffect(() => {
@@ -68,8 +94,13 @@ export function AdministrativeTab() {
         }
       }
       reloadStats();
+
+      // Mostrar modal com as credenciais
+      if (formState.credentials) {
+        setShowCredentialsModal(true);
+      }
     }
-  }, [formState.success]);
+  }, [formState.success, formState.credentials]);
 
   const adminActions = [
     {
@@ -684,7 +715,21 @@ export function AdministrativeTab() {
           </CardContent>
         </Card>
 
-        <Card className="border-green-500/50 bg-green-900/20">
+        <Card
+          className="cursor-pointer border-green-500/50 bg-green-900/20 transition-all hover:bg-green-900/40"
+          onClick={async () => {
+            try {
+              setIsLoadingStudents(true);
+              const data = await getStudentsPaymentsAction();
+              setStudentsData(data.filter((student) => student.isUpToDate));
+              setShowUpToDateModal(true);
+            } catch (error) {
+              console.error("Erro ao carregar dados dos alunos:", error);
+            } finally {
+              setIsLoadingStudents(false);
+            }
+          }}
+        >
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500">
@@ -692,7 +737,7 @@ export function AdministrativeTab() {
               </div>
               <div>
                 <p className="text-sm text-slate-400">Pagamentos em Dia</p>
-                {loadingStats ? (
+                {loadingStats || isLoadingStudents ? (
                   <div className="h-7 w-12 animate-pulse rounded bg-slate-700" />
                 ) : (
                   <p className="text-xl font-bold text-white">
@@ -704,7 +749,21 @@ export function AdministrativeTab() {
           </CardContent>
         </Card>
 
-        <Card className="border-amber-500/50 bg-amber-900/20">
+        <Card
+          className="cursor-pointer border-amber-500/50 bg-amber-900/20 transition-all hover:bg-amber-900/40"
+          onClick={async () => {
+            try {
+              setIsLoadingStudents(true);
+              const data = await getStudentsPaymentsAction();
+              setStudentsData(data.filter((student) => !student.isUpToDate));
+              setShowOverdueModal(true);
+            } catch (error) {
+              console.error("Erro ao carregar dados dos alunos:", error);
+            } finally {
+              setIsLoadingStudents(false);
+            }
+          }}
+        >
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500">
@@ -712,7 +771,7 @@ export function AdministrativeTab() {
               </div>
               <div>
                 <p className="text-sm text-slate-400">Pendências</p>
-                {loadingStats ? (
+                {loadingStats || isLoadingStudents ? (
                   <div className="h-7 w-12 animate-pulse rounded bg-slate-700" />
                 ) : (
                   <p className="text-xl font-bold text-white">
@@ -771,6 +830,61 @@ export function AdministrativeTab() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Modais */}
+      <PaymentStatusModal
+        isOpen={showUpToDateModal}
+        onClose={() => setShowUpToDateModal(false)}
+        title="Pagamentos em Dia"
+        students={studentsData}
+        type="paid"
+        onUpdatePayment={async (userId, paid) => {
+          try {
+            setUpdating(userId);
+            await updatePaymentAction(userId, paid);
+            const data = await getStudentsPaymentsAction();
+            setStudentsData(data.filter((student) => student.isUpToDate));
+            const result = await getDashboardStatsAction();
+            if (result.success && result.stats) {
+              setStats(result.stats);
+            }
+          } finally {
+            setUpdating(null);
+          }
+        }}
+      />
+
+      <PaymentStatusModal
+        isOpen={showOverdueModal}
+        onClose={() => setShowOverdueModal(false)}
+        title="Pendências"
+        students={studentsData}
+        type="pending"
+        onUpdatePayment={async (userId, paid) => {
+          try {
+            setUpdating(userId);
+            await updatePaymentAction(userId, paid);
+            const data = await getStudentsPaymentsAction();
+            setStudentsData(data.filter((student) => !student.isUpToDate));
+            const result = await getDashboardStatsAction();
+            if (result.success && result.stats) {
+              setStats(result.stats);
+            }
+          } finally {
+            setUpdating(null);
+          }
+        }}
+      />
+
+      {/* Modal de credenciais do novo aluno */}
+      <StudentCredentialsModal
+        isOpen={showCredentialsModal}
+        onClose={() => {
+          setShowCredentialsModal(false);
+          setShowForm(false); // Fechar o formulário também
+        }}
+        credentials={formState.credentials || null}
+      />
     </div>
   );
 }

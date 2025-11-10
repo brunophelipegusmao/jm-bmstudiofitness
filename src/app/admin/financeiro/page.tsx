@@ -37,7 +37,9 @@ export default function AdminPaymentsPage() {
   useEffect(() => {
     async function loadStudents() {
       try {
+        console.log("Carregando dados dos alunos...");
         const data = await getStudentsPaymentsAction();
+        console.log("Dados carregados:", data);
         setStudents(data);
       } catch (error) {
         console.error("Erro ao carregar dados dos alunos:", error);
@@ -161,7 +163,10 @@ export default function AdminPaymentsPage() {
 
             <Card
               className="cursor-pointer border-green-600 bg-green-900/20 backdrop-blur-sm transition-all hover:bg-green-900/30"
-              onClick={() => setShowUpToDateModal(true)}
+              onClick={() => {
+                console.log("Abrindo modal de pagamentos em dia");
+                setShowUpToDateModal(true);
+              }}
             >
               <CardContent className="p-3 sm:p-6">
                 <div className="text-center">
@@ -178,7 +183,10 @@ export default function AdminPaymentsPage() {
 
             <Card
               className="cursor-pointer border-red-600 bg-red-900/20 backdrop-blur-sm transition-all hover:bg-red-900/30"
-              onClick={() => setShowOverdueModal(true)}
+              onClick={() => {
+                console.log("Abrindo modal de pagamentos em atraso");
+                setShowOverdueModal(true);
+              }}
             >
               <CardContent className="p-3 sm:p-6">
                 <div className="text-center">
@@ -757,6 +765,7 @@ export default function AdminPaymentsPage() {
         title="Pagamentos em Dia"
         students={studentsUpToDate}
         type="paid"
+        onUpdatePayment={handlePaymentUpdate}
       />
 
       <PaymentStatusModal
@@ -765,6 +774,7 @@ export default function AdminPaymentsPage() {
         title="Pagamentos Pendentes"
         students={studentsOverdue}
         type="pending"
+        onUpdatePayment={handlePaymentUpdate}
       />
     </AdminLayout>
   );

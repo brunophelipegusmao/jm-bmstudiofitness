@@ -4,6 +4,7 @@ import { and, count, eq, isNull, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import { financialTable, usersTable } from "@/db/schema";
+import { isPaymentUpToDate } from "@/lib/payment-utils";
 import { UserRole } from "@/types/user-roles";
 
 export interface DashboardStats {
@@ -48,16 +49,34 @@ export async function getDashboardStatsAction(): Promise<{
 
     const paymentsUpToDate = paymentsUpToDateResult[0]?.count || 0;
 
-    // Alunos com pagamentos pendentes (paid = false e não deletados)
+    // Alunos com pagamentos pendentes (considerando data de vencimento)
     const pendingPaymentsResult = await db
-      .select({ count: count() })
-      .from(financialTable)
-      .innerJoin(usersTable, eq(financialTable.userId, usersTable.id))
+      .select({
+        userId: usersTable.id,
+        dueDate: financialTable.dueDate,
+        lastPaymentDate: financialTable.lastPaymentDate,
+        paid: financialTable.paid,
+      })
+      .from(usersTable)
+      .leftJoin(financialTable, eq(financialTable.userId, usersTable.id))
       .where(
-        sql`${usersTable.userRole} = ${UserRole.ALUNO} AND ${financialTable.paid} = false AND ${usersTable.deletedAt} IS NULL`,
+        and(
+          eq(usersTable.userRole, UserRole.ALUNO),
+          isNull(usersTable.deletedAt),
+        ),
       );
 
-    const pendingPayments = pendingPaymentsResult[0]?.count || 0;
+    const pendingPayments = pendingPaymentsResult.filter((payment) => {
+      // Se não tem dados financeiros, considera como pendente
+      if (!payment.dueDate || payment.paid === null) {
+        return true;
+      }
+      return !isPaymentUpToDate(
+        payment.dueDate,
+        payment.lastPaymentDate,
+        payment.paid,
+      );
+    }).length;
 
     // Receita mensal total (soma de todas as mensalidades de alunos não deletados)
     const totalRevenueResult = await db

@@ -1,22 +1,39 @@
-/* eslint-disable simple-import-sort/imports */
-
+import autoTable from "jspdf-autotable";
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+
 import { StudentPaymentData } from "@/actions/admin/get-students-payments-action";
 import { formatCurrency } from "@/lib/payment-utils";
 
-declare module "jspdf" {
-  interface jsPDF {
-    // typings for autoTable are complex; use unknown to avoid explicit any
-    autoTable: (options: unknown) => jsPDF;
-  }
+interface AutoTableOptions {
+  startY: number;
+  head: string[][];
+  body: string[][];
+  theme: string;
+  headStyles: {
+    fillColor: number[];
+    textColor: number;
+  };
+  styles: {
+    fontSize: number;
+    cellPadding: number;
+  };
+}
+
+interface JsPDFWithAutoTable extends jsPDF {
+  autoTable: (options: AutoTableOptions) => JsPDFWithAutoTable;
+  lastAutoTable?: {
+    finalY?: number;
+  };
 }
 
 export async function generatePaymentReport(
   students: StudentPaymentData[],
   type: "paid" | "pending",
 ) {
-  const doc = new jsPDF();
+  const doc = new jsPDF() as JsPDFWithAutoTable;
+
+  // Inicializar autoTable
+  autoTable(doc, {} as AutoTableOptions);
 
   // Configuração do cabeçalho
   doc.setFont("helvetica", "bold");
@@ -43,7 +60,7 @@ export async function generatePaymentReport(
       : "Nunca",
   ]);
 
-  doc.autoTable({
+  (doc as any).autoTable({
     startY: 40,
     head: [["Nome", "Valor", "Vencimento", "Último Pagamento"]],
     body: tableData,

@@ -259,3 +259,102 @@ export function getTokenExpirationDate(): Date {
   expiration.setHours(expiration.getHours() + 24); // Token expira em 24 horas
   return expiration;
 }
+
+function generateResetPasswordEmailTemplate(name: string, resetUrl: string) {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Redefinição de Senha - JM Fitness Studio</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #C2A537; margin: 0; font-size: 28px;">🏋️ JM Fitness Studio</h1>
+        <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px;">Redefinição de Senha</p>
+      </div>
+      
+      <div style="background: #f9f9f9; padding: 30px; border-radius: 10px; margin-bottom: 30px;">
+        <h2 style="color: #C2A537; margin-top: 0;">Olá, ${name}!</h2>
+        
+        <p>Recebemos uma solicitação para redefinir a senha da sua conta. Se você não fez esta solicitação, pode ignorar este email.</p>
+        
+        <p><strong>⚠️ Importante:</strong> Este link expira em 1 hora.</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetUrl}" style="background: #C2A537; color: #000; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; display: inline-block;">
+            🔑 Redefinir Senha
+          </a>
+        </div>
+        
+        <p style="font-size: 14px; color: #666;">Se o botão não funcionar, copie e cole este link no seu navegador:</p>
+        <p style="word-break: break-all; background: #e9e9e9; padding: 10px; border-radius: 5px; font-size: 12px;">${resetUrl}</p>
+      </div>
+      
+      <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+        <p style="color: #666; font-size: 12px; margin: 0;">
+          Este é um email automático. Por favor, não responda.
+        </p>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const text = `
+    JM Fitness Studio - Redefinição de Senha
+    
+    Olá, ${name}!
+    
+    Recebemos uma solicitação para redefinir a senha da sua conta. Se você não fez esta solicitação, pode ignorar este email.
+    
+    Acesse o link abaixo para redefinir sua senha:
+    ${resetUrl}
+    
+    ⚠️ Importante: Este link expira em 1 hora.
+    
+    --
+    JM Fitness Studio
+  `;
+
+  return { html, text };
+}
+
+export async function sendResetPasswordEmail(
+  email: string,
+  name: string,
+  token: string,
+): Promise<boolean> {
+  try {
+    const config = getEmailConfig();
+    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/user/reset-password?token=${token}`;
+
+    const emailTemplate = generateResetPasswordEmailTemplate(name, resetUrl);
+
+    const emailData: EmailData = {
+      to: email,
+      subject: "Redefinição de Senha - JM Fitness Studio",
+      html: emailTemplate.html,
+      text: emailTemplate.text,
+    };
+
+    // Escolher provedor baseado na configuração
+    switch (config.provider) {
+      case "resend":
+        return await sendWithResend(emailData);
+
+      case "smtp":
+        return await sendWithSMTP(emailData);
+
+      case "sendgrid":
+        return await sendWithSendGrid(emailData);
+
+      case "development":
+      default:
+        return await sendInDevelopment(emailData);
+    }
+  } catch (error) {
+    console.error("Erro ao enviar e-mail de redefinição de senha:", error);
+    return false;
+  }
+}

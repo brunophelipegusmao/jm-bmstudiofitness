@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
+import Link from "next/link";
 import { useActionState, useState } from "react";
 
 import { loginAction } from "@/actions/auth/login-action";
@@ -30,10 +31,10 @@ export default function LoginPage() {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className="bg-gradient-to-br from-[#1b1b1a] via-black to-[#1b1b1a] py-20 text-white"
+      className="bg-linear-to-br from-[#1b1b1a] via-black to-[#1b1b1a] py-20 text-white"
     >
       {/* Background decorativo */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50"></div>
+      <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/30 via-transparent to-black/50"></div>
 
       <div className="relative z-10 flex items-center justify-center p-4">
         <div className="flex w-full max-w-6xl flex-col items-center gap-8 lg:flex-row lg:items-stretch">
@@ -50,7 +51,7 @@ export default function LoginPage() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1, delay: 0.4 }}
-                className="absolute -inset-4 animate-pulse rounded-3xl bg-gradient-to-r from-[#C2A537]/20 via-[#C2A537]/10 to-[#C2A537]/20 blur-xl"
+                className="absolute -inset-4 animate-pulse rounded-3xl bg-linear-to-r from-[#C2A537]/20 via-[#C2A537]/10 to-[#C2A537]/20 blur-xl"
               ></motion.div>
 
               <motion.div
@@ -73,7 +74,7 @@ export default function LoginPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.6, delay: 0.6 }}
                     >
-                      <CardTitle className="flex items-center gap-3 bg-gradient-to-r from-[#FFD700] via-[#C2A537] to-[#B8941F] bg-clip-text text-xl font-bold text-transparent md:text-2xl">
+                      <CardTitle className="flex items-center gap-3 bg-linear-to-r from-[#FFD700] via-[#C2A537] to-[#B8941F] bg-clip-text text-xl font-bold text-transparent md:text-2xl">
                         <motion.div
                           whileHover={{ rotate: 360, scale: 1.1 }}
                           transition={{ duration: 0.5 }}
@@ -200,11 +201,21 @@ export default function LoginPage() {
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ duration: 0.6, delay: 1.6 }}
-                          className="text-center"
+                          className="flex flex-col gap-4 text-center"
                         >
                           <p className="text-sm text-slate-400">
                             Acesso para admins, professores e alunos cadastrados
                           </p>
+                          <Button
+                            type="button"
+                            variant="link"
+                            className="text-[#C2A537] hover:text-[#C2A537]/80"
+                            asChild
+                          >
+                            <Link href="/user/forgot-password">
+                              Esqueceu sua senha?
+                            </Link>
+                          </Button>
                         </motion.div>
                       </form>
                     </motion.div>

@@ -1,22 +1,15 @@
-/* eslint-disable simple-import-sort/imports */
-
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
+
 import { StudentPaymentData } from "@/actions/admin/get-students-payments-action";
 import { formatCurrency } from "@/lib/payment-utils";
-
-declare module "jspdf" {
-  interface jsPDF {
-    // typings for autoTable are complex; use unknown to avoid explicit any
-    autoTable: (options: unknown) => jsPDF;
-  }
-}
 
 export async function generatePaymentReport(
   students: StudentPaymentData[],
   type: "paid" | "pending",
-) {
-  const doc = new jsPDF();
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const doc = new jsPDF() as any;
 
   // Configuração do cabeçalho
   doc.setFont("helvetica", "bold");
@@ -35,7 +28,6 @@ export async function generatePaymentReport(
   // Tabela de alunos
   const tableData = students.map((student) => [
     student.name,
-    // formatCurrency expects cents
     formatCurrency(student.monthlyFeeValueInCents),
     `Dia ${student.dueDate}`,
     student.lastPaymentDate
@@ -59,16 +51,12 @@ export async function generatePaymentReport(
   });
 
   // Resumo financeiro
-  // total in cents
   const totalCents = students.reduce(
     (sum, student) => sum + student.monthlyFeeValueInCents,
     0,
   );
 
-  const lastAutoTable = (
-    doc as unknown as { lastAutoTable?: { finalY?: number } }
-  ).lastAutoTable;
-  const finalY = lastAutoTable?.finalY ?? 40;
+  const finalY = doc.lastAutoTable?.finalY ?? 40;
 
   doc.setFont("helvetica", "bold");
   doc.text("Resumo Financeiro:", 15, finalY + 20);

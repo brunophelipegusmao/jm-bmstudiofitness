@@ -18,6 +18,8 @@ import {
   sendConfirmationEmail,
 } from "@/lib/email";
 import { convertToCents, isValidDueDate } from "@/lib/payment-utils";
+import { generateSecurePassword } from "@/lib/password-utils";
+import { hash } from "bcryptjs";
 import { UserRole } from "@/types/user-roles";
 
 // Schema de validação para o cadastro do aluno
@@ -84,6 +86,11 @@ export interface FormState {
   success: boolean;
   message: string;
   errors?: Record<string, string[]>;
+  credentials?: {
+    name: string;
+    email: string;
+    password: string;
+  };
 }
 
 export async function createAlunoAction(
@@ -134,14 +141,17 @@ export async function createAlunoAction(
     }
 
     // Iniciar transação para criar usuário completo
+    const password = generateSecurePassword();
+    const hashedPassword = await hash(password, 10);
+
     const result = await db.transaction(async (tx) => {
-      // 1. Criar usuário com role de ALUNO (sem senha ainda)
+      // 1. Criar usuário com role de ALUNO e senha gerada
       const [newUser] = await tx
         .insert(usersTable)
         .values({
           name: validatedData.name,
           userRole: UserRole.ALUNO,
-          password: null, // Senha será criada na confirmação
+          password: hashedPassword,
           createdAt: new Date().toISOString().split("T")[0],
         })
         .returning({ id: usersTable.id });
@@ -220,6 +230,11 @@ export async function createAlunoAction(
       success: true,
       message:
         "Aluno cadastrado com sucesso! Um e-mail de confirmação foi enviado.",
+      credentials: {
+        name: validatedData.name,
+        email: validatedData.email,
+        password,
+      },
     };
   } catch (error) {
     console.error("Erro ao cadastrar aluno:", error);
