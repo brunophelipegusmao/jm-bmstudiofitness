@@ -162,7 +162,7 @@ export async function quickCheckInAction(
 
     return {
       success: true,
-      message: `Check-in realizado com sucesso! Bem-vindo(a), ${userResult.userName}!`,
+      message: `Check-in realizado com sucesso!`,
       userName: userResult.userName,
     };
   } catch (error) {

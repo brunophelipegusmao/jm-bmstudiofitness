@@ -2,9 +2,10 @@
 
 import { motion } from "framer-motion";
 import { Clock, Loader2, UserCheck } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 import { quickCheckInAction } from "@/actions/user/quick-check-in-action";
+import { CheckInSuccessModal } from "@/components/CheckInSuccessModal";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,10 +29,18 @@ const initialState: QuickCheckInState = {
 };
 
 export default function QuickCheckInCard() {
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [state, formAction, isPending] = useActionState(
     quickCheckInAction,
     initialState,
   );
+
+  // Mostrar modal quando o check-in for bem sucedido
+  useEffect(() => {
+    if (state.success) {
+      setShowSuccessModal(true);
+    }
+  }, [state.success]);
 
   return (
     <div className="flex flex-1 justify-center">
@@ -176,6 +185,13 @@ export default function QuickCheckInCard() {
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Modal de sucesso de check-in */}
+        <CheckInSuccessModal
+          userName={state.userName || ""}
+          isOpen={showSuccessModal && !!state.userName && state.success}
+          onClose={() => setShowSuccessModal(false)}
+        />
       </div>
     </div>
   );

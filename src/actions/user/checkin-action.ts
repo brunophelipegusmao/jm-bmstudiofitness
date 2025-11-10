@@ -181,7 +181,7 @@ export async function checkInAction(
 
     return {
       success: true,
-      message: `Check-in realizado com sucesso! Bem-vindo(a), ${user.userName}!`,
+      message: `Check-in realizado com sucesso!`,
       userName: user.userName,
     };
   } catch (error) {

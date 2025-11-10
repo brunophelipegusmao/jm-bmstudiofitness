@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 
 import { checkInAction, CheckInFormState } from "@/actions/user/checkin-action";
 import { Button } from "@/components/Button";
+import { CheckInSuccessModal } from "@/components/CheckInSuccessModal";
 import { Container } from "@/components/Container";
 import { FieldError } from "@/components/FieldError";
 import { PaymentWarningDialog } from "@/components/PaymentWarningDialog";
@@ -38,6 +39,7 @@ export default function CheckInPage() {
     "unknown",
   );
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Detectar tipo de input baseado no que o usuário digita
   useEffect(() => {
@@ -78,15 +80,18 @@ export default function CheckInPage() {
     }
   };
 
-  // Limpar formulário após sucesso
+  // Mostrar modal de sucesso e limpar formulário após check-in bem sucedido
   useEffect(() => {
-    if (state.success) {
-      setTimeout(() => {
-        setIdentifier("");
-        // Reset do estado pode ser feito aqui se necessário
-      }, 3000);
+    if (state.success && state.userName) {
+      console.log("Check-in bem sucedido, mostrando modal...", {
+        success: state.success,
+        userName: state.userName,
+      });
+
+      setIdentifier("");
+      setShowSuccessModal(true);
     }
-  }, [state.success]);
+  }, [state.success, state.userName]);
 
   // Mostrar dialog de pagamento quando necessário
   useEffect(() => {
@@ -142,30 +147,25 @@ export default function CheckInPage() {
               </div>
             )}
 
-            {/* Mensagem de feedback - não mostrar se for erro de pagamento (será mostrado no dialog) */}
-            {state.message && !state.showPaymentDialog && (
-              <div
-                className={`mb-6 rounded-md p-4 text-center ${
-                  state.success
-                    ? "border border-green-600 bg-green-900/50 text-green-300"
-                    : "border border-red-600 bg-red-900/50 text-red-300"
-                }`}
-              >
+            {/* Mensagem de erro - não mostrar se for erro de pagamento (será mostrado no dialog) */}
+            {state.message && !state.showPaymentDialog && !state.success && (
+              <div className="mb-6 rounded-md border border-red-600 bg-red-900/50 p-4 text-center text-red-300">
                 <div className="mb-2 flex items-center justify-center">
-                  {state.success ? (
-                    <span className="text-2xl">✅</span>
-                  ) : (
-                    <span className="text-2xl">❌</span>
-                  )}
+                  <span className="text-2xl">❌</span>
                 </div>
                 <p className="font-medium">{state.message}</p>
-                {state.userName && state.success && (
-                  <p className="mt-2 text-sm opacity-80">
-                    Tenha um ótimo treino!
-                  </p>
-                )}
               </div>
             )}
+
+            {/* Modal de sucesso */}
+            <CheckInSuccessModal
+              userName={state.userName || ""}
+              isOpen={showSuccessModal && !!state.userName && state.success}
+              onClose={() => {
+                console.log("Fechando modal de sucesso...");
+                setShowSuccessModal(false);
+              }}
+            />
 
             <form action={formAction} className="space-y-6">
               <div className="space-y-2">

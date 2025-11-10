@@ -26,6 +26,19 @@ export interface StudentPaymentData {
   formattedValue: string;
 }
 
+// Interface para dados brutos do banco antes do processamento
+interface RawStudentData {
+  userId: string;
+  name: string;
+  email: string | null;
+  cpf: string | null;
+  monthlyFeeValueInCents: number | null;
+  paymentMethod: string | null;
+  dueDate: number | null;
+  paid: boolean | null;
+  lastPaymentDate: string | null;
+}
+
 export async function getStudentsPaymentsAction(): Promise<
   StudentPaymentData[]
 > {
@@ -55,27 +68,33 @@ export async function getStudentsPaymentsAction(): Promise<
       .orderBy(usersTable.name);
 
     // Processar dados com informações adicionais
-    const processedStudents: StudentPaymentData[] = students.map((student) => {
-      // Se não tem dados financeiros, considera como pendente
+    const processedStudents = students.map((student): StudentPaymentData => {
+      // Valores padrão para dados não configurados
+      const defaultValues: StudentPaymentData = {
+        userId: student.userId,
+        name: student.name,
+        email: student.email || "Não configurado",
+        cpf: student.cpf || "Não configurado",
+        monthlyFeeValueInCents: 0,
+        paymentMethod: student.paymentMethod || "Não configurado",
+        dueDate: 1,
+        paid: false,
+        lastPaymentDate: null,
+        isUpToDate: false,
+        daysUntilDue: 0,
+        formattedValue: "Não configurado",
+      };
+
+      // Se não tem dados financeiros, retorna valores padrão
       if (
         !student.dueDate ||
         student.paid === null ||
         !student.monthlyFeeValueInCents
       ) {
-        return {
-          ...student,
-          isUpToDate: false,
-          daysUntilDue: 0,
-          formattedValue: "Não configurado",
-          monthlyFeeValueInCents: 0,
-          paid: false,
-          dueDate: 1,
-          email: student.email || "Não configurado",
-          cpf: student.cpf || "Não configurado",
-          paymentMethod: student.paymentMethod || "Não configurado",
-        };
+        return defaultValues;
       }
 
+      // Se tem dados financeiros, processa as informações
       const isUpToDate = isPaymentUpToDate(
         student.dueDate,
         student.lastPaymentDate,
@@ -86,7 +105,15 @@ export async function getStudentsPaymentsAction(): Promise<
       const formattedValue = formatCurrency(student.monthlyFeeValueInCents);
 
       return {
-        ...student,
+        userId: student.userId,
+        name: student.name,
+        email: student.email || "Não configurado",
+        cpf: student.cpf || "Não configurado",
+        monthlyFeeValueInCents: student.monthlyFeeValueInCents,
+        paymentMethod: student.paymentMethod || "Não configurado",
+        dueDate: student.dueDate,
+        paid: student.paid,
+        lastPaymentDate: student.lastPaymentDate,
         isUpToDate,
         daysUntilDue,
         formattedValue,

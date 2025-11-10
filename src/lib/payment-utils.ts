@@ -14,39 +14,46 @@ export function isPaymentUpToDate(
   lastPaymentDate: string | null,
   paid: boolean,
 ): boolean {
+  // Usar UTC para evitar problemas com fuso horário
   const today = new Date();
-  const currentDay = today.getDate();
-  const currentMonth = today.getMonth();
-  const currentYear = today.getFullYear();
+  const currentDay = today.getUTCDate();
+  const currentMonth = today.getUTCMonth();
+  const currentYear = today.getUTCFullYear();
 
-  // Se está marcado como pago e o último pagamento foi neste mês, está em dia
-  if (paid && lastPaymentDate) {
+  // Se não tem data de último pagamento ou não está marcado como pago
+  if (!lastPaymentDate || !paid) {
+    // Está em dia apenas se ainda não passou do vencimento
+    return currentDay <= dueDate;
+  }
+
+  try {
     const lastPayment = new Date(lastPaymentDate);
-    const lastPaymentMonth = lastPayment.getMonth();
-    const lastPaymentYear = lastPayment.getFullYear();
+    const lastPaymentMonth = lastPayment.getUTCMonth();
+    const lastPaymentYear = lastPayment.getUTCFullYear();
 
-    // Se o último pagamento foi neste mês e ano, está em dia
+    // Verifica primeiro se o pagamento foi feito neste mês
     if (lastPaymentMonth === currentMonth && lastPaymentYear === currentYear) {
       return true;
     }
-  }
 
-  // Se não pagou ainda neste mês
-  if (!paid || !lastPaymentDate) {
-    // Se ainda não passou do dia de vencimento, considera em dia
+    // Se o pagamento foi feito no mês anterior e ainda não chegou no vencimento
     if (currentDay <= dueDate) {
-      return true;
+      const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+      if (
+        lastPaymentMonth === previousMonth &&
+        lastPaymentYear === previousYear
+      ) {
+        return true;
+      }
     }
-    // Se passou do dia de vencimento, está em atraso
+
+    return false;
+  } catch (error) {
+    console.error("Erro ao processar data de pagamento:", error);
     return false;
   }
-
-  // Caso padrão: verificar se o último pagamento foi neste mês
-  const lastPayment = new Date(lastPaymentDate);
-  const lastPaymentMonth = lastPayment.getMonth();
-  const lastPaymentYear = lastPayment.getFullYear();
-
-  return lastPaymentMonth === currentMonth && lastPaymentYear === currentYear;
 }
 
 /**
@@ -55,24 +62,38 @@ export function isPaymentUpToDate(
  * @returns Número de dias até o vencimento (negativo se já venceu)
  */
 export function getDaysUntilDue(dueDate: number): number {
-  const today = new Date();
-  const currentDay = today.getDate();
-  const currentMonth = today.getMonth();
-  const currentYear = today.getFullYear();
+  try {
+    const today = new Date();
+    const currentDay = today.getUTCDate();
+    const currentMonth = today.getUTCMonth();
+    const currentYear = today.getUTCFullYear();
 
-  // Data de vencimento neste mês
-  const dueThisMonth = new Date(currentYear, currentMonth, dueDate);
+    // Validar dueDate
+    if (dueDate < 1 || dueDate > 31) {
+      console.error("Data de vencimento inválida:", dueDate);
+      return 0;
+    }
 
-  // Se já passou do vencimento neste mês, calcular para o próximo mês
-  if (currentDay > dueDate) {
-    const dueNextMonth = new Date(currentYear, currentMonth + 1, dueDate);
-    const diffTime = dueNextMonth.getTime() - today.getTime();
+    // Data de vencimento neste mês (UTC)
+    const dueThisMonth = new Date(Date.UTC(currentYear, currentMonth, dueDate));
+
+    // Se já passou do vencimento neste mês, calcular para o próximo mês
+    if (currentDay > dueDate) {
+      const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+      const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+      const dueNextMonth = new Date(Date.UTC(nextYear, nextMonth, dueDate));
+
+      const diffTime = dueNextMonth.getTime() - today.getTime();
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    // Ainda não venceu neste mês
+    const diffTime = dueThisMonth.getTime() - today.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  } catch (error) {
+    console.error("Erro ao calcular dias até o vencimento:", error);
+    return 0;
   }
-
-  // Ainda não venceu neste mês
-  const diffTime = dueThisMonth.getTime() - today.getTime();
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
 /**
