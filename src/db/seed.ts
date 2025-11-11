@@ -13,6 +13,8 @@ import {
   healthMetricsTable,
   personalDataTable,
   posts,
+  professorCheckInsTable,
+  studentHealthHistoryTable,
   studioExpensesTable,
   userConfirmationTokensTable,
   usersTable,
@@ -25,8 +27,10 @@ const db = drizzle(connectionString);
 async function main() {
   // Limpar dados existentes (ordem importante devido às foreign keys)
   await db.delete(userConfirmationTokensTable);
+  await db.delete(professorCheckInsTable);
   await db.delete(checkInTable);
   await db.delete(financialTable);
+  await db.delete(studentHealthHistoryTable);
   await db.delete(healthMetricsTable);
   await db.delete(employeeTimeRecordsTable);
   await db.delete(employeesTable);
@@ -163,10 +167,21 @@ async function main() {
     },
   ]);
 
-  // 3) Dados de funcionário (para Carlos Silva)
-  const [employeeRecord] = await db
+  // 3) Dados de funcionário e professor
+  const employeeRecords = await db
     .insert(employeesTable)
     .values([
+      {
+        userId: professor.id,
+        position: "Personal Trainer",
+        shift: "integral",
+        shiftStartTime: "07:00",
+        shiftEndTime: "19:00",
+        salaryInCents: 350000, // R$ 3.500,00
+        hireDate: "2025-02-01",
+        createdAt: new Date("2025-02-01"),
+        updatedAt: new Date("2025-02-01"),
+      },
       {
         userId: funcionario.id,
         position: "Recepcionista",
@@ -180,6 +195,8 @@ async function main() {
       },
     ])
     .returning();
+
+  const [professorEmployee, employeeRecord] = employeeRecords;
 
   // 3.1) Registros de ponto do funcionário (últimos 30 dias)
   const timeRecords = [];
@@ -959,7 +976,9 @@ Venha conhecer as novidades e descubra como podemos potencializar ainda mais seu
   console.log("✅ Seed concluído com sucesso!");
   console.log("📊 Dados criados:");
   console.log(`  - 1 Administrador: ${admin.name}`);
-  console.log(`  - 1 Professor: ${professor.name}`);
+  console.log(
+    `  - 1 Professor: ${professor.name} (Personal Trainer - pode fazer login)`,
+  );
   console.log(`  - 1 Funcionário: ${funcionario.name} (Recepcionista)`);
   console.log(
     `  - 4 Alunos: ${ana.name}, ${bruno.name}, ${carla.name}, ${daniel.name}`,

@@ -1,171 +1,286 @@
-import { ArrowRight, Calendar, Clock, Eye, Tag } from "lucide-react";
-import { type Metadata } from "next";
+"use client";
+
+import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 import { getPublishedPostsAction } from "@/actions/public/blog-action";
-import { Container } from "@/components/Container";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-export const metadata: Metadata = {
-  title: "Blog | JM Fitness Studio",
-  description:
-    "Descubra dicas de treino, nutrição e bem-estar no blog da JM Fitness Studio. Conteúdo especializado para você alcançar seus objetivos fitness.",
-  keywords: [
-    "blog fitness",
-    "dicas de treino",
-    "nutrição esportiva",
-    "exercícios",
-    "estúdio",
-    "musculação",
-  ],
-  openGraph: {
-    title: "Blog | JM Fitness Studio",
-    description:
-      "Descubra dicas de treino, nutrição e bem-estar no blog da JM Fitness Studio.",
-    type: "website",
-    locale: "pt_BR",
-  },
-};
+interface Post {
+  id: number;
+  title: string;
+  excerpt: string;
+  imageUrl: string | null;
+  slug: string;
+  readTime: number | null;
+  views: number;
+  publishedAt: Date;
+  category: {
+    id: number;
+    name: string;
+    color: string;
+    slug: string;
+  } | null;
+  tags: {
+    id: number;
+    name: string;
+    slug: string;
+  }[];
+}
 
-export default async function BlogPage() {
-  const posts = await getPublishedPostsAction();
+export default function BlogPage() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadPosts() {
+      try {
+        const fetchedPosts = await getPublishedPostsAction();
+        setPosts(fetchedPosts);
+      } catch (error) {
+        console.error("Error loading posts:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadPosts();
+  }, []);
+
+  // Variantes de animação
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const cardVariants = {
+    hidden: {
+      opacity: 0,
+      y: 50,
+      scale: 0.9,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+    },
+  };
 
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Hero Section */}
-      <section className="relative bg-linear-to-r from-black via-slate-900 to-black py-20">
-        <Container>
+      <motion.section
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="relative bg-linear-to-b from-black via-slate-900 to-black py-20"
+      >
+        {/* Degradê de fundo */}
+        <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-[#C2A537]/5 to-transparent"></div>
+
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {/* Botão Voltar */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="mb-8"
+          >
+            <Link href="/">
+              <Button
+                variant="outline"
+                className="border-[#C2A537]/30 bg-black/50 text-[#C2A537] backdrop-blur-sm hover:border-[#C2A537] hover:bg-[#C2A537]/10"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Voltar para Home
+              </Button>
+            </Link>
+          </motion.div>
+
+          {/* Título */}
           <div className="text-center">
-            <h1 className="mb-6 text-4xl font-bold md:text-6xl">
+            <motion.h1
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="mb-6 text-4xl font-bold md:text-6xl"
+            >
               <span className="text-[#C2A537]">Blog</span> JM Fitness Studio
-            </h1>
-            <p className="mx-auto max-w-3xl text-xl text-slate-300">
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="mx-auto max-w-3xl text-xl text-slate-300"
+            >
               Descubra dicas de treino, nutrição e bem-estar para alcançar seus
               objetivos fitness
-            </p>
+            </motion.p>
           </div>
-        </Container>
-      </section>
+        </div>
+      </motion.section>
 
       {/* Posts Grid */}
-      <section className="py-16">
-        <Container>
-          {posts.length === 0 ? (
-            <div className="py-16 text-center">
-              <h2 className="mb-4 text-2xl font-bold text-slate-400">
-                Em breve, novos posts!
-              </h2>
-              <p className="text-slate-500">
-                Estamos preparando conteúdo incrível para você. Volte em breve!
-              </p>
-            </div>
-          ) : (
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {posts.map((post) => (
-                <Card
-                  key={post.id}
-                  className="group overflow-hidden border-slate-700/50 bg-slate-900/50 transition-all duration-300 hover:border-[#C2A537]/50"
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={containerVariants}
+        className="relative w-full bg-black py-12 sm:py-16 md:py-20"
+      >
+        {/* Degradê dourado discreto */}
+        <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-[#C2A537]/5 to-transparent"></div>
+
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {loading ? (
+            // Loading skeleton
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:gap-8 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <motion.div
+                  key={index}
+                  variants={cardVariants}
+                  className="group"
                 >
-                  {/* Post Image */}
-                  {post.imageUrl && (
-                    <div className="relative h-48 overflow-hidden">
-                      <Image
-                        src={post.imageUrl}
-                        alt={post.title}
-                        width={400}
-                        height={200}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-black/20 transition-colors duration-300 group-hover:bg-black/10" />
-
-                      {/* Category Badge */}
-                      {post.category && (
-                        <div
-                          className="absolute top-4 left-4 rounded-full px-3 py-1 text-xs font-medium"
-                          style={{
-                            backgroundColor: post.category.color,
-                            color: "#000",
-                          }}
-                        >
-                          {post.category.name}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  <CardHeader className="pb-3">
-                    <div className="mb-3 flex items-center gap-4 text-sm text-slate-400">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        {post.publishedAt
-                          ? new Date(post.publishedAt).toLocaleDateString(
-                              "pt-BR",
-                            )
-                          : "Data não disponível"}
+                  <Card className="border-gray-700 bg-black/50 backdrop-blur-sm">
+                    <CardHeader className="pb-3 sm:pb-4">
+                      <div className="mb-2 flex items-center justify-between sm:mb-3">
+                        <div className="h-6 w-16 animate-pulse rounded-full bg-gray-700"></div>
+                        <div className="h-4 w-12 animate-pulse rounded bg-gray-700"></div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        {post.readTime} min
+                      <div className="aspect-video animate-pulse rounded-lg bg-gray-700"></div>
+                      <div className="mt-3 h-6 w-3/4 animate-pulse rounded bg-gray-700"></div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="space-y-2">
+                        <div className="h-4 w-full animate-pulse rounded bg-gray-700"></div>
+                        <div className="h-4 w-2/3 animate-pulse rounded bg-gray-700"></div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Eye className="h-4 w-4" />
-                        {post.views}
-                      </div>
-                    </div>
-
-                    <h3 className="line-clamp-2 text-xl font-bold text-white transition-colors duration-300 group-hover:text-[#C2A537]">
-                      {post.title}
-                    </h3>
-                  </CardHeader>
-
-                  <CardContent className="pt-0">
-                    <p className="mb-4 line-clamp-3 text-slate-300">
-                      {post.excerpt}
-                    </p>
-
-                    {/* Tags */}
-                    {post.tags && post.tags.length > 0 && (
-                      <div className="mb-4 flex flex-wrap gap-2">
-                        {post.tags
-                          .slice(0, 3)
-                          .map(
-                            (tag: {
-                              id: number;
-                              name: string;
-                              slug: string;
-                            }) => (
-                              <span
-                                key={tag.id}
-                                className="flex items-center gap-1 rounded bg-slate-800 px-2 py-1 text-xs text-slate-300"
-                              >
-                                <Tag className="h-3 w-3" />
-                                {tag.name}
-                              </span>
-                            ),
-                          )}
-                        {post.tags.length > 3 && (
-                          <span className="text-xs text-slate-500">
-                            +{post.tags.length - 3} mais
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    <Link href={`/blog/${post.slug}`}>
-                      <Button className="w-full bg-[#C2A537] text-black transition-all duration-300 hover:bg-[#D4B547] hover:text-black">
-                        Ler post completo
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))}
             </div>
+          ) : posts.length === 0 ? (
+            <div className="py-16 text-center">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+              >
+                <h2 className="mb-4 text-2xl font-bold text-slate-400">
+                  Em breve, novos posts!
+                </h2>
+                <p className="text-slate-500">
+                  Estamos preparando conteúdo incrível para você. Volte em
+                  breve!
+                </p>
+              </motion.div>
+            </div>
+          ) : (
+            <motion.div
+              variants={containerVariants}
+              className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:gap-8 lg:grid-cols-3"
+            >
+              {posts.map((post) => (
+                <motion.div
+                  key={post.id}
+                  variants={cardVariants}
+                  transition={{
+                    duration: 0.6,
+                    ease: "easeOut",
+                  }}
+                  whileHover={{
+                    scale: 1.02,
+                    y: -5,
+                    transition: { duration: 0.3 },
+                  }}
+                  whileTap={{
+                    scale: 0.98,
+                    transition: { duration: 0.1 },
+                  }}
+                  className="group"
+                >
+                  <Link href={`/blog/${post.slug}`}>
+                    <Card className="cursor-pointer border-gray-700 bg-black/50 backdrop-blur-sm transition-all duration-700 hover:border-[#C2A537] hover:shadow-xl hover:shadow-[#C2A537]/20">
+                      <CardHeader className="pb-3 sm:pb-4">
+                        <div className="mb-2 flex items-center justify-between sm:mb-3">
+                          {post.category && (
+                            <span
+                              className="rounded-full px-2 py-1 text-xs font-medium sm:px-3"
+                              style={{
+                                backgroundColor: `${post.category.color}20`,
+                                color: post.category.color,
+                              }}
+                            >
+                              {post.category.name}
+                            </span>
+                          )}
+                          <span className="text-xs text-gray-400">
+                            {post.readTime || 5} min de leitura
+                          </span>
+                        </div>
+
+                        <div className="aspect-video overflow-hidden rounded-lg bg-gray-800">
+                          {post.imageUrl ? (
+                            <Image
+                              src={post.imageUrl}
+                              alt={post.title}
+                              width={400}
+                              height={225}
+                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-gray-800">
+                              <span className="text-gray-500">Sem imagem</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <CardTitle className="text-xl font-bold text-white transition-colors duration-300 group-hover:text-[#C2A537]">
+                          {post.title}
+                        </CardTitle>
+                      </CardHeader>
+
+                      <CardContent className="pt-0">
+                        <CardDescription className="leading-relaxed text-gray-300">
+                          {post.excerpt}
+                        </CardDescription>
+
+                        <div className="mt-4 flex items-center justify-between">
+                          <span className="text-sm font-semibold text-[#C2A537] transition-colors duration-200 group-hover:text-[#D4B547]">
+                            Ler mais →
+                          </span>
+                          <div className="flex space-x-1">
+                            <div className="h-1 w-1 rounded-full bg-[#C2A537]"></div>
+                            <div className="h-1 w-1 rounded-full bg-[#C2A537]/60"></div>
+                            <div className="h-1 w-1 rounded-full bg-[#C2A537]/30"></div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
           )}
-        </Container>
-      </section>
+        </div>
+      </motion.section>
     </div>
   );
 }

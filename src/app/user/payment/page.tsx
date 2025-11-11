@@ -46,7 +46,14 @@ export default function PaymentPage() {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState<
+    | "pix"
+    | "cartao_credito"
+    | "cartao_debito"
+    | "dinheiro"
+    | "transferencia"
+    | ""
+  >("");
   const [transactionId, setTransactionId] = useState<string>("");
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -296,7 +303,16 @@ export default function PaymentPage() {
                     <Label htmlFor="paymentMethod">Método de Pagamento</Label>
                     <Select
                       value={paymentMethod}
-                      onValueChange={setPaymentMethod}
+                      onValueChange={(value) =>
+                        setPaymentMethod(
+                          value as
+                            | "pix"
+                            | "cartao_credito"
+                            | "cartao_debito"
+                            | "dinheiro"
+                            | "transferencia",
+                        )
+                      }
                       disabled={paymentStatus?.paid || processing}
                     >
                       <SelectTrigger
@@ -307,14 +323,14 @@ export default function PaymentPage() {
                       </SelectTrigger>
                       <SelectContent className="border-gray-600 bg-gray-800 text-white">
                         <SelectItem value="pix">PIX</SelectItem>
-                        <SelectItem value="credit_card">
+                        <SelectItem value="cartao_credito">
                           Cartão de Crédito
                         </SelectItem>
-                        <SelectItem value="debit_card">
+                        <SelectItem value="cartao_debito">
                           Cartão de Débito
                         </SelectItem>
-                        <SelectItem value="cash">Dinheiro</SelectItem>
-                        <SelectItem value="bank_transfer">
+                        <SelectItem value="dinheiro">Dinheiro</SelectItem>
+                        <SelectItem value="transferencia">
                           Transferência Bancária
                         </SelectItem>
                       </SelectContent>

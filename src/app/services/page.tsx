@@ -12,135 +12,66 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
+import {
+  getPublicPlansAction,
+  type PublicPlan,
+} from "@/actions/public/get-plans-action";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-interface Service {
-  id: string;
-  title: string;
-  description: string;
-  features: string[];
-  price: string;
-  duration: string;
-  capacity: string;
-  icon: React.ReactNode;
-  gradient: string;
-  popular?: boolean;
-}
-
-const services: Service[] = [
-  {
-    id: "musculacao",
-    title: "Musculação",
-    description:
-      "Treinamento personalizado com equipamentos de última geração para desenvolvimento muscular e força.",
-    features: [
-      "Avaliação física completa",
-      "Treino personalizado",
-      "Acompanhamento profissional",
-      "Equipamentos modernos",
-      "Flexibilidade de horários",
-    ],
-    price: "R$ 89,90",
-    duration: "Ilimitado",
-    capacity: "Individual",
-    icon: <Dumbbell className="h-8 w-8" />,
-    gradient: "from-[#FFD700] via-[#C2A537] to-[#B8941F]",
-    popular: true,
-  },
-  {
-    id: "personal",
-    title: "Personal Training",
-    description:
-      "Acompanhamento individualizado com personal trainer especializado para resultados mais rápidos.",
-    features: [
-      "Instrutor exclusivo",
-      "Plano nutricional básico",
-      "Monitoramento de progresso",
-      "Flexibilidade total",
-      "Resultados garantidos",
-    ],
-    price: "R$ 180,00",
-    duration: "1h por sessão",
-    capacity: "1 pessoa",
-    icon: <Target className="h-8 w-8" />,
-    gradient: "from-[#C2A537] via-[#D4B547] to-[#E6C658]",
-  },
-  {
-    id: "funcional",
-    title: "Treino Funcional",
-    description:
-      "Exercícios funcionais que melhoram a performance em atividades do dia a dia.",
-    features: [
-      "Movimentos naturais",
-      "Melhora da coordenação",
-      "Fortalecimento do core",
-      "Prevenção de lesões",
-      "Grupos pequenos",
-    ],
-    price: "R$ 69,90",
-    duration: "45 minutos",
-    capacity: "Até 8 pessoas",
-    icon: <Zap className="h-8 w-8" />,
-    gradient: "from-[#B8941F] via-[#C2A537] to-[#D4B547]",
-  },
-  {
-    id: "cardio",
-    title: "Cardio & Conditioning",
-    description:
-      "Programa intensivo para melhorar o condicionamento cardiovascular e queimar gordura.",
-    features: [
-      "Exercícios aeróbicos",
-      "Queima de gordura",
-      "Melhora do fôlego",
-      "Variedade de exercícios",
-      "Monitoramento cardíaco",
-    ],
-    price: "R$ 59,90",
-    duration: "30-45 minutos",
-    capacity: "Até 12 pessoas",
-    icon: <Heart className="h-8 w-8" />,
-    gradient: "from-[#D4B547] via-[#FFD700] to-[#C2A537]",
-  },
-  {
-    id: "grupo",
-    title: "Aulas em Grupo",
-    description:
-      "Aulas dinâmicas e motivadoras em grupo com diversos tipos de exercícios.",
-    features: [
-      "Ambiente motivador",
-      "Socialização",
-      "Variedade de modalidades",
-      "Instrutores qualificados",
-      "Horários flexíveis",
-    ],
-    price: "R$ 49,90",
-    duration: "50 minutos",
-    capacity: "Até 15 pessoas",
-    icon: <Users className="h-8 w-8" />,
-    gradient: "from-[#E6C658] via-[#D4B547] to-[#C2A537]",
-  },
-  {
-    id: "avaliacao",
-    title: "Avaliação Física",
-    description:
-      "Análise completa da composição corporal e condicionamento físico para personalizar seu treino.",
-    features: [
-      "Bioimpedância",
-      "Análise postural",
-      "Testes de força",
-      "Medidas corporais",
-      "Relatório detalhado",
-    ],
-    price: "R$ 80,00",
-    duration: "1 hora",
-    capacity: "Individual",
-    icon: <Calendar className="h-8 w-8" />,
-    gradient: "from-[#C2A537] via-[#B8941F] to-[#FFD700]",
-  },
-];
+const iconComponents: Record<string, React.ElementType> = {
+  Dumbbell,
+  Target,
+  Zap,
+  Heart,
+  Users,
+  Calendar,
+  Clock,
+};
 
 export default function ServicesPage() {
+  const [plans, setPlans] = useState<PublicPlan[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadPlans = async () => {
+      try {
+        const result = await getPublicPlansAction();
+        if (result.success && result.data) {
+          setPlans(result.data);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar planos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPlans();
+  }, []);
+
+  const handleWhatsAppClick = (plan: PublicPlan) => {
+    const message = `Olá! Tenho interesse no plano *${plan.title}* (${plan.price}/mês). Gostaria de mais informações sobre:\n\n- Disponibilidade de horários\n- Forma de pagamento\n- Como iniciar\n\nAguardo retorno!`;
+
+    const whatsappNumber = "5511999999999"; // Substituir pelo número real
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+    window.open(whatsappUrl, "_blank");
+  };
+
+  const getIconComponent = (iconName: string) => {
+    const IconComponent = iconComponents[iconName] || Dumbbell;
+    return <IconComponent className="h-8 w-8" />;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#1b1b1a] via-black to-[#1b1b1a] text-white">
+        <p className="text-xl text-[#C2A537]">Carregando planos...</p>
+      </div>
+    );
+  }
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -171,9 +102,9 @@ export default function ServicesPage() {
         {/* Services Grid */}
         <div className="container mx-auto px-4 pb-20">
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {services.map((service, index) => (
+            {plans.map((plan, index) => (
               <motion.div
-                key={service.id}
+                key={plan.id}
                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{
@@ -188,7 +119,7 @@ export default function ServicesPage() {
                 className="relative"
               >
                 {/* Popular Badge */}
-                {service.popular && (
+                {plan.popular && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -217,23 +148,21 @@ export default function ServicesPage() {
                       <motion.div
                         whileHover={{ rotate: 360, scale: 1.1 }}
                         transition={{ duration: 0.5 }}
-                        className={`rounded-lg bg-gradient-to-r ${service.gradient} p-3 text-black`}
+                        className={`rounded-lg bg-gradient-to-r ${plan.gradient} p-3 text-black`}
                       >
-                        {service.icon}
+                        {getIconComponent(plan.icon)}
                       </motion.div>
                       <div className="text-right">
                         <div className="text-2xl font-bold text-[#C2A537]">
-                          {service.price}
+                          {plan.price}
                         </div>
                         <div className="text-xs text-slate-400">por mês</div>
                       </div>
                     </div>
                     <CardTitle className="bg-gradient-to-r from-[#FFD700] via-[#C2A537] to-[#B8941F] bg-clip-text text-xl font-bold text-transparent">
-                      {service.title}
+                      {plan.title}
                     </CardTitle>
-                    <p className="text-sm text-slate-300">
-                      {service.description}
-                    </p>
+                    <p className="text-sm text-slate-300">{plan.description}</p>
                   </CardHeader>
 
                   <CardContent className="space-y-6">
@@ -241,11 +170,11 @@ export default function ServicesPage() {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div className="flex items-center gap-2 text-slate-400">
                         <Clock className="h-4 w-4 text-[#C2A537]" />
-                        {service.duration}
+                        {plan.duration}
                       </div>
                       <div className="flex items-center gap-2 text-slate-400">
                         <Users className="h-4 w-4 text-[#C2A537]" />
-                        {service.capacity}
+                        {plan.capacity}
                       </div>
                     </div>
 
@@ -255,7 +184,7 @@ export default function ServicesPage() {
                         Benefícios Inclusos:
                       </h4>
                       <ul className="space-y-2">
-                        {service.features.map((feature, featureIndex) => (
+                        {plan.features.map((feature, featureIndex) => (
                           <motion.li
                             key={featureIndex}
                             initial={{ opacity: 0, x: -20 }}
@@ -275,11 +204,12 @@ export default function ServicesPage() {
 
                     {/* CTA Button */}
                     <motion.button
+                      onClick={() => handleWhatsAppClick(plan)}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       className="w-full transform rounded-lg bg-gradient-to-r from-[#C2A537] to-[#D4B547] py-3 font-semibold text-black transition-all duration-300 hover:from-[#D4B547] hover:to-[#E6C658] hover:shadow-lg hover:shadow-[#C2A537]/30"
                     >
-                      Escolher Plano
+                      Escolher Plano via WhatsApp
                     </motion.button>
                   </CardContent>
                 </Card>

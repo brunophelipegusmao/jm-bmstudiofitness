@@ -17,13 +17,13 @@ import { useActionState, useEffect, useState } from "react";
 
 import { logoutFormAction } from "@/actions/auth/logout-action";
 import {
-  getProfessorCheckInsAction,
-  professorCheckInAction,
-} from "@/actions/coach/professor-checkin-action";
-import {
   getStudentsHealthDataAction,
   StudentHealthData,
 } from "@/actions/coach/get-students-health-data-action";
+import {
+  getProfessorCheckInsAction,
+  professorCheckInAction,
+} from "@/actions/coach/professor-checkin-action";
 import { updateCoachObservationsAction } from "@/actions/coach/update-coach-observations-action";
 import { Button } from "@/components/ui/button";
 import {

@@ -6,6 +6,7 @@ import { getUserFromRequestEdge } from "@/lib/auth-edge";
 const protectedPaths = [
   "/admin",
   "/coach",
+  "/employee",
   "/user/cadastro",
   "/cadastro",
   "/user/dashboard",
@@ -14,7 +15,12 @@ const protectedPaths = [
 ];
 
 // Rotas públicas dentro das áreas protegidas (não requerem autenticação)
-const publicPaths = ["/admin/login", "/coach/login", "/user/login"];
+const publicPaths = [
+  "/admin/login",
+  "/coach/login",
+  "/employee/login",
+  "/user/login",
+];
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -49,8 +55,24 @@ export async function middleware(request: NextRequest) {
           return NextResponse.redirect(
             new URL("/admin/dashboard", request.url),
           );
+        } else if (user.role === "funcionario") {
+          return NextResponse.redirect(
+            new URL("/employee/dashboard", request.url),
+          );
         } else {
           return NextResponse.redirect(new URL("/coach", request.url));
+        }
+      } else if (pathname === "/employee/login") {
+        if (user.role === "funcionario") {
+          return NextResponse.redirect(
+            new URL("/employee/dashboard", request.url),
+          );
+        } else if (user.role === "admin") {
+          return NextResponse.redirect(
+            new URL("/admin/dashboard", request.url),
+          );
+        } else {
+          return NextResponse.redirect(new URL("/unauthorized", request.url));
         }
       } else if (pathname === "/coach/login") {
         return NextResponse.redirect(new URL("/coach", request.url));
@@ -63,6 +85,10 @@ export async function middleware(request: NextRequest) {
           );
         } else if (user.role === "professor") {
           return NextResponse.redirect(new URL("/coach", request.url));
+        } else if (user.role === "funcionario") {
+          return NextResponse.redirect(
+            new URL("/employee/dashboard", request.url),
+          );
         }
       }
     }
@@ -78,6 +104,9 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith("/coach")) {
       console.log("🔄 Redirecionando para /coach/login");
       return NextResponse.redirect(new URL("/coach/login", request.url));
+    } else if (pathname.startsWith("/employee")) {
+      console.log("🔄 Redirecionando para /employee/login");
+      return NextResponse.redirect(new URL("/employee/login", request.url));
     } else if (pathname.startsWith("/admin")) {
       console.log("🔄 Redirecionando para /admin/login");
       return NextResponse.redirect(new URL("/admin/login", request.url));
@@ -105,9 +134,14 @@ export async function middleware(request: NextRequest) {
 
   // Redireciona /admin exato para /admin/dashboard se autenticado
   if (pathname === "/admin") {
-    if (["admin", "funcionario"].includes(user.role)) {
+    if (user.role === "admin") {
       console.log("🔄 Redirecionando para /admin/dashboard");
       return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+    } else if (user.role === "funcionario") {
+      console.log(
+        "🔄 Funcionário tentando acessar /admin, redirecionando para /employee/dashboard",
+      );
+      return NextResponse.redirect(new URL("/employee/dashboard", request.url));
     } else {
       // Não tem permissão para área administrativa, redireciona conforme papel
       console.log(
@@ -115,6 +149,27 @@ export async function middleware(request: NextRequest) {
       );
 
       if (user.role === "professor") {
+        return NextResponse.redirect(new URL("/coach", request.url));
+      } else {
+        return NextResponse.redirect(new URL("/unauthorized", request.url));
+      }
+    }
+  }
+
+  // Redireciona /employee exato para /employee/dashboard se autenticado
+  if (pathname === "/employee") {
+    if (user.role === "funcionario") {
+      console.log("🔄 Redirecionando para /employee/dashboard");
+      return NextResponse.redirect(new URL("/employee/dashboard", request.url));
+    } else {
+      // Não tem permissão para área de funcionário
+      console.log(
+        "🔄 Usuário sem permissão para área de funcionário, redirecionando",
+      );
+
+      if (user.role === "admin") {
+        return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+      } else if (user.role === "professor") {
         return NextResponse.redirect(new URL("/coach", request.url));
       } else {
         return NextResponse.redirect(new URL("/unauthorized", request.url));
@@ -137,16 +192,42 @@ export async function middleware(request: NextRequest) {
 
   // Verifica permissões por rota e papel do usuário
 
-  // Área administrativa - admins e funcionários (com permissões diferentes)
+  // Área administrativa - apenas admins (funcionários vão para /employee)
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
-    if (!["admin", "funcionario"].includes(user.role)) {
+    if (user.role !== "admin") {
       console.log("❌ Usuário sem permissão para área administrativa", {
         userRole: user.role,
-        expectedRoles: ["admin", "funcionario"],
+        expectedRole: "admin",
       });
 
-      if (user.role === "professor") {
+      if (user.role === "funcionario") {
+        // Funcionário tentando acessar admin - redireciona para área de employee
+        return NextResponse.redirect(
+          new URL("/employee/dashboard", request.url),
+        );
+      } else if (user.role === "professor") {
         // Professor tentando acessar admin - redireciona para área do coach
+        return NextResponse.redirect(new URL("/coach", request.url));
+      } else {
+        // Outros usuários - acesso negado
+        return NextResponse.redirect(new URL("/unauthorized", request.url));
+      }
+    }
+  }
+
+  // Área de funcionário - apenas funcionários
+  if (pathname.startsWith("/employee") && pathname !== "/employee/login") {
+    if (user.role !== "funcionario") {
+      console.log("❌ Usuário sem permissão para área de funcionário", {
+        userRole: user.role,
+        expectedRole: "funcionario",
+      });
+
+      if (user.role === "admin") {
+        // Admin tentando acessar employee - redireciona para área de admin
+        return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+      } else if (user.role === "professor") {
+        // Professor tentando acessar employee - redireciona para área do coach
         return NextResponse.redirect(new URL("/coach", request.url));
       } else {
         // Outros usuários - acesso negado
@@ -214,6 +295,7 @@ export const config = {
   matcher: [
     "/admin/:path*",
     "/coach/:path*",
+    "/employee/:path*",
     "/user/cadastro",
     "/cadastro",
     "/user/dashboard",

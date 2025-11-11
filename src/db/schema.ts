@@ -136,12 +136,20 @@ export const checkInTable = pgTable("tb_check_ins", {
   checkInTimestamp: timestamp("check_in_timestamp").notNull().defaultNow(), // Data e hora exata do check-in
   method: text("method").notNull(), // 'cpf' ou 'email'
   identifier: text("identifier").notNull(), // CPF ou email usado no check-in
+  performedById: uuid("performed_by_id").references(() => usersTable.id), // Funcionário que fez o check-in (null = autoatendimento)
+  performedByRole: text("performed_by_role"), // Role do funcionário (para histórico)
+  paymentDaysOverdue: integer("payment_days_overdue").default(0), // Dias de atraso (se aplicável)
+  notes: text("notes"), // Observações do funcionário
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const checkInRelations = relations(checkInTable, ({ one }) => ({
   user: one(usersTable, {
     fields: [checkInTable.userId],
+    references: [usersTable.id],
+  }),
+  performedBy: one(usersTable, {
+    fields: [checkInTable.performedById],
     references: [usersTable.id],
   }),
 }));
@@ -478,6 +486,9 @@ export const studioSettingsTable = pgTable("tb_studio_settings", {
     .notNull()
     .default(false),
 
+  // Lista de Espera
+  waitlistEnabled: boolean("waitlist_enabled").notNull().default(false),
+
   // Termos e políticas de texto
   termsAndConditions: text("terms_and_conditions"),
   privacyPolicy: text("privacy_policy"),
@@ -613,3 +624,79 @@ export const professorCheckInsRelations = relations(
     }),
   }),
 );
+
+// Tabela para log de recibos gerados
+export const receiptsLogTable = pgTable("tb_receipts_log", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  receiptNumber: text("receipt_number").notNull().unique(), // REC-YYYYMMDD-USERID
+  studentUserId: uuid("student_user_id")
+    .notNull()
+    .references(() => usersTable.id),
+  studentName: text("student_name").notNull(),
+  studentCpf: text("student_cpf").notNull(),
+  studentEmail: text("student_email").notNull(),
+  amountPaid: integer("amount_paid").notNull(), // Valor em centavos
+  paymentDate: date("payment_date").notNull(),
+  paymentMethod: text("payment_method").notNull(),
+  referenceMonth: text("reference_month").notNull(), // ex: "Novembro/2025"
+  generatedById: uuid("generated_by_id")
+    .notNull()
+    .references(() => usersTable.id), // Quem gerou o recibo
+  generatedByName: text("generated_by_name").notNull(),
+  generatedByRole: text("generated_by_role").notNull(),
+  isManual: boolean("is_manual").notNull().default(false), // Se foi gerado manualmente
+  manualNotes: text("manual_notes"), // Observações do recibo manual
+  createdAt: date("created_at").notNull().defaultNow(),
+});
+
+export const receiptsLogRelations = relations(receiptsLogTable, ({ one }) => ({
+  student: one(usersTable, {
+    fields: [receiptsLogTable.studentUserId],
+    references: [usersTable.id],
+  }),
+  generatedBy: one(usersTable, {
+    fields: [receiptsLogTable.generatedById],
+    references: [usersTable.id],
+  }),
+}));
+
+// ==========================================
+// PLANS TABLE - Planos/Serviços
+// ==========================================
+
+export const plansTable = pgTable("tb_plans", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  features: text("features").notNull(), // JSON stringified array
+  price: text("price").notNull(), // Ex: "R$ 89,90"
+  priceValue: integer("price_value").notNull(), // Valor em centavos para ordenação
+  duration: text("duration").notNull(), // Ex: "Ilimitado", "1h por sessão"
+  capacity: text("capacity").notNull(), // Ex: "Individual", "Até 8 pessoas"
+  icon: text("icon").notNull(), // Nome do ícone do lucide-react
+  gradient: text("gradient").notNull(), // Classes CSS do gradiente
+  popular: boolean("popular").notNull().default(false),
+  active: boolean("active").notNull().default(true),
+  displayOrder: integer("display_order").notNull().default(0), // Ordem de exibição
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// ==========================================
+// WAITLIST TABLE - Lista de Espera
+// ==========================================
+
+export const waitlistTable = pgTable("tb_waitlist", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  fullName: text("full_name").notNull(),
+  email: text("email").notNull(),
+  whatsapp: text("whatsapp").notNull(),
+  preferredShift: text("preferred_shift").notNull(), // "manha", "tarde", "noite"
+  goal: text("goal").notNull(),
+  healthRestrictions: text("health_restrictions"),
+  position: integer("position").notNull(), // Posição na lista
+  status: text("status").notNull().default("waiting"), // "waiting" ou "enrolled"
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  enrolledAt: timestamp("enrolled_at"),
+  userId: uuid("user_id").references(() => usersTable.id), // Preenchido após matrícula
+});

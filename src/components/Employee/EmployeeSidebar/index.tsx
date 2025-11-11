@@ -1,16 +1,12 @@
 "use client";
 
 import {
-  Building,
   CreditCard,
   FileText,
-  Layers,
   LogOut,
   Menu,
-  Settings,
   Shield,
-  ShieldPlus,
-  UserCog,
+  UserCheck,
   Users,
   X,
 } from "lucide-react";
@@ -31,70 +27,42 @@ interface SidebarItem {
 
 const menuItems: SidebarItem[] = [
   {
-    id: "administrative",
-    label: "Administrativo",
-    icon: Building,
-    href: "/admin/dashboard?tab=administrative",
-    description: "Cadastrar novos alunos",
-  },
-  {
     id: "students",
     label: "Consultar Alunos",
     icon: Users,
-    href: "/admin/dashboard?tab=students",
-    description: "Buscar alunos",
+    href: "/employee/dashboard?tab=students",
+    description: "Buscar e cadastrar alunos",
   },
   {
-    id: "users",
-    label: "Usuários",
-    icon: Shield,
-    href: "/admin/dashboard?tab=users",
-    description: "Gerenciar usuários",
+    id: "checkin",
+    label: "Check-in",
+    icon: UserCheck,
+    href: "/employee/dashboard?tab=checkin",
+    description: "Realizar check-in para alunos",
   },
   {
-    id: "employee",
-    label: "Funcionários",
-    icon: UserCog,
-    href: "/admin/dashboard?tab=employee",
-    description: "Gerenciar funcionários",
-  },
-  {
-    id: "financial",
-    label: "Financeiro",
+    id: "payments",
+    label: "Mensalidades",
     icon: CreditCard,
-    href: "/admin/dashboard?tab=financial",
-    description: "Gestão financeira",
+    href: "/employee/dashboard?tab=payments",
+    description: "Gerenciar pagamentos",
   },
   {
-    id: "blog",
-    label: "Blog",
+    id: "manual-receipt",
+    label: "Recibos Manuais",
     icon: FileText,
-    href: "/admin/dashboard?tab=blog",
-    description: "Gerenciar posts",
-  },
-  {
-    id: "plans",
-    label: "Planos",
-    icon: Layers,
-    href: "/admin/dashboard?tab=plans",
-    description: "Gerenciar planos",
-  },
-  {
-    id: "settings",
-    label: "Configurações",
-    icon: Settings,
-    href: "/admin/dashboard?tab=settings",
-    description: "Configurações do estúdio",
+    href: "/employee/dashboard?tab=manual-receipt",
+    description: "Gerar recibos personalizados",
   },
 ];
 
-interface AdminSidebarProps {
+interface EmployeeSidebarProps {
   activeTab?: string;
 }
 
-export function AdminSidebar({
-  activeTab = "administrative",
-}: AdminSidebarProps) {
+export function EmployeeSidebar({
+  activeTab = "students",
+}: EmployeeSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -128,19 +96,19 @@ export function AdminSidebar({
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-40 flex h-screen w-72 flex-col border-r border-[#C2A537]/20 bg-gradient-to-b from-black via-slate-900 to-black transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-40 flex h-screen w-72 flex-col border-r border-[#C2A537]/20 bg-linear-to-b from-black via-slate-900 to-black transition-transform duration-300 lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Logo/Header */}
         <div className="border-b border-[#C2A537]/20 p-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#C2A537] to-[#D4B547]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-[#C2A537] to-[#D4B547]">
               <span className="text-xl font-bold text-black">JM</span>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-[#C2A537]">Admin Panel</h2>
-              <p className="text-xs text-slate-400">Gestão Completa</p>
+              <h2 className="text-lg font-bold text-[#C2A537]">Funcionário</h2>
+              <p className="text-xs text-slate-400">Gestão de Alunos</p>
             </div>
           </div>
         </div>
@@ -185,26 +153,6 @@ export function AdminSidebar({
               </Link>
             );
           })}
-
-          {/* Botão especial para criar admin */}
-          <div className="pt-4">
-            <div className="mb-2 px-4 text-xs font-semibold tracking-wider text-slate-500 uppercase">
-              Sistema
-            </div>
-            <Link
-              href="/admin/create-admin"
-              onClick={() => setIsOpen(false)}
-              className="group flex items-center gap-3 rounded-lg border-2 border-[#C2A537]/30 bg-[#C2A537]/10 px-4 py-3 text-slate-300 transition-all duration-200 hover:border-[#C2A537] hover:bg-[#C2A537]/20 hover:text-[#C2A537]"
-            >
-              <ShieldPlus className="h-5 w-5 transition-transform duration-200 group-hover:scale-105" />
-              <div className="flex-1">
-                <div className="font-medium">Criar Admin</div>
-                <div className="text-xs text-slate-500 group-hover:text-slate-400">
-                  Novo administrador
-                </div>
-              </div>
-            </Link>
-          </div>
         </nav>
 
         {/* User Info & Logout */}
@@ -215,8 +163,10 @@ export function AdminSidebar({
                 <Shield className="h-5 w-5" />
               </div>
               <div className="flex-1">
-                <div className="text-sm font-medium text-white">Admin</div>
-                <div className="text-xs text-slate-400">Acesso Total</div>
+                <div className="text-sm font-medium text-white">
+                  Funcionário
+                </div>
+                <div className="text-xs text-slate-400">Acesso Limitado</div>
               </div>
             </div>
           </div>

@@ -3,6 +3,8 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { StudentFullData } from "@/actions/admin/get-students-full-data-action";
+import { AdminPlansTab } from "@/components/Admin/AdminPlansTab";
+import { AdminSettingsTab } from "@/components/Admin/AdminSettingsTab";
 import { AdminSidebar } from "@/components/Admin/AdminSidebar";
 import { AdministrativeTab } from "@/components/Dashboard/AdministrativeTab";
 import { BlogTab } from "@/components/Dashboard/BlogTab";
@@ -43,6 +45,8 @@ export function AdminTabs({ students }: AdminTabsProps) {
               {activeTab === "employee" && "Funcionários"}
               {activeTab === "financial" && "Gestão Financeira"}
               {activeTab === "blog" && "Gerenciar Blog"}
+              {activeTab === "plans" && "Planos e Serviços"}
+              {activeTab === "settings" && "Configurações do Estúdio"}
             </h1>
             <p className="text-slate-400">
               {activeTab === "administrative" &&
@@ -55,6 +59,10 @@ export function AdminTabs({ students }: AdminTabsProps) {
               {activeTab === "financial" &&
                 "Acompanhe relatórios e gestão financeira"}
               {activeTab === "blog" && "Crie e gerencie posts do blog"}
+              {activeTab === "plans" &&
+                "Gerencie os planos exibidos na página de serviços"}
+              {activeTab === "settings" &&
+                "Configure lista de espera e outros ajustes do estúdio"}
             </p>
           </div>
 
@@ -68,6 +76,8 @@ export function AdminTabs({ students }: AdminTabsProps) {
             {activeTab === "employee" && <EmployeeTab />}
             {activeTab === "financial" && <FinancialTab />}
             {activeTab === "blog" && <BlogTab />}
+            {activeTab === "plans" && <AdminPlansTab />}
+            {activeTab === "settings" && <AdminSettingsTab />}
           </div>
         </div>
       </div>
