@@ -66,13 +66,16 @@ export function UserManagementContainer() {
     [],
   );
 
-  const handleToggleStatus = useCallback((userId: string, newStatus: boolean) => {
-    setUsers((prev) =>
-      prev.map((user) =>
-        user.id === userId ? { ...user, isActive: newStatus } : user,
-      ),
-    );
-  }, []);
+  const handleToggleStatus = useCallback(
+    (userId: string, newStatus: boolean) => {
+      setUsers((prev) =>
+        prev.map((user) =>
+          user.id === userId ? { ...user, isActive: newStatus } : user,
+        ),
+      );
+    },
+    [],
+  );
 
   return (
     <UserManagementTab

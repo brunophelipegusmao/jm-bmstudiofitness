@@ -59,7 +59,8 @@ export default function MaintenancePage() {
             Entre na Lista de Espera
           </Link>
           <p className="mt-4 text-sm text-slate-400">
-            Redirecionando automaticamente em {countdown} segundo{countdown !== 1 ? "s" : ""}...
+            Redirecionando automaticamente em {countdown} segundo
+            {countdown !== 1 ? "s" : ""}...
           </p>
         </div>
 
