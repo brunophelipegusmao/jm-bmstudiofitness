@@ -55,11 +55,32 @@ export function UserManagementContainer() {
     }
   }, []);
 
+  const handleUpdateUser = useCallback(
+    (userId: string, updates: Partial<User>) => {
+      setUsers((prev) =>
+        prev.map((user) =>
+          user.id === userId ? { ...user, ...updates } : user,
+        ),
+      );
+    },
+    [],
+  );
+
+  const handleToggleStatus = useCallback((userId: string, newStatus: boolean) => {
+    setUsers((prev) =>
+      prev.map((user) =>
+        user.id === userId ? { ...user, isActive: newStatus } : user,
+      ),
+    );
+  }, []);
+
   return (
     <UserManagementTab
       users={users}
       onCreateUser={handleCreateUser}
       onDeleteUser={handleDeleteUser}
+      onUpdateUser={handleUpdateUser}
+      onToggleStatus={handleToggleStatus}
       isLoading={isLoading}
     />
   );
