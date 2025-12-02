@@ -1,0 +1,15 @@
+# robots.txt for JM Fitness Studio
+
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /user/
+
+# Sitemap location
+Sitemap: https://jmfitnessstudio.com.br/sitemap.xml
+
+# Crawl-delay (optional, adjust as needed)
+Crawl-delay: 1

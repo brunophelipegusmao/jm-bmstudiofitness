@@ -9,6 +9,7 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { MainContent } from "@/components/MainContent";
 import { SecurityManager } from "@/components/SecurityManager";
+import { StructuredData } from "@/components/StructuredData";
 import { ToastProvider } from "@/components/ToastProvider";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
 
@@ -35,9 +36,73 @@ const anton = Anton({
 });
 
 export const metadata: Metadata = {
-  title: "JM Fitness Studio",
+  metadataBase: new URL("https://jmfitnessstudio.com.br"),
+  title: {
+    default: "JM Fitness Studio | Academia de Musculação e Treinamento Funcional",
+    template: "%s | JM Fitness Studio",
+  },
   description:
-    "Transforme sua vida no JM Fitness Studio. Ambiente acolhedor e profissional dedicado à sua saúde, bem-estar e conquista dos seus objetivos fitness. Venha fazer parte da nossa família fitness!",
+    "Transforme sua vida no JM Fitness Studio. Academia completa com musculação, treinamento funcional e acompanhamento personalizado. Ambiente profissional dedicado à sua saúde, bem-estar e conquista dos seus objetivos fitness. Venha fazer parte da nossa família fitness!",
+  keywords: [
+    "academia",
+    "fitness",
+    "musculação",
+    "treinamento funcional",
+    "personal trainer",
+    "JM Fitness Studio",
+    "academia perto de mim",
+    "treino",
+    "saúde",
+    "bem-estar",
+    "emagrecimento",
+    "hipertrofia",
+  ],
+  authors: [{ name: "JM Fitness Studio" }],
+  creator: "JM Fitness Studio",
+  publisher: "JM Fitness Studio",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: "https://jmfitnessstudio.com.br",
+    siteName: "JM Fitness Studio",
+    title: "JM Fitness Studio | Academia de Musculação e Treinamento Funcional",
+    description:
+      "Transforme sua vida no JM Fitness Studio. Academia completa com musculação, treinamento funcional e acompanhamento personalizado.",
+    images: [
+      {
+        url: "/banner-01.png",
+        width: 1200,
+        height: 630,
+        alt: "JM Fitness Studio",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "JM Fitness Studio | Academia de Musculação e Treinamento Funcional",
+    description:
+      "Transforme sua vida no JM Fitness Studio. Academia completa com musculação, treinamento funcional e acompanhamento personalizado.",
+    images: ["/banner-01.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    google: "seu-codigo-de-verificacao-aqui", // Adicione após verificar no Google Search Console
+  },
 };
 
 export const viewport = {
@@ -51,7 +116,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="pt-BR" className="h-full">
+      <head>
+        <meta name="theme-color" content="#1b1b1a" />
+        <link rel="canonical" href="https://jmfitnessstudio.com.br" />
+        <StructuredData />
+      </head>
       <body
         className={clsx(
           `${geistSans.variable} ${geistMono.variable} ${oswald.variable} ${anton.variable} antialiased`,
