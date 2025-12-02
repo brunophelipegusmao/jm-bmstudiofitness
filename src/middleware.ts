@@ -31,8 +31,8 @@ export async function middleware(request: NextRequest) {
   console.log(`🔍 Middleware v2 - Verificando rota: ${pathname}`);
 
   // MODO MANUTENÇÃO: Bloqueia todas as rotas exceto /waitlist e /admin
-  const isMaintenanceAllowed = maintenanceAllowedPaths.some(
-    (path) => pathname.startsWith(path)
+  const isMaintenanceAllowed = maintenanceAllowedPaths.some((path) =>
+    pathname.startsWith(path),
   );
 
   // Permite assets estáticos e API sempre
