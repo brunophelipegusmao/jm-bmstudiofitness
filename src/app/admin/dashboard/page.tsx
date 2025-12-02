@@ -42,7 +42,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-black via-slate-900 to-black">
-      <AdminTabs students={students} />
+      <AdminTabs students={students} onStudentsChange={loadStudents} />
     </div>
   );
 }

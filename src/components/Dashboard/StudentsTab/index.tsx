@@ -38,9 +38,10 @@ import { formatCPF } from "@/lib/utils";
 
 interface StudentsTabProps {
   students: StudentFullData[];
+  onStudentsChange?: () => void | Promise<void>;
 }
 
-export function StudentsTab({ students }: StudentsTabProps) {
+export function StudentsTab({ students, onStudentsChange }: StudentsTabProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStudent, setSelectedStudent] =
     useState<StudentFullData | null>(null);
@@ -72,8 +73,10 @@ export function StudentsTab({ students }: StudentsTabProps) {
         setIsDeleteDialogOpen(false);
         setSelectedStudent(null);
 
-        // Recarregar a página para atualizar a lista
-        window.location.reload();
+        // Atualizar lista de estudantes
+        if (onStudentsChange) {
+          await onStudentsChange();
+        }
       } else {
         showErrorToast(result.message);
       }
@@ -100,8 +103,10 @@ export function StudentsTab({ students }: StudentsTabProps) {
         setIsReactivateDialogOpen(false);
         setSelectedStudent(null);
 
-        // Recarregar a página para atualizar a lista
-        window.location.reload();
+        // Atualizar lista de estudantes
+        if (onStudentsChange) {
+          await onStudentsChange();
+        }
       } else {
         showErrorToast(result.message);
       }

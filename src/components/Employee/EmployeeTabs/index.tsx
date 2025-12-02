@@ -43,7 +43,9 @@ export function EmployeeTabs({ students: initialStudents }: EmployeeTabsProps) {
       {/* Main Content */}
       <main className="flex-1 lg:ml-72">
         <div className="p-4 lg:p-8">
-          {activeTab === "students" && <StudentsTab students={students} />}
+          {activeTab === "students" && (
+            <StudentsTab students={students} onStudentsChange={loadStudents} />
+          )}
           {activeTab === "checkin" && <EmployeeCheckInTab />}
           {activeTab === "payments" && <EmployeePaymentsTab />}
           {activeTab === "manual-receipt" && <EmployeeManualReceiptTab />}

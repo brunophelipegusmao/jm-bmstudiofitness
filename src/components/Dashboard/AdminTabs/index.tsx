@@ -15,9 +15,10 @@ import { UserManagementContainer } from "@/components/Dashboard/UserManagementCo
 
 interface AdminTabsProps {
   students: StudentFullData[];
+  onStudentsChange?: () => void | Promise<void>;
 }
 
-export function AdminTabs({ students }: AdminTabsProps) {
+export function AdminTabs({ students, onStudentsChange }: AdminTabsProps) {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState(tabParam || "administrative");
@@ -71,7 +72,12 @@ export function AdminTabs({ students }: AdminTabsProps) {
             {activeTab === "administrative" && (
               <AdministrativeTab user={{ id: "", name: "", userRole: "" }} />
             )}
-            {activeTab === "students" && <StudentsTab students={students} />}
+            {activeTab === "students" && (
+              <StudentsTab
+                students={students}
+                onStudentsChange={onStudentsChange}
+              />
+            )}
             {activeTab === "users" && <UserManagementContainer />}
             {activeTab === "employee" && <EmployeeTab />}
             {activeTab === "financial" && <FinancialTab />}

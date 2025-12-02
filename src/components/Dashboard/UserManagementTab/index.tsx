@@ -168,8 +168,9 @@ export function UserManagementTab({
                 showSuccessToast(
                   `Usuário "${user.name}" excluído com sucesso!`,
                 );
-                // Recarregar a página para atualizar a lista
-                window.location.reload();
+                // Atualizar lista de usuários removendo o deletado
+                setUsers((prev) => prev.filter((u) => u.id !== user.id));
+                setIsUserModalOpen(false);
               } else {
                 showErrorToast(result.error || "Erro ao excluir usuário");
               }
@@ -226,8 +227,11 @@ export function UserManagementTab({
         showSuccessToast(
           `Usuário ${newStatus ? "ativado" : "desativado"} com sucesso!`,
         );
-        // Recarregar página para atualizar lista
-        window.location.reload();
+        // Atualizar estado local do usuário
+        setUsers((prev) =>
+          prev.map((u) => (u.id === user.id ? { ...u, isActive: newStatus } : u)),
+        );
+        setIsUserModalOpen(false);
       } else {
         showErrorToast(result.error || "Erro ao alterar status do usuário");
       }
@@ -785,9 +789,20 @@ export function UserManagementTab({
             setStudentToEdit(null);
           }}
           student={studentToEdit}
-          onSuccess={() => {
-            // Recarregar página para atualizar lista
-            window.location.reload();
+          onSuccess={async () => {
+            // Recarregar dados atualizados do aluno
+            const updatedData = await getStudentFullDataAction(studentToEdit.userId);
+            if (updatedData) {
+              setUsers((prev) =>
+                prev.map((u) =>
+                  u.id === studentToEdit.userId
+                    ? { ...u, name: updatedData.name, email: updatedData.email }
+                    : u,
+                ),
+              );
+            }
+            setIsEditModalOpen(false);
+            setStudentToEdit(null);
           }}
         />
       )}
