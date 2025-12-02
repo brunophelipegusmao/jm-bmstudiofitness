@@ -788,25 +788,34 @@ export function UserManagementTab({
 
       {/* Modal de Edição */}
       {userToEdit && (
-        <EditUserModal
-          userId={userToEdit.id}
-          userName={userToEdit.name}
-          userRole={userToEdit.role}
-          isOpen={isEditModalOpen}
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setUserToEdit(null);
-          }}
-          onSuccess={() => {
-            // Atualizar através do callback
-            if (onUpdateUser) {
-              onUpdateUser(userToEdit.id, {});
-            }
-            setIsEditModalOpen(false);
-            setUserToEdit(null);
-          }}
-          adminId={adminId}
-        />
+        <>
+          {console.log("🎨 Renderizando EditUserModal com:", { 
+            userId: userToEdit.id, 
+            userName: userToEdit.name, 
+            userRole: userToEdit.role,
+            adminId,
+            isOpen: isEditModalOpen 
+          })}
+          <EditUserModal
+            userId={userToEdit.id}
+            userName={userToEdit.name}
+            userRole={userToEdit.role}
+            isOpen={isEditModalOpen}
+            onClose={() => {
+              setIsEditModalOpen(false);
+              setUserToEdit(null);
+            }}
+            onSuccess={() => {
+              // Atualizar através do callback
+              if (onUpdateUser) {
+                onUpdateUser(userToEdit.id, {});
+              }
+              setIsEditModalOpen(false);
+              setUserToEdit(null);
+            }}
+            adminId={adminId}
+          />
+        </>
       )}
     </div>
   );

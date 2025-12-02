@@ -21,9 +21,14 @@ export function UserManagementContainer() {
       setIsLoading(true);
 
       // Carregar ID do admin logado
+      console.log("🔑 Carregando ID do admin logado...");
       const userIdResult = await getCurrentUserIdAction();
+      console.log("📋 Resultado getCurrentUserIdAction:", userIdResult);
       if (userIdResult.success && userIdResult.userId) {
         setAdminId(userIdResult.userId);
+        console.log("✅ Admin ID carregado:", userIdResult.userId);
+      } else {
+        console.error("❌ Erro ao carregar admin ID:", userIdResult.error);
       }
 
       const result = await getAllUsersAction();
