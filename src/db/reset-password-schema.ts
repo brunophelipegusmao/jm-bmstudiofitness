@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import { boolean, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+
 import { usersTable } from "./schema";
 
 export const passwordResetTokensTable = pgTable("tb_password_reset_tokens", {

@@ -53,7 +53,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { paymentMethodOptions } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/utils";
-import { expenseCategoryOptions } from "@/types/expense-categories";
+import {
+  ExpenseCategory,
+  expenseCategoryOptions,
+} from "@/types/expense-categories";
 
 import { DeleteConfirmationDialog } from "./DeleteConfirmationDialog";
 import { ExpenseReport } from "./ExpenseReport";
@@ -92,6 +95,7 @@ export function ExpenseForm() {
 
       const input: CreateExpenseInput = {
         ...values,
+        category: values.category as ExpenseCategory,
         amountInCents: Math.round(values.amountInCents * 100),
         dueDate: format(values.dueDate, "yyyy-MM-dd"),
       };

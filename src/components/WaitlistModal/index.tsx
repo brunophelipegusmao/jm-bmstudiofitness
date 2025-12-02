@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { AnimatePresence,motion } from "framer-motion";
+import { ArrowRight,Users, X } from "lucide-react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Users, ArrowRight } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { getStudioSettingsAction } from "@/actions/admin/studio-settings-actions";
 

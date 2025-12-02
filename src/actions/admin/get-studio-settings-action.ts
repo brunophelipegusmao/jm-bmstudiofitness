@@ -45,6 +45,7 @@ export async function getStudioSettingsAction(): Promise<StudioSettings> {
         gracePeriodDays: 5,
         maxCheckInsPerDay: 2,
         allowWeekendCheckIn: false,
+        waitlistEnabled: false,
         termsAndConditions: null,
         privacyPolicy: null,
         cancellationPolicy: null,

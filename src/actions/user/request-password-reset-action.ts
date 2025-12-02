@@ -1,11 +1,12 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { db } from "@/db";
-import { usersTable } from "@/db/schema";
-import { passwordResetTokensTable } from "@/db/reset-password-schema";
-import { personalDataTable } from "@/db/schema";
 import { v4 as uuidv4 } from "uuid";
+
+import { db } from "@/db";
+import { passwordResetTokensTable } from "@/db/reset-password-schema";
+import { usersTable } from "@/db/schema";
+import { personalDataTable } from "@/db/schema";
 import { sendResetPasswordEmail } from "@/lib/email";
 
 export async function requestPasswordReset(

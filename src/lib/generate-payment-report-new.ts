@@ -1,5 +1,6 @@
-import { jsPDF } from "jspdf";
 import "jspdf-autotable";
+
+import { jsPDF } from "jspdf";
 
 import { StudentPaymentData } from "@/actions/admin/get-students-payments-action";
 import { formatCurrency } from "@/lib/payment-utils";

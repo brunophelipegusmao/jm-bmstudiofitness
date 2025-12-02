@@ -1,5 +1,5 @@
+import { compare,hash } from "bcryptjs";
 import { eq } from "drizzle-orm";
-import { hash, compare } from "bcryptjs";
 
 import { db } from "@/db";
 import { usersTable } from "@/db/schema";

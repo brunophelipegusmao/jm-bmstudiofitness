@@ -40,7 +40,7 @@ export function PaymentStatusModal({
       await reportModule.generatePaymentReport(students, type);
     } catch (error) {
       console.error("Erro ao gerar relatório:", error);
-      // eslint-disable-next-line no-alert
+       
       alert("Erro ao gerar relatório. Por favor, tente novamente.");
     } finally {
       setIsGeneratingPDF(false);
@@ -60,7 +60,7 @@ export function PaymentStatusModal({
       }
     } catch (error) {
       console.error("Erro ao atualizar pagamento (modal):", error);
-      // eslint-disable-next-line no-alert
+       
       alert("Erro ao atualizar pagamento. Tente novamente.");
     } finally {
       setLoadingIds((s) => ({ ...s, [userId]: false }));
