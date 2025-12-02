@@ -3,8 +3,28 @@
 import { motion } from "framer-motion";
 import { Construction, Mail } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function MaintenancePage() {
+  const router = useRouter();
+  const [countdown, setCountdown] = useState(10);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          router.push("/waitlist");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [router]);
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#1b1b1a] to-black px-4">
       <motion.div
@@ -38,6 +58,9 @@ export default function MaintenancePage() {
             <Mail className="h-5 w-5" />
             Entre na Lista de Espera
           </Link>
+          <p className="mt-4 text-sm text-slate-400">
+            Redirecionando automaticamente em {countdown} segundo{countdown !== 1 ? "s" : ""}...
+          </p>
         </div>
 
         <div className="text-sm text-slate-400">
