@@ -47,6 +47,12 @@ export async function updateUserAction(
   error?: string;
 }> {
   try {
+    console.log("🔄 Update User - Dados recebidos:", {
+      userId: userData.userId,
+      hasPassword: !!userData.password,
+      passwordLength: userData.password?.length,
+    });
+
     // Buscar role do usuário sendo editado
     const [user] = await db
       .select({ role: usersTable.userRole })
@@ -82,8 +88,14 @@ export async function updateUserAction(
 
     // Se a senha foi fornecida, fazer hash e incluir na atualização
     if (userData.password && userData.password.length > 0) {
-      updateData.password = await hashPassword(userData.password);
+      const hashedPassword = await hashPassword(userData.password);
+      updateData.password = hashedPassword;
+      console.log("🔐 Senha será atualizada (hash gerado)");
+    } else {
+      console.log("⏭️ Senha não fornecida, mantendo senha atual");
     }
+
+    console.log("💾 Atualizando tabela users com:", Object.keys(updateData));
 
     await db
       .update(usersTable)
@@ -182,6 +194,8 @@ export async function updateUserAction(
     }
 
     revalidatePath("/admin");
+
+    console.log("✅ Usuário atualizado com sucesso!");
 
     return {
       success: true,

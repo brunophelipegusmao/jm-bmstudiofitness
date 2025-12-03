@@ -777,12 +777,12 @@ export function UserManagementTab({
       {/* Modal de Edição */}
       {userToEdit && (
         <>
-          {console.log("🎨 Renderizando EditUserModal com:", { 
-            userId: userToEdit.id, 
-            userName: userToEdit.name, 
+          {console.log("🎨 Renderizando EditUserModal com:", {
+            userId: userToEdit.id,
+            userName: userToEdit.name,
             userRole: userToEdit.role,
             adminId,
-            isOpen: isEditModalOpen 
+            isOpen: isEditModalOpen,
           })}
           <EditUserModal
             userId={userToEdit.id}

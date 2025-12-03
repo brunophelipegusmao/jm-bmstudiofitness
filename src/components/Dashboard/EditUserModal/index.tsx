@@ -49,101 +49,110 @@ const baseSchemaFields = {
   confirmPassword: z.string().optional(),
 };
 
-const baseSchema = z.object(baseSchemaFields).refine(
-  (data) => {
-    // Se a senha foi preenchida, validar requisitos
-    if (data.password && data.password.length > 0) {
-      return data.password.length >= 6;
-    }
-    return true;
-  },
-  {
-    message: "Senha deve ter no mínimo 6 caracteres",
-    path: ["password"],
-  }
-).refine(
-  (data) => {
-    // Se a senha foi preenchida, confirmar senha deve ser igual
-    if (data.password && data.password.length > 0) {
-      return data.password === data.confirmPassword;
-    }
-    return true;
-  },
-  {
-    message: "As senhas não coincidem",
-    path: ["confirmPassword"],
-  }
-);
+const baseSchema = z
+  .object(baseSchemaFields)
+  .refine(
+    (data) => {
+      // Se a senha foi preenchida, validar requisitos
+      if (data.password && data.password.length > 0) {
+        return data.password.length >= 6;
+      }
+      return true;
+    },
+    {
+      message: "Senha deve ter no mínimo 6 caracteres",
+      path: ["password"],
+    },
+  )
+  .refine(
+    (data) => {
+      // Se a senha foi preenchida, confirmar senha deve ser igual
+      if (data.password && data.password.length > 0) {
+        return data.password === data.confirmPassword;
+      }
+      return true;
+    },
+    {
+      message: "As senhas não coincidem",
+      path: ["confirmPassword"],
+    },
+  );
 
 // Schema para funcionários e professores
-const employeeSchema = z.object({
-  ...baseSchemaFields,
-  position: z.string().min(2, "Cargo é obrigatório"),
-  shift: z.enum(["manha", "tarde", "noite", "integral"]),
-  shiftStartTime: z.string().optional(),
-  shiftEndTime: z.string().optional(),
-  salaryInCents: z.number().min(0, "Salário deve ser maior que zero"),
-  salaryChangeReason: z.string().optional(),
-  salaryEffectiveDate: z.string().optional(),
-}).refine(
-  (data) => {
-    if (data.password && data.password.length > 0) {
-      return data.password.length >= 6;
-    }
-    return true;
-  },
-  {
-    message: "Senha deve ter no mínimo 6 caracteres",
-    path: ["password"],
-  }
-).refine(
-  (data) => {
-    if (data.password && data.password.length > 0) {
-      return data.password === data.confirmPassword;
-    }
-    return true;
-  },
-  {
-    message: "As senhas não coincidem",
-    path: ["confirmPassword"],
-  }
-);
+const employeeSchema = z
+  .object({
+    ...baseSchemaFields,
+    position: z.string().min(2, "Cargo é obrigatório"),
+    shift: z.enum(["manha", "tarde", "noite", "integral"]),
+    shiftStartTime: z.string().optional(),
+    shiftEndTime: z.string().optional(),
+    salaryInCents: z.number().min(0, "Salário deve ser maior que zero"),
+    salaryChangeReason: z.string().optional(),
+    salaryEffectiveDate: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.password && data.password.length > 0) {
+        return data.password.length >= 6;
+      }
+      return true;
+    },
+    {
+      message: "Senha deve ter no mínimo 6 caracteres",
+      path: ["password"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.password && data.password.length > 0) {
+        return data.password === data.confirmPassword;
+      }
+      return true;
+    },
+    {
+      message: "As senhas não coincidem",
+      path: ["confirmPassword"],
+    },
+  );
 
 // Schema para alunos
-const studentSchema = z.object({
-  ...baseSchemaFields,
-  monthlyFeeValueInCents: z.number().min(0, "Mensalidade inválida"),
-  paymentMethod: z.enum([
-    "pix",
-    "cartao-credito",
-    "cartao-debito",
-    "dinheiro",
-    "boleto",
-  ]),
-  dueDate: z.number().min(1).max(31, "Dia de vencimento inválido"),
-}).refine(
-  (data) => {
-    if (data.password && data.password.length > 0) {
-      return data.password.length >= 6;
-    }
-    return true;
-  },
-  {
-    message: "Senha deve ter no mínimo 6 caracteres",
-    path: ["password"],
-  }
-).refine(
-  (data) => {
-    if (data.password && data.password.length > 0) {
-      return data.password === data.confirmPassword;
-    }
-    return true;
-  },
-  {
-    message: "As senhas não coincidem",
-    path: ["confirmPassword"],
-  }
-);
+const studentSchema = z
+  .object({
+    ...baseSchemaFields,
+    monthlyFeeValueInCents: z.number().min(0, "Mensalidade inválida"),
+    paymentMethod: z.enum([
+      "pix",
+      "cartao-credito",
+      "cartao-debito",
+      "dinheiro",
+      "boleto",
+    ]),
+    dueDate: z.number().min(1).max(31, "Dia de vencimento inválido"),
+  })
+  .refine(
+    (data) => {
+      if (data.password && data.password.length > 0) {
+        return data.password.length >= 6;
+      }
+      return true;
+    },
+    {
+      message: "Senha deve ter no mínimo 6 caracteres",
+      path: ["password"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.password && data.password.length > 0) {
+        return data.password === data.confirmPassword;
+      }
+      return true;
+    },
+    {
+      message: "As senhas não coincidem",
+      path: ["confirmPassword"],
+    },
+  );
 
 type FormData = z.infer<typeof baseSchema> &
   Partial<z.infer<typeof employeeSchema>> &
@@ -254,10 +263,23 @@ export function EditUserModal({
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
 
-    const result = await updateUserAction(adminId, {
+    // Remover confirmPassword e preparar dados
+    const { confirmPassword, password, ...restData } = data;
+
+    // Só incluir password se foi preenchida
+    const updateData: Partial<FormData> & { userId: string } = {
       userId,
-      ...data,
-    });
+      ...restData,
+    };
+
+    if (password && password.trim().length > 0) {
+      updateData.password = password;
+    }
+
+    const result = await updateUserAction(
+      adminId,
+      updateData as Parameters<typeof updateUserAction>[1],
+    );
 
     if (result.success) {
       toast.success("Usuário atualizado com sucesso!");
