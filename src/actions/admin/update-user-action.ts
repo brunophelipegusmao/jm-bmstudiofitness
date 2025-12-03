@@ -11,6 +11,7 @@ import {
   personalDataTable,
   usersTable,
 } from "@/db/schema";
+import { hashPassword } from "@/lib/auth-utils";
 import { canUpdateUserType } from "@/lib/check-permission";
 
 interface UpdateUserData {
@@ -21,6 +22,7 @@ interface UpdateUserData {
   address: string;
   cpf?: string;
   bornDate?: string;
+  password?: string;
 
   // Dados de funcionário/professor
   position?: string;
@@ -70,12 +72,22 @@ export async function updateUserAction(
       }
     }
 
-    // Atualizar nome do usuário
+    // Atualizar nome do usuário e senha (se fornecida)
+    const updateData: {
+      name: string;
+      password?: string;
+    } = {
+      name: userData.name,
+    };
+
+    // Se a senha foi fornecida, fazer hash e incluir na atualização
+    if (userData.password && userData.password.length > 0) {
+      updateData.password = await hashPassword(userData.password);
+    }
+
     await db
       .update(usersTable)
-      .set({
-        name: userData.name,
-      })
+      .set(updateData)
       .where(eq(usersTable.id, userData.userId));
 
     // Atualizar dados pessoais

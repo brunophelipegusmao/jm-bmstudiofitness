@@ -38,17 +38,46 @@ interface EditUserModalProps {
 }
 
 // Schema base para todos os usuários
-const baseSchema = z.object({
+const baseSchemaFields = {
   name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
   email: z.string().email("Email inválido"),
   telephone: z.string().min(10, "Telefone inválido"),
   address: z.string().min(5, "Endereço deve ter no mínimo 5 caracteres"),
   cpf: z.string().optional(),
   bornDate: z.string().optional(),
-});
+  password: z.string().optional(),
+  confirmPassword: z.string().optional(),
+};
+
+const baseSchema = z.object(baseSchemaFields).refine(
+  (data) => {
+    // Se a senha foi preenchida, validar requisitos
+    if (data.password && data.password.length > 0) {
+      return data.password.length >= 6;
+    }
+    return true;
+  },
+  {
+    message: "Senha deve ter no mínimo 6 caracteres",
+    path: ["password"],
+  }
+).refine(
+  (data) => {
+    // Se a senha foi preenchida, confirmar senha deve ser igual
+    if (data.password && data.password.length > 0) {
+      return data.password === data.confirmPassword;
+    }
+    return true;
+  },
+  {
+    message: "As senhas não coincidem",
+    path: ["confirmPassword"],
+  }
+);
 
 // Schema para funcionários e professores
-const employeeSchema = baseSchema.extend({
+const employeeSchema = z.object({
+  ...baseSchemaFields,
   position: z.string().min(2, "Cargo é obrigatório"),
   shift: z.enum(["manha", "tarde", "noite", "integral"]),
   shiftStartTime: z.string().optional(),
@@ -56,10 +85,33 @@ const employeeSchema = baseSchema.extend({
   salaryInCents: z.number().min(0, "Salário deve ser maior que zero"),
   salaryChangeReason: z.string().optional(),
   salaryEffectiveDate: z.string().optional(),
-});
+}).refine(
+  (data) => {
+    if (data.password && data.password.length > 0) {
+      return data.password.length >= 6;
+    }
+    return true;
+  },
+  {
+    message: "Senha deve ter no mínimo 6 caracteres",
+    path: ["password"],
+  }
+).refine(
+  (data) => {
+    if (data.password && data.password.length > 0) {
+      return data.password === data.confirmPassword;
+    }
+    return true;
+  },
+  {
+    message: "As senhas não coincidem",
+    path: ["confirmPassword"],
+  }
+);
 
 // Schema para alunos
-const studentSchema = baseSchema.extend({
+const studentSchema = z.object({
+  ...baseSchemaFields,
   monthlyFeeValueInCents: z.number().min(0, "Mensalidade inválida"),
   paymentMethod: z.enum([
     "pix",
@@ -69,7 +121,29 @@ const studentSchema = baseSchema.extend({
     "boleto",
   ]),
   dueDate: z.number().min(1).max(31, "Dia de vencimento inválido"),
-});
+}).refine(
+  (data) => {
+    if (data.password && data.password.length > 0) {
+      return data.password.length >= 6;
+    }
+    return true;
+  },
+  {
+    message: "Senha deve ter no mínimo 6 caracteres",
+    path: ["password"],
+  }
+).refine(
+  (data) => {
+    if (data.password && data.password.length > 0) {
+      return data.password === data.confirmPassword;
+    }
+    return true;
+  },
+  {
+    message: "As senhas não coincidem",
+    path: ["confirmPassword"],
+  }
+);
 
 type FormData = z.infer<typeof baseSchema> &
   Partial<z.infer<typeof employeeSchema>> &
@@ -299,6 +373,38 @@ export function EditUserModal({
                     {errors.bornDate && (
                       <p className="text-sm text-red-500">
                         {errors.bornDate.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Nova Senha</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      {...register("password")}
+                      placeholder="Deixe em branco para não alterar"
+                    />
+                    {errors.password && (
+                      <p className="text-sm text-red-500">
+                        {errors.password.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirmar Senha</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      {...register("confirmPassword")}
+                      placeholder="Confirme a nova senha"
+                    />
+                    {errors.confirmPassword && (
+                      <p className="text-sm text-red-500">
+                        {errors.confirmPassword.message}
                       </p>
                     )}
                   </div>
