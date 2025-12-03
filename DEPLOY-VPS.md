@@ -1,9 +1,28 @@
 # 🚀 Instruções de Deploy na VPS Hostinger
 
+## ⚠️ CORREÇÃO IMPORTANTE APLICADA
+
+**Problema identificado:** A alteração de senha (e outros dados) não estava persistindo no banco.
+
+**Causa raiz:**
+1. O campo `confirmPassword` estava sendo enviado para o backend (desnecessário)
+2. Campos vazios de senha estavam sendo enviados como string vazia `""` em vez de `undefined`
+3. Faltava fechar corretamente o bloco `.set()` na atualização de dados financeiros
+
+**Solução implementada:**
+1. ✅ Removido `confirmPassword` antes de enviar ao backend
+2. ✅ Validação condicional: só envia `password` se preenchida e com conteúdo
+3. ✅ Corrigido bloco de atualização de dados financeiros
+4. ✅ Adicionados logs de debug para rastreamento
+5. ✅ Type-safe sem uso de `any`
+
+---
+
 ## Alterações Implementadas
 
 ✅ **Admin pode editar TODOS os tipos de usuários** (incluindo outros admins)
 ✅ **Alterar senha do usuário** através do modal de edição
+✅ **Persistência corrigida** - agora todas as alterações são salvas corretamente
 
 ---
 
@@ -152,6 +171,26 @@ pm2 restart jm-fitness --update-env
 
 - `9aff717` - fix: permite admin editar todos os tipos de usuários incluindo outros admins
 - `5d42d63` - feat: adiciona funcionalidade de alterar senha do usuário no modal de edição
+- `ecaefb2` - **fix: corrige persistência de senha e outros dados do usuário ao editar** 🔥
+
+---
+
+## Logs de Debug
+
+Após o deploy, você verá logs no console do servidor (PM2) quando editar usuários:
+
+```
+🔄 Update User - Dados recebidos: { userId: 'xxx', hasPassword: true/false, passwordLength: 6 }
+🔐 Senha será atualizada (hash gerado)  // OU
+⏭️ Senha não fornecida, mantendo senha atual
+💾 Atualizando tabela users com: ['name', 'password']
+✅ Usuário atualizado com sucesso!
+```
+
+Para ver os logs em tempo real na VPS:
+```bash
+pm2 logs jm-fitness --lines 50
+```
 
 ---
 
