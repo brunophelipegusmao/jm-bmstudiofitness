@@ -9,6 +9,7 @@ import {
   personalDataTable,
   usersTable,
 } from "@/db/schema";
+import { sendCheckinNotificationWebhook } from "@/actions/admin/send-n8n-webhook-action";
 
 interface QuickCheckInState {
   success: boolean;
@@ -158,6 +159,18 @@ export async function quickCheckInAction(
       checkInTimestamp: now, // Data e hora exata do momento do check-in
       method,
       identifier: cleanIdentifier,
+    });
+
+    // Enviar notificação ao n8n (não bloqueia o check-in se falhar)
+    sendCheckinNotificationWebhook({
+      studentId: userResult.userId,
+      studentName: userResult.userName,
+      studentEmail: userResult.email || "",
+      checkinDate: todayStringForInsert,
+      checkinTime: currentTime,
+      academyName: "BM Studio Fitness",
+    }).catch((error) => {
+      console.error("Erro ao enviar webhook de check-in ao n8n:", error);
     });
 
     return {
