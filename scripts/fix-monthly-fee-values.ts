@@ -14,6 +14,7 @@
 import { db } from "@/db";
 import { financialTable, usersTable } from "@/db/schema";
 import { eq, sql, and, isNull, gt } from "drizzle-orm";
+import { UserRole } from "@/types/user-roles";
 
 interface StudentFinancial {
   userId: string;
@@ -37,7 +38,12 @@ async function analyzeAndFixMonthlyFees() {
     })
     .from(financialTable)
     .innerJoin(usersTable, eq(financialTable.userId, usersTable.id))
-    .where(and(eq(usersTable.userRole, "aluno"), isNull(usersTable.deletedAt)));
+    .where(
+      and(
+        eq(usersTable.userRole, UserRole.ALUNO),
+        isNull(usersTable.deletedAt),
+      ),
+    );
 
   console.log(`📊 Total de alunos encontrados: ${students.length}\n`);
 
