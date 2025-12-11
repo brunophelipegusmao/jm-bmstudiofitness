@@ -136,6 +136,36 @@ Após o deploy, teste:
 
 ## Solução de Problemas
 
+### Erro: "Failed to compile" com warnings de ESLint
+
+Se o build falhar com erros de linting, você tem duas opções:
+
+**Opção 1: Desabilitar ESLint temporariamente no build**
+```bash
+# Editar next.config.ts e adicionar:
+# eslint: { ignoreDuringBuilds: true }
+npm run build
+```
+
+**Opção 2: Build sem verificação de linting (mais rápido)**
+```bash
+# Fazer build ignorando warnings
+SKIP_ENV_VALIDATION=true npm run build
+```
+
+### Erro: "Could not find a production build"
+
+```bash
+# Verificar se o build existe
+ls -la .next
+
+# Se não existir, fazer o build
+npm run build
+
+# Depois iniciar
+pm2 start npm --name "jm-fitness-studio" -- start
+```
+
 ### Build falhou
 
 ```bash

@@ -645,7 +645,7 @@ export function AdministrativeTab({
                       className="border-slate-600 bg-slate-800 text-white"
                       placeholder="R$ 150,00"
                       onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "");
+                        const value = e.target.value.replace(/\D/g, "");
                         if (value) {
                           const numValue = parseFloat(value) / 100;
                           e.target.value = numValue.toLocaleString("pt-BR", {
