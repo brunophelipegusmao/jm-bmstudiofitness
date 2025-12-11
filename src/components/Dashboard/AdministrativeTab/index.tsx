@@ -26,6 +26,7 @@ import {
   FormState,
 } from "@/actions/user/create-aluno-action";
 import { BodyMeasurementsHistoryView } from "@/components/Admin/BodyMeasurementsHistoryView";
+import { FormFeedbackModal } from "@/components/Admin/FormFeedbackModal";
 import { PaymentStatusModal } from "@/components/Admin/PaymentStatusModal";
 import { StudentCredentialsModal } from "@/components/Admin/StudentCredentialsModal";
 import { AcademySettingsView } from "@/components/Dashboard/AcademySettingsView";
@@ -45,9 +46,13 @@ interface User {
 
 interface AdministrativeTabProps {
   user: User;
+  onStudentsChange?: () => void | Promise<void>;
 }
 
-export function AdministrativeTab({ user }: AdministrativeTabProps) {
+export function AdministrativeTab({
+  user,
+  onStudentsChange,
+}: AdministrativeTabProps) {
   const [showForm, setShowForm] = useState(false);
   const [showManageStudents, setShowManageStudents] = useState(false);
   const [showReports, setShowReports] = useState(false);
@@ -194,7 +199,66 @@ export function AdministrativeTab({ user }: AdministrativeTabProps) {
     FormData
   >(createAlunoAction, { success: false, message: "" });
 
+  // Log para debug do isPending
+  useEffect(() => {
+    console.log("🔵 [COMPONENT] isPending mudou:", isPending);
+  }, [isPending]);
+
   const [showCredentialsModal, setShowCredentialsModal] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackModalConfig, setFeedbackModalConfig] = useState<{
+    type: "success" | "error" | "warning";
+    title: string;
+    message: string;
+    details?: string[];
+  }>({
+    type: "success",
+    title: "",
+    message: "",
+    details: [],
+  });
+
+  // Validação client-side antes do submit
+  const validateForm = (formElement: HTMLFormElement): boolean => {
+    const requiredFields = [
+      { id: "name", label: "Nome Completo" },
+      { id: "email", label: "Email" },
+      { id: "cpf", label: "CPF" },
+      { id: "sex", label: "Sexo" },
+      { id: "telephone", label: "Telefone" },
+      { id: "bornDate", label: "Data de Nascimento" },
+      { id: "address", label: "Endereço" },
+      { id: "monthlyFee", label: "Mensalidade" },
+      { id: "paymentMethod", label: "Método de Pagamento" },
+      { id: "dueDate", label: "Dia de Vencimento" },
+    ];
+
+    const missingFields: string[] = [];
+
+    requiredFields.forEach((field) => {
+      const element = formElement.querySelector(`#${field.id}`) as
+        | HTMLInputElement
+        | HTMLTextAreaElement
+        | HTMLSelectElement;
+      if (element && (!element.value || element.value.trim() === "")) {
+        missingFields.push(field.label);
+      }
+    });
+
+    if (missingFields.length > 0) {
+      setFeedbackModalConfig({
+        type: "warning",
+        title: "Campos Obrigatórios Faltando",
+        message:
+          "Por favor, preencha todos os campos obrigatórios antes de salvar.",
+        details: missingFields.map((field) => `${field} não foi preenchido`),
+      });
+      setShowFeedbackModal(true);
+      return false;
+    }
+
+    return true;
+  };
 
   // Carregar estatísticas ao montar o componente
   useEffect(() => {
@@ -217,7 +281,14 @@ export function AdministrativeTab({ user }: AdministrativeTabProps) {
 
   // Recarregar estatísticas quando um aluno for cadastrado com sucesso
   useEffect(() => {
+    console.log("🔵 [COMPONENT] formState mudou:", {
+      success: formState.success,
+      message: formState.message,
+      hasCredentials: !!formState.credentials,
+    });
+
     if (formState.success) {
+      console.log("✅ [COMPONENT] Aluno cadastrado com sucesso!");
       async function reloadStats() {
         const result = await getDashboardStatsAction();
         if (result.success && result.stats) {
@@ -226,10 +297,27 @@ export function AdministrativeTab({ user }: AdministrativeTabProps) {
       }
       reloadStats();
 
-      // Mostrar modal com as credenciais
-      if (formState.credentials) {
-        setShowCredentialsModal(true);
+      // Recarregar lista de alunos
+      if (onStudentsChange) {
+        console.log("🔄 [COMPONENT] Recarregando lista de alunos...");
+        onStudentsChange();
       }
+
+      // Mostrar modal de sucesso
+      setFeedbackModalConfig({
+        type: "success",
+        title: "Aluno Cadastrado com Sucesso!",
+        message: formState.message,
+        details: formState.credentials
+          ? [
+              `Nome: ${formState.credentials.name}`,
+              `Email: ${formState.credentials.email}`,
+              "Um e-mail de confirmação foi enviado com as credenciais de acesso.",
+            ]
+          : undefined,
+      });
+      setShowFeedbackModal(true);
+
       // Se o servidor retornou o id do usuário criado, salvar as medições enviadas no formulário
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if ((formState as any).createdUserId) {
@@ -305,9 +393,27 @@ export function AdministrativeTab({ user }: AdministrativeTabProps) {
 
         void saveMeasurementsForUser(newUserId);
       }
+    } else if (!formState.success && formState.message) {
+      console.log("❌ [COMPONENT] Erro ao cadastrar aluno");
+      // Mostrar modal de erro
+      const errorDetails: string[] = [];
+
+      if (formState.errors) {
+        Object.entries(formState.errors).forEach(([field, messages]) => {
+          errorDetails.push(`${field}: ${messages.join(", ")}`);
+        });
+      }
+
+      setFeedbackModalConfig({
+        type: "error",
+        title: "Erro ao Cadastrar Aluno",
+        message: formState.message,
+        details: errorDetails.length > 0 ? errorDetails : undefined,
+      });
+      setShowFeedbackModal(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formState.success, formState.credentials]);
+  }, [formState.success, formState.message, formState.credentials]);
 
   const adminActions = [
     {
@@ -378,20 +484,6 @@ export function AdministrativeTab({ user }: AdministrativeTabProps) {
               <UserPlus className="h-6 w-6" />
               Formulário de Cadastro
             </CardTitle>
-            {formState.success && (
-              <div className="animate-in fade-in rounded-lg border border-green-500/50 bg-green-900/50 p-4 duration-300">
-                <p className="font-medium text-green-400">
-                  ✅ {formState.message}
-                </p>
-              </div>
-            )}
-            {!formState.success && formState.message && (
-              <div className="animate-in fade-in rounded-lg border border-red-500/50 bg-red-900/50 p-4 duration-300">
-                <p className="font-medium text-red-400">
-                  ❌ {formState.message}
-                </p>
-              </div>
-            )}
           </CardHeader>
 
           <CardContent>
@@ -543,16 +635,25 @@ export function AdministrativeTab({ user }: AdministrativeTabProps) {
                       htmlFor="monthlyFee"
                       className="font-semibold text-[#C2A537]"
                     >
-                      Mensalidade (R$) *
+                      Mensalidade *
                     </Label>
                     <Input
                       id="monthlyFee"
                       name="monthlyFee"
-                      type="number"
-                      step="0.01"
+                      type="text"
                       required
                       className="border-slate-600 bg-slate-800 text-white"
-                      placeholder="99.99"
+                      placeholder="R$ 150,00"
+                      onChange={(e) => {
+                        let value = e.target.value.replace(/\D/g, "");
+                        if (value) {
+                          const numValue = parseFloat(value) / 100;
+                          e.target.value = numValue.toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                          });
+                        }
+                      }}
                     />
                   </div>
                   <div className="space-y-2">
@@ -583,16 +684,17 @@ export function AdministrativeTab({ user }: AdministrativeTabProps) {
                     >
                       Dia de Vencimento *
                     </Label>
-                    <Input
+                    <select
                       id="dueDate"
                       name="dueDate"
-                      type="number"
-                      min="1"
-                      max="31"
                       required
-                      className="border-slate-600 bg-slate-800 text-white"
-                      placeholder="5"
-                    />
+                      className="w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 text-white focus:border-[#C2A537] focus:outline-none"
+                    >
+                      <option value="">Selecione</option>
+                      <option value="5">Dia 05</option>
+                      <option value="10">Dia 10</option>
+                      <option value="15">Dia 15</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -1476,6 +1578,28 @@ export function AdministrativeTab({ user }: AdministrativeTabProps) {
             // Payment updated
           }
         }}
+      />
+
+      {/* Modal de feedback (sucesso/erro) */}
+      <FormFeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => {
+          setShowFeedbackModal(false);
+          // Após fechar o modal de feedback, mostrar o modal de credenciais se houver
+          if (
+            formState.success &&
+            formState.credentials &&
+            !showCredentialsModal
+          ) {
+            setTimeout(() => {
+              setShowCredentialsModal(true);
+            }, 300);
+          }
+        }}
+        type={feedbackModalConfig.type}
+        title={feedbackModalConfig.title}
+        message={feedbackModalConfig.message}
+        details={feedbackModalConfig.details}
       />
 
       {/* Modal de credenciais do novo aluno */}

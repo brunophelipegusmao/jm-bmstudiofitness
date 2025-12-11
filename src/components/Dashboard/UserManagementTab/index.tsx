@@ -453,7 +453,7 @@ export function UserManagementTab({
                     </div>
 
                     {/* Botões de Ação */}
-                    <div className="mt-4 flex gap-2 border-t border-[#C2A537]/20 pt-3">
+                    <div className="mt-4 flex flex-wrap gap-2 border-t border-[#C2A537]/20 pt-3">
                       <Button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -462,7 +462,7 @@ export function UserManagementTab({
                         }}
                         variant="outline"
                         size="sm"
-                        className="flex-1 border-blue-500/50 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
+                        className="min-w-[70px] flex-1 border-blue-500/50 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
                         title="Visualizar detalhes"
                       >
                         <Eye className="mr-1 h-3 w-3" />
@@ -476,7 +476,7 @@ export function UserManagementTab({
                         }}
                         variant="outline"
                         size="sm"
-                        className="flex-1 border-[#C2A537]/50 bg-[#C2A537]/10 text-[#C2A537] hover:bg-[#C2A537]/20"
+                        className="min-w-[80px] flex-1 border-[#C2A537]/50 bg-[#C2A537]/10 text-[#C2A537] hover:bg-[#C2A537]/20"
                         disabled={actionLoading}
                         title="Editar dados"
                       >
@@ -493,7 +493,7 @@ export function UserManagementTab({
                             }}
                             variant="outline"
                             size="sm"
-                            className={`flex-1 ${
+                            className={`min-w-[100px] flex-1 ${
                               user.isActive
                                 ? "border-amber-500/50 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20"
                                 : "border-green-500/50 bg-green-500/10 text-green-400 hover:bg-green-500/20"
@@ -512,7 +512,7 @@ export function UserManagementTab({
                             }}
                             variant="outline"
                             size="sm"
-                            className="border-red-500/50 bg-red-500/10 text-red-400 hover:bg-red-500/20"
+                            className="min-w-[40px] border-red-500/50 bg-red-500/10 text-red-400 hover:bg-red-500/20"
                             disabled={actionLoading}
                             title="Excluir aluno"
                           >

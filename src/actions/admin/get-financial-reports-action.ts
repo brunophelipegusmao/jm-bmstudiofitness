@@ -71,7 +71,8 @@ export async function getFinancialReportsAction(): Promise<{
     // Receita total mensal
     const totalRevenueResult = await db
       .select({
-        total: sql<number>`SUM(${financialTable.monthlyFeeValueInCents})`,
+        total: sql<number>`COALESCE(SUM(${financialTable.monthlyFeeValueInCents}), 0)::integer`,
+        count: sql<number>`COUNT(*)::integer`,
       })
       .from(financialTable)
       .innerJoin(usersTable, eq(financialTable.userId, usersTable.id))
@@ -79,13 +80,13 @@ export async function getFinancialReportsAction(): Promise<{
         sql`${usersTable.userRole} = ${UserRole.ALUNO} AND ${usersTable.deletedAt} IS NULL`,
       );
 
-    const totalRevenueInCents = totalRevenueResult[0]?.total || 0;
+    const totalRevenueInCents = Number(totalRevenueResult[0]?.total || 0);
     const totalRevenue = formatCurrency(totalRevenueInCents);
 
     // Pagamentos pendentes (soma dos valores não pagos)
     const pendingPaymentsResult = await db
       .select({
-        total: sql<number>`SUM(${financialTable.monthlyFeeValueInCents})`,
+        total: sql<number>`COALESCE(SUM(${financialTable.monthlyFeeValueInCents}), 0)::integer`,
       })
       .from(financialTable)
       .innerJoin(usersTable, eq(financialTable.userId, usersTable.id))
@@ -93,7 +94,7 @@ export async function getFinancialReportsAction(): Promise<{
         sql`${usersTable.userRole} = ${UserRole.ALUNO} AND ${financialTable.paid} = false AND ${usersTable.deletedAt} IS NULL`,
       );
 
-    const pendingPaymentsInCents = pendingPaymentsResult[0]?.total || 0;
+    const pendingPaymentsInCents = Number(pendingPaymentsResult[0]?.total || 0);
     const pendingPayments = formatCurrency(pendingPaymentsInCents);
 
     // Taxa de pagamento (percentual de alunos com pagamento em dia)

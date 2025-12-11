@@ -20,11 +20,19 @@ export function StudentCredentialsModal({
   onClose,
   credentials,
 }: StudentCredentialsModalProps) {
+  console.log(
+    "🔑 [CREDENTIALS MODAL] isOpen:",
+    isOpen,
+    "hasCredentials:",
+    !!credentials,
+  );
+
   if (!credentials) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-slate-900 text-white">
+      <DialogContent className="z-[60] bg-slate-900 text-white">
+        {/* z-index maior que o modal de feedback */}
         <DialogTitle className="flex items-center gap-2 text-xl">
           <Check className="h-6 w-6 text-green-500" />
           Aluno cadastrado com sucesso!

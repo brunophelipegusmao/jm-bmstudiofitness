@@ -70,7 +70,10 @@ export function AdminTabs({ students, onStudentsChange }: AdminTabsProps) {
           {/* Tab Content */}
           <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500">
             {activeTab === "administrative" && (
-              <AdministrativeTab user={{ id: "", name: "", userRole: "" }} />
+              <AdministrativeTab
+                user={{ id: "", name: "", userRole: "" }}
+                onStudentsChange={onStudentsChange}
+              />
             )}
             {activeTab === "students" && (
               <StudentsTab
