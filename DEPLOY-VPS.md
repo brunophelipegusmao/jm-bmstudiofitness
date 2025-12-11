@@ -5,11 +5,13 @@
 **Problema identificado:** A alteração de senha (e outros dados) não estava persistindo no banco.
 
 **Causa raiz:**
+
 1. O campo `confirmPassword` estava sendo enviado para o backend (desnecessário)
 2. Campos vazios de senha estavam sendo enviados como string vazia `""` em vez de `undefined`
 3. Faltava fechar corretamente o bloco `.set()` na atualização de dados financeiros
 
 **Solução implementada:**
+
 1. ✅ Removido `confirmPassword` antes de enviar ao backend
 2. ✅ Validação condicional: só envia `password` se preenchida e com conteúdo
 3. ✅ Corrigido bloco de atualização de dados financeiros
@@ -141,6 +143,7 @@ Após o deploy, teste:
 Se o build falhar com erros de linting, você tem duas opções:
 
 **Opção 1: Desabilitar ESLint temporariamente no build**
+
 ```bash
 # Editar next.config.ts e adicionar:
 # eslint: { ignoreDuringBuilds: true }
@@ -148,6 +151,7 @@ npm run build
 ```
 
 **Opção 2: Build sem verificação de linting (mais rápido)**
+
 ```bash
 # Fazer build ignorando warnings
 SKIP_ENV_VALIDATION=true npm run build
@@ -218,6 +222,7 @@ Após o deploy, você verá logs no console do servidor (PM2) quando editar usu�
 ```
 
 Para ver os logs em tempo real na VPS:
+
 ```bash
 pm2 logs jm-fitness --lines 50
 ```
