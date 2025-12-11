@@ -75,11 +75,7 @@ const cadastroAlunoSchema = z.object({
     "cartao_debito",
     "transferencia",
   ]),
-  dueDate: z.enum(["5", "10", "15"], {
-    errorMap: () => ({
-      message: "Selecione um dia de vencimento válido (5, 10 ou 15)",
-    }),
-  }),
+  dueDate: z.enum(["5", "10", "15"]),
 
   // Dados de saúde
   heightCm: z
