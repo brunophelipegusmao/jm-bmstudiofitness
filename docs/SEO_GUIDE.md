@@ -27,7 +27,7 @@
 ### 1. Google Search Console (IMPORTANTE)
 1. Acesse: https://search.google.com/search-console
 2. Adicione a propriedade: `https://jmfitnessstudio.com`
-3. Verifique a propriedade (método HTML tag ou DNS)
+3. Verifique a propriedwade (método HTML tag ou DNS)
 4. Copie o código de verificação
 5. Cole no arquivo `src/app/layout.tsx` na linha:
    ```typescript
