@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "test:security": "jest tests/security/ --verbose",
+    "test:security:coverage": "jest tests/security/ --coverage",
+    "test:security:watch": "jest tests/security/ --watch"
+  }
+}

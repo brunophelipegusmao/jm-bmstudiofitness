@@ -73,6 +73,19 @@ https://hpanel.hostinger.com
 4. Aguarde a ativação (1-5 minutos)
 5. ✅ Verifique o cadeado verde em `https://jmfitnessstudio.com.br`
 
+**Documentação oficial:** https://www.hostinger.com/ssl-certificate
+
+### 1.4 Configurar Firewall (hPanel)
+
+1. No hPanel, vá em **VPS** → **Firewall**
+2. Certifique-se que as portas estão abertas:
+   - **22** (SSH)
+   - **80** (HTTP)
+   - **443** (HTTPS)
+   - **8080** (Docker Nginx - apenas localhost)
+3. **IMPORTANTE:** Porta 8080 deve aceitar apenas conexões de localhost
+4. Salve as configurações
+
 ---
 
 ## 🖥️ Passo 2: Preparar o Servidor VPS
@@ -366,7 +379,14 @@ sudo systemctl restart apache2
 
 ### Renovar SSL
 
-**Automático:** O hPanel da Hostinger renova automaticamente o SSL.
+**Automático:** O hPanel da Hostinger renova automaticamente o SSL a cada 90 dias.
+
+**Verificar validade:**
+
+```bash
+# Ver data de expiração
+openssl x509 -in /etc/letsencrypt/live/jmfitnessstudio.com.br/fullchain.pem -noout -dates
+```
 
 **Manual (se necessário):**
 
@@ -375,6 +395,28 @@ sudo systemctl restart apache2
 sudo certbot renew
 sudo systemctl reload apache2
 ```
+
+**Ou pelo hPanel:** SSL/TLS → Renovar Certificado
+
+### Backup do VPS
+
+**Backup Automático Hostinger:**
+
+- Backups semanais automáticos (depende do plano)
+- Acesse: hPanel → VPS → Backups
+- Restauração com 1 clique
+
+**Backup Manual da Aplicação:**
+
+```bash
+# Backup dos arquivos
+tar -czf backup-app-$(date +%Y%m%d).tar.gz /var/www/jmfitnessstudio
+
+# Backup do banco (Neon faz automaticamente)
+# Configure backups no console do Neon
+```
+
+**Documentação:** https://support.hostinger.com (busque por "VPS backup")
 
 ### Ver status
 
@@ -388,6 +430,40 @@ sudo systemctl status apache2
 # Uso de recursos
 docker stats
 ```
+
+### Monitoramento via hPanel
+
+A Hostinger oferece ferramentas de monitoramento integradas:
+
+1. **VPS Dashboard:** Acesse https://hpanel.hostinger.com
+2. **Métricas disponíveis:**
+   - Uso de CPU e RAM em tempo real
+   - Uso de disco e largura de banda
+   - Status do servidor
+   - Logs de acesso
+3. **Alertas:** Configure notificações por email para:
+   - Alto uso de recursos
+   - Problemas de SSL
+   - Downtime do servidor
+
+**Mais informações:** https://www.hostinger.com/vps-hosting
+
+### Monitoramento via hPanel
+
+A Hostinger oferece ferramentas de monitoramento integradas:
+
+1. **VPS Dashboard:** Acesse https://hpanel.hostinger.com
+2. **Métricas disponíveis:**
+   - Uso de CPU e RAM em tempo real
+   - Uso de disco e largura de banda
+   - Status do servidor
+   - Logs de acesso
+3. **Alertas:** Configure notificações por email para:
+   - Alto uso de recursos
+   - Problemas de SSL
+   - Downtime do servidor
+
+**Mais informações:** https://www.hostinger.com/vps-hosting
 
 ---
 

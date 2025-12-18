@@ -13,6 +13,9 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:ci": "jest --ci --coverage --watchAll=false",
+    "test:security": "jest tests/security/ --verbose",
+    "test:security:coverage": "jest tests/security/ --coverage",
+    "test:security:watch": "jest tests/security/ --watch",
     "db:push": "drizzle-kit push",
     "db:seed": "npx tsx src/db/seed.ts",
     "db:studio": "drizzle-kit studio"

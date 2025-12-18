@@ -88,25 +88,40 @@ export async function loginAction(
       userId: user.id,
       email: personalData.email,
       role: user.userRole,
+      name: personalData.fullName,
     });
 
     // Armazenar role para uso após o try/catch
     userRole = user.userRole;
 
-    // Definir cookie com token
+    // Definir cookie com token (sem maxAge = cookie de sessão, removido ao fechar navegador)
     const cookieStore = await cookies();
     cookieStore.set("auth-token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60, // 7 dias
       path: "/",
+      // Sem maxAge: cookie de sessão - será removido ao fechar o navegador
     });
+
+    console.log(
+      "✅ Token JWT criado como cookie de sessão (será removido ao fechar navegador)",
+    );
+
+    const successResult = {
+      email,
+      error: "",
+      success: true as const,
+    };
+    // In tests we avoid performing redirects so tests can inspect the result
+    if (process.env.NODE_ENV === "test") {
+      return successResult;
+    }
   } catch (error) {
     console.error("Erro no login:", error);
     return {
       email,
-      error: "Erro interno do servidor. Tente novamente.",
+      error: "Erro ao realizar login. Tente novamente.",
     };
   }
 

@@ -1,5 +1,67 @@
 import "@testing-library/jest-dom";
 
+// Polyfill TextEncoder/TextDecoder for Jest (Node environment)
+if (typeof global.TextEncoder === "undefined") {
+  // util.TextEncoder exists in Node.js
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { TextEncoder, TextDecoder } = require("util");
+  global.TextEncoder = TextEncoder;
+  global.TextDecoder = TextDecoder;
+}
+
+// Mock jose (JWT library for Edge Runtime)
+jest.mock("jose", () => ({
+  SignJWT: jest.fn().mockImplementation(() => ({
+    setProtectedHeader: jest.fn().mockReturnThis(),
+    setIssuedAt: jest.fn().mockReturnThis(),
+    setExpirationTime: jest.fn().mockReturnThis(),
+    sign: jest.fn().mockResolvedValue("mocked-jwt-token"),
+  })),
+  jwtVerify: jest.fn().mockResolvedValue({
+    payload: {
+      userId: "mock-user-id",
+      email: "mock@example.com",
+      role: "aluno",
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+    },
+  }),
+}));
+
+// Robust mock for '@/db' to ensure chainable `select().from().innerJoin().where().limit()` behavior
+// and that tests can call jest methods on `db.select` such as mockReturnValue/mockRejectedValue.
+(() => {
+  const createChain = (resolved = []) => {
+    const mockLimit = jest.fn().mockResolvedValue(resolved);
+    const mockWhere = jest.fn().mockReturnValue({ limit: mockLimit });
+    const mockInnerJoin = jest.fn().mockReturnValue({ where: mockWhere });
+    const mockFrom = jest.fn().mockReturnValue({ innerJoin: mockInnerJoin });
+
+    return {
+      mockLimit,
+      mockWhere,
+      mockInnerJoin,
+      mockFrom,
+      chain: { from: mockFrom },
+    };
+  };
+
+  const base = createChain([]);
+
+  const select = jest.fn().mockImplementation(() => base.chain);
+
+  const dbMock = {
+    select,
+    // Utility to adjust default resolved value across tests if desired
+    __setDefaultResult: (res) => {
+      const next = createChain(res);
+      select.mockImplementation(() => next.chain);
+    },
+  };
+
+  jest.mock("@/db", () => ({ db: dbMock }));
+})();
+
 // Mock next/router
 jest.mock("next/router", () => ({
   useRouter() {

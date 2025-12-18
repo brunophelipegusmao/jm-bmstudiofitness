@@ -19,11 +19,18 @@ export function DatabaseDiagnostic() {
   const [isChecking, setIsChecking] = useState(false);
   const [connectionResult, setConnectionResult] = useState<{
     success: boolean;
-    message: string;
+    message?: string;
     error?: string;
+    details?: string;
+    solution?: string;
   } | null>(null);
   const [dbInfo, setDbInfo] = useState<{
-    tables?: string[];
+    configured: boolean;
+    host?: string;
+    port?: string;
+    database?: string;
+    username?: string;
+    message?: string;
     error?: string;
   } | null>(null);
 
@@ -70,7 +77,7 @@ export function DatabaseDiagnostic() {
       </div>
 
       {/* Informações do Banco */}
-      <div className="rounded-lg border border-[#C2A537]/20 bg-gradient-to-b from-slate-900 via-slate-900 to-black p-6">
+      <div className="rounded-lg border border-[#C2A537]/20 bg-linear-to-b from-slate-900 via-slate-900 to-black p-6">
         <h2 className="mb-4 text-xl font-semibold text-[#C2A537]">
           Configuração Atual
         </h2>
@@ -114,7 +121,7 @@ export function DatabaseDiagnostic() {
       </div>
 
       {/* Teste de Conexão */}
-      <div className="rounded-lg border border-[#C2A537]/20 bg-gradient-to-b from-slate-900 via-slate-900 to-black p-6">
+      <div className="rounded-lg border border-[#C2A537]/20 bg-linear-to-b from-slate-900 via-slate-900 to-black p-6">
         <h2 className="mb-4 text-xl font-semibold text-[#C2A537]">
           Teste de Conexão
         </h2>
@@ -201,7 +208,7 @@ export function DatabaseDiagnostic() {
       </div>
 
       {/* Comandos Úteis */}
-      <div className="rounded-lg border border-[#C2A537]/20 bg-gradient-to-b from-slate-900 via-slate-900 to-black p-6">
+      <div className="rounded-lg border border-[#C2A537]/20 bg-linear-to-b from-slate-900 via-slate-900 to-black p-6">
         <h2 className="mb-4 text-xl font-semibold text-[#C2A537]">
           Comandos Úteis
         </h2>

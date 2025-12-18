@@ -25,16 +25,26 @@ export function clearAuthCookies() {
     "token",
     "jwt",
     "_token",
+    "refresh-token",
+    "session-id",
   ];
 
   cookiesToClear.forEach((cookieName) => {
-    // Remove com diferentes caminhos para garantir limpeza completa
-    document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
-    document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname};`;
+    // Remove com diferentes caminhos e domínios para garantir limpeza completa
+    const expiresDate = "Thu, 01 Jan 1970 00:00:00 UTC";
+
+    // Variações de path e domain para cobrir todos os casos
+    document.cookie = `${cookieName}=; expires=${expiresDate}; path=/;`;
+    document.cookie = `${cookieName}=; expires=${expiresDate}; path=/; domain=${window.location.hostname};`;
+    document.cookie = `${cookieName}=; expires=${expiresDate}; path=/; domain=.${window.location.hostname};`;
+    document.cookie = `${cookieName}=; expires=${expiresDate}; path=/; SameSite=Lax;`;
+    document.cookie = `${cookieName}=; expires=${expiresDate}; path=/; SameSite=Strict;`;
+
+    // Remove também sem especificar domain
+    document.cookie = `${cookieName}=; expires=${expiresDate}; path=/; SameSite=Lax; Secure;`;
   });
 
-  console.log("🍪 Cookies de autenticação limpos");
+  console.log("🍪 Cookies de autenticação limpos:", cookiesToClear.join(", "));
 }
 
 // Função para limpar storage
@@ -65,28 +75,42 @@ export function clearStorage() {
 export function setupAutoClearOnPageClose() {
   if (typeof window === "undefined") return;
 
-  // Limpeza ao fechar aba/janela
-  const handleBeforeUnload = () => {
-    console.log("🚪 Página sendo fechada - limpando cookies...");
+  // Limpeza ao fechar aba/janela - PRIORIDADE MÁXIMA
+  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    console.log("🚪 Navegador sendo fechado - limpando tokens JWT...");
+
+    // Limpa imediatamente de forma síncrona
     clearAuthCookies();
     clearStorage();
+
+    // Envia beacon para o servidor notificar o logout
+    try {
+      navigator.sendBeacon(
+        "/api/auth/logout",
+        JSON.stringify({ reason: "browser_close" }),
+      );
+    } catch (error) {
+      console.error("Erro ao enviar beacon:", error);
+    }
   };
 
   // Limpeza ao navegar para fora do site
   const handleUnload = () => {
-    console.log("🌐 Saindo do site - limpando cookies...");
+    console.log("🌐 Saindo do site - limpando tokens...");
     clearAuthCookies();
     clearStorage();
   };
 
-  // Limpeza quando a página perde foco por muito tempo
+  // Limpeza quando a página fica inativa por muito tempo (30 minutos)
   let pageBlurTimeout: NodeJS.Timeout;
   const handleBlur = () => {
     pageBlurTimeout = setTimeout(
       () => {
-        console.log("😴 Página inativa por muito tempo - limpando cookies...");
+        console.log("😴 Sessão inativa - limpando tokens por segurança...");
         clearAuthCookies();
         clearStorage();
+        // Redireciona para login após inatividade
+        window.location.href = "/?reason=inactivity";
       },
       30 * 60 * 1000,
     ); // 30 minutos
@@ -98,11 +122,33 @@ export function setupAutoClearOnPageClose() {
     }
   };
 
-  // Adicionar listeners
+  // Limpeza ao esconder a página (mobile)
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      console.log("📱 Página oculta - preparando limpeza...");
+      // Aguarda 1 minuto antes de limpar (caso seja apenas mudança de aba)
+      setTimeout(() => {
+        if (document.hidden) {
+          console.log("🧹 Limpando tokens após página oculta...");
+          clearAuthCookies();
+        }
+      }, 60000); // 1 minuto
+    }
+  };
+
+  // Adicionar todos os listeners
   window.addEventListener("beforeunload", handleBeforeUnload);
   window.addEventListener("unload", handleUnload);
   window.addEventListener("blur", handleBlur);
   window.addEventListener("focus", handleFocus);
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+
+  console.log("✅ Limpeza automática de tokens configurada");
+  console.log("📌 Tokens serão limpos ao:");
+  console.log("   - Fechar o navegador");
+  console.log("   - Fechar a aba");
+  console.log("   - Inatividade de 30 minutos");
+  console.log("   - Página oculta por 1 minuto (mobile)");
 
   // Cleanup function
   return () => {
@@ -110,6 +156,7 @@ export function setupAutoClearOnPageClose() {
     window.removeEventListener("unload", handleUnload);
     window.removeEventListener("blur", handleBlur);
     window.removeEventListener("focus", handleFocus);
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
     if (pageBlurTimeout) {
       clearTimeout(pageBlurTimeout);
     }

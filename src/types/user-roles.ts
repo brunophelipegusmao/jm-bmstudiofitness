@@ -59,6 +59,14 @@ export const USER_PERMISSIONS: RolePermissions[] = [
         resource: "coachObservationsParticular",
         actions: ["create", "read", "update", "delete"],
       },
+      {
+        resource: "settings",
+        actions: ["create", "read", "update", "delete"],
+      },
+      {
+        resource: "checkIns",
+        actions: ["create", "read", "update", "delete"],
+      },
     ],
   },
   {
@@ -67,8 +75,8 @@ export const USER_PERMISSIONS: RolePermissions[] = [
     permissions: [
       {
         resource: "users",
-        actions: ["read"],
-        conditions: { userType: "aluno" },
+        actions: ["create", "read", "update"],
+        conditions: { targetUserType: "aluno" },
       },
       {
         resource: "personalData",
@@ -93,18 +101,17 @@ export const USER_PERMISSIONS: RolePermissions[] = [
   },
   {
     role: UserRole.FUNCIONARIO,
-    description:
-      "Acesso limitado - pode criar professor/aluno e gerenciar mensalidades",
+    description: "Acesso limitado - pode criar alunos e gerenciar mensalidades",
     permissions: [
       {
         resource: "users",
         actions: ["create", "read", "update"],
-        conditions: { targetUserType: ["aluno", "professor"] }, // Pode criar/editar apenas aluno e professor
+        conditions: { targetUserType: "aluno" }, // Pode criar/editar apenas aluno
       },
       {
         resource: "personalData",
         actions: ["create", "read", "update"],
-        conditions: { targetUserType: ["aluno", "professor"] },
+        conditions: { targetUserType: "aluno" },
       },
       {
         resource: "healthMetrics",
@@ -123,6 +130,10 @@ export const USER_PERMISSIONS: RolePermissions[] = [
         resource: "coachObservationsParticular",
         actions: [], // SEM acesso às observações particulares do coach
       },
+      {
+        resource: "checkIns",
+        actions: ["create", "read", "update"],
+      },
     ],
   },
   {
@@ -131,8 +142,8 @@ export const USER_PERMISSIONS: RolePermissions[] = [
     permissions: [
       {
         resource: "users",
-        actions: ["read"],
-        conditions: { ownData: true },
+        actions: ["read", "update"],
+        conditions: { ownData: true, targetUserType: "aluno" },
       },
       {
         resource: "personalData",
@@ -191,15 +202,25 @@ export function checkConditions(
 ): boolean {
   return Object.entries(conditions).every(([key, value]) => {
     if (key === "ownData") {
-      return context.userId === context.targetUserId;
+      // Se ownData é requerido e é true, deve verificar se é os próprios dados
+      if (value === true) {
+        // Se não tem targetUserId no contexto, negar acesso (não podemos verificar)
+        if (!context.targetUserId) return false;
+        return context.userId === context.targetUserId;
+      }
+      return true;
     }
     if (key === "userType") {
+      // Se não há userType no contexto, assume que será verificado depois
+      if (!context.userType) return true;
       return context.userType === value;
     }
     if (key === "targetUserType") {
+      // Se não há targetUserType no contexto, assume que será verificado depois
+      if (!context.targetUserType) return true;
       // Suporta string única ou array de strings
       if (Array.isArray(value)) {
-        return value.includes(context.targetUserType || "");
+        return value.includes(context.targetUserType);
       }
       return context.targetUserType === value;
     }

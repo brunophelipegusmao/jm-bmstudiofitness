@@ -8,18 +8,19 @@ export async function logoutAction(): Promise<{ success: boolean }> {
     console.log("🔐 Iniciando processo de logout...");
     const cookieStore = await cookies();
 
-    // Remover o cookie de autenticação de forma segura
-    cookieStore.set("auth-token", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 0,
-      expires: new Date(0),
-      path: "/",
-    });
+    // Lista completa de cookies para remover
+    const cookiesToClear = [
+      "auth-token",
+      "user",
+      "session",
+      "token",
+      "jwt",
+      "_token",
+      "refresh-token",
+      "session-id",
+    ];
 
-    // Remover outros cookies relacionados à autenticação
-    const cookiesToClear = ["user", "session", "token", "jwt"];
+    // Remover todos os cookies de autenticação de forma segura
     cookiesToClear.forEach((cookieName) => {
       cookieStore.set(cookieName, "", {
         httpOnly: true,
@@ -31,7 +32,9 @@ export async function logoutAction(): Promise<{ success: boolean }> {
       });
     });
 
-    console.log("✅ Cookies de autenticação removidos com sucesso");
+    console.log("✅ Todos os cookies de autenticação removidos com sucesso");
+    console.log("📝 Cookies removidos:", cookiesToClear.join(", "));
+
     return { success: true };
   } catch (error) {
     console.error("❌ Erro durante logout:", error);

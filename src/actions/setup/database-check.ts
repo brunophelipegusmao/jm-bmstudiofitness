@@ -1,5 +1,7 @@
 "use server";
 
+import { sql } from "drizzle-orm";
+
 import { db } from "@/db";
 
 /**
@@ -8,7 +10,7 @@ import { db } from "@/db";
 export async function testDatabaseConnection() {
   try {
     // Tenta fazer uma query simples
-    await db.execute({ sql: "SELECT 1", args: [] });
+    await db.execute(sql`SELECT 1`);
 
     return {
       success: true,

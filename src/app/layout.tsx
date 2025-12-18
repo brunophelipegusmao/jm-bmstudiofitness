@@ -9,6 +9,7 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { MainContent } from "@/components/MainContent";
 import { SecurityManager } from "@/components/SecurityManager";
+import { SessionManager } from "@/components/SessionManager";
 import { ToastProvider } from "@/components/ToastProvider";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
 
@@ -137,6 +138,7 @@ export default function RootLayout({
       >
         <ClientWrapper>
           <SecurityManager />
+          <SessionManager />
           <Header />
           <MainContent>{children}</MainContent>
           <Footer />

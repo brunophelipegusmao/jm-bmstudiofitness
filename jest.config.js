@@ -28,6 +28,7 @@ const customJestConfig = {
       },
     ],
   },
+  transformIgnorePatterns: ["node_modules/(?!(jose)/)"],
   collectCoverageFrom: [
     "src/**/*.{js,jsx,ts,tsx}",
     "!src/**/*.d.ts",
@@ -39,7 +40,40 @@ const customJestConfig = {
     "!src/app/**/page.tsx",
   ],
   coverageDirectory: "coverage",
-  coverageReporters: ["text", "lcov", "html"],
+  coverageReporters: ["text", "lcov", "html", "json-summary"],
+  coverageThreshold: {
+    global: {
+      statements: 60,
+      branches: 50,
+      functions: 60,
+      lines: 60,
+    },
+    // Thresholds específicos para arquivos de segurança críticos
+    "./src/lib/auth-*.ts": {
+      statements: 90,
+      branches: 85,
+      functions: 90,
+      lines: 90,
+    },
+    "./src/lib/check-permission.ts": {
+      statements: 90,
+      branches: 85,
+      functions: 90,
+      lines: 90,
+    },
+    "./src/middleware.ts": {
+      statements: 85,
+      branches: 80,
+      functions: 85,
+      lines: 85,
+    },
+    "./src/actions/auth/*.ts": {
+      statements: 85,
+      branches: 80,
+      functions: 85,
+      lines: 85,
+    },
+  },
   testTimeout: 10000,
   // Desabilitar watch mode por padrão - execução manual apenas
   watchman: false,

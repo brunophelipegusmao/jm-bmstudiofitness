@@ -5,12 +5,14 @@ Siga os guias nesta ordem para fazer o deploy no VPS Hostinger.
 ## 📋 Ordem de Execução
 
 ### 1️⃣ Início Rápido
+
 **Arquivo:** `1-INICIO-RAPIDO.md`
 
 Comandos essenciais e visão geral rápida do processo.
 Leia primeiro se você já tem familiaridade com Docker e VPS.
 
 **Conteúdo:**
+
 - Setup no hPanel (SSL)
 - Instalação Docker no VPS
 - Deploy básico
@@ -21,12 +23,14 @@ Leia primeiro se você já tem familiaridade com Docker e VPS.
 ---
 
 ### 2️⃣ Guia Completo
+
 **Arquivo:** `2-GUIA-COMPLETO.md`
 
 Documentação detalhada com todos os passos explicados.
 Recomendado para primeira instalação.
 
 **Conteúdo:**
+
 - Pré-requisitos detalhados
 - Configuração SSL no hPanel
 - Instalação completa no VPS
@@ -40,12 +44,14 @@ Recomendado para primeira instalação.
 ---
 
 ### 3️⃣ Resumo Técnico
+
 **Arquivo:** `3-RESUMO-TECNICO.md`
 
 Explicação técnica das mudanças e arquitetura.
 Leia para entender como tudo funciona.
 
 **Conteúdo:**
+
 - Diferenças da configuração Hostinger
 - Arquitetura do sistema
 - Mudanças implementadas
@@ -59,6 +65,7 @@ Leia para entender como tudo funciona.
 ## 🚀 Fluxo Recomendado
 
 ### Para Iniciantes
+
 ```
 1. Leia: 2-GUIA-COMPLETO.md (entenda tudo)
 2. Execute: Siga passo a passo
@@ -66,6 +73,7 @@ Leia para entender como tudo funciona.
 ```
 
 ### Para Experientes
+
 ```
 1. Leia: 1-INICIO-RAPIDO.md (visão geral)
 2. Execute: Deploy rápido
@@ -73,6 +81,7 @@ Leia para entender como tudo funciona.
 ```
 
 ### Para Curiosos
+
 ```
 1. Leia: 3-RESUMO-TECNICO.md (entenda a arquitetura)
 2. Leia: 2-GUIA-COMPLETO.md (detalhes)
@@ -119,6 +128,16 @@ Após seguir os guias, você terá:
 - **Porta:** Nginx Docker roda na porta 8080 (interna)
 - **Apache:** Faz proxy da porta 443 para 8080
 - **Renovação SSL:** Automática via Hostinger
+
+---
+
+## 📚 Recursos Oficiais Hostinger
+
+- **VPS Hosting:** https://www.hostinger.com/vps-hosting
+- **Documentação SSL:** https://www.hostinger.com/ssl-certificate
+- **Como instalar SSL:** https://support.hostinger.com/en/articles/1583785-how-to-install-a-custom-ssl
+- **API Hostinger:** https://developers.hostinger.com
+- **Base de Conhecimento:** https://support.hostinger.com
 
 ---
 
