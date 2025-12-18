@@ -1,0 +1,75 @@
+# Dependências
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build output
+.next
+out
+dist
+build
+
+# Arquivos de desenvolvimento
+.dev
+.vscode
+.idea
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env*.local
+
+# Banco de dados local
+*.db
+*.db-*
+
+# Logs
+logs
+*.log
+
+# Testing
+coverage
+.nyc_output
+tests
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentação de desenvolvimento
+README.md
+docs
+*.md
+!DEPLOYMENT.md
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Scripts de desenvolvimento
+scripts
+
+# Configurações de lint e formatação
+.eslintrc*
+.prettierrc*
+eslint.config.mjs
+
+# TypeScript incremental
+*.tsbuildinfo
+
+# Debug
+debug.js
+debug-user-management.js
+
+# Nginx config (não é copiado para o container da app)
+nginx

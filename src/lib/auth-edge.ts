@@ -40,8 +40,17 @@ export async function verifyTokenEdge(
       iat: payload.iat,
       exp: payload.exp,
     };
-  } catch (error) {
-    console.log("❌ Erro ao verificar JWT:", error);
+  } catch (error: unknown) {
+    if (
+      (error as { code?: string })?.code ===
+      "ERR_JWS_SIGNATURE_VERIFICATION_FAILED"
+    ) {
+      console.log(
+        "❌ Token inválido ou criado com secret diferente. Faça login novamente.",
+      );
+    } else {
+      console.log("❌ Erro ao verificar JWT:", error?.message || error);
+    }
     return null;
   }
 }

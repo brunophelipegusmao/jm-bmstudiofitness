@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AlertTriangle,
   Building,
   CreditCard,
   FileText,
@@ -85,6 +86,13 @@ const menuItems: SidebarItem[] = [
     icon: Settings,
     href: "/admin/dashboard?tab=settings",
     description: "Configurações do estúdio",
+  },
+  {
+    id: "maintenance",
+    label: "Manutenção",
+    icon: AlertTriangle,
+    href: "/admin/maintenance",
+    description: "Controle de manutenção",
   },
 ];
 

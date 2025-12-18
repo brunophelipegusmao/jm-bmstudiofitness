@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getUserFromRequestEdge } from "@/lib/auth-edge";
-
-// MODO MANUTENÇÃO: Rotas permitidas durante manutenção
-const maintenanceAllowedPaths = ["/waitlist", "/admin"];
+import { getMaintenanceConfigCached } from "@/lib/maintenance-edge";
 
 // Rotas protegidas que requerem autenticação
 const protectedPaths = [
@@ -23,6 +21,8 @@ const publicPaths = [
   "/coach/login",
   "/employee/login",
   "/user/login",
+  "/setup", // Página de setup inicial
+  "/setup/check-database", // Diagnóstico de banco de dados
 ];
 
 export async function middleware(request: NextRequest) {
@@ -30,10 +30,14 @@ export async function middleware(request: NextRequest) {
 
   console.log(`🔍 Middleware v2 - Verificando rota: ${pathname}`);
 
-  // MODO MANUTENÇÃO: Bloqueia todas as rotas exceto /waitlist e /admin
-  const isMaintenanceAllowed = maintenanceAllowedPaths.some((path) =>
-    pathname.startsWith(path),
-  );
+  // Busca configurações de manutenção
+  const maintenanceConfig = await getMaintenanceConfigCached();
+
+  console.log(`⚙️ Configurações carregadas:`, {
+    maintenanceMode: maintenanceConfig.maintenanceMode,
+    routeHomeEnabled: maintenanceConfig.routeHomeEnabled,
+    routeUserEnabled: maintenanceConfig.routeUserEnabled,
+  });
 
   // Permite assets estáticos e API sempre
   const isAssetOrApi =
@@ -41,9 +45,159 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/api") ||
     pathname.includes(".");
 
-  if (!isMaintenanceAllowed && !isAssetOrApi && pathname !== "/maintenance") {
-    console.log(`🚧 MODO MANUTENÇÃO - Redirecionando para /maintenance`);
-    return NextResponse.redirect(new URL("/maintenance", request.url));
+  // CONTROLE DE ROTAS: Verifica se a rota está habilitada
+  if (!isAssetOrApi) {
+    // Define o destino de redirecionamento baseado nas rotas disponíveis
+    const getFallbackRoute = () => {
+      // Preferência: waitlist > home > contact > admin/login
+      if (maintenanceConfig.routeWaitlistEnabled) return "/waitlist";
+      if (maintenanceConfig.routeHomeEnabled) return "/";
+      if (maintenanceConfig.routeContactEnabled) return "/contact";
+      return "/admin/login"; // Último recurso sempre disponível
+    };
+
+    // Verifica rota home primeiro (exatamente "/")
+    if (pathname === "/" && !maintenanceConfig.routeHomeEnabled) {
+      const fallback = getFallbackRoute();
+      console.log(`🚫 Rota Home desabilitada, redirecionando para ${fallback}`);
+      return NextResponse.redirect(new URL(fallback, request.url));
+    }
+
+    // Verifica cada rota específica
+    const routeChecks = [
+      {
+        path: "/user",
+        enabled: maintenanceConfig.routeUserEnabled,
+        name: "Área do Aluno",
+      },
+      {
+        path: "/coach",
+        enabled: maintenanceConfig.routeCoachEnabled,
+        name: "Área do Coach",
+      },
+      {
+        path: "/employee",
+        enabled: maintenanceConfig.routeEmployeeEnabled,
+        name: "Área do Funcionário",
+      },
+      {
+        path: "/shopping",
+        enabled: maintenanceConfig.routeShoppingEnabled,
+        name: "Loja",
+      },
+      {
+        path: "/blog",
+        enabled: maintenanceConfig.routeBlogEnabled,
+        name: "Blog",
+      },
+      {
+        path: "/services",
+        enabled: maintenanceConfig.routeServicesEnabled,
+        name: "Serviços",
+      },
+      {
+        path: "/contact",
+        enabled: maintenanceConfig.routeContactEnabled,
+        name: "Contato",
+      },
+      {
+        path: "/waitlist",
+        enabled: maintenanceConfig.routeWaitlistEnabled,
+        name: "Lista de Espera",
+      },
+    ];
+
+    for (const route of routeChecks) {
+      if (pathname.startsWith(route.path) && !route.enabled) {
+        const fallback = getFallbackRoute();
+        console.log(
+          `🚫 Rota desabilitada: ${route.name} (${route.path}), redirecionando para ${fallback}`,
+        );
+        // Evita loop: não redireciona para a própria rota
+        if (!pathname.startsWith(fallback)) {
+          return NextResponse.redirect(new URL(fallback, request.url));
+        }
+      }
+    }
+  }
+
+  // MODO MANUTENÇÃO: Verifica se está ativo
+  if (maintenanceConfig.maintenanceMode && !isAssetOrApi) {
+    const redirectUrl = maintenanceConfig.maintenanceRedirectUrl || "/waitlist";
+
+    // Rotas sempre permitidas durante manutenção
+    const isAdminOrSetup =
+      pathname.startsWith("/admin") ||
+      pathname === "/setup" ||
+      pathname === "/setup/check-database" ||
+      pathname === redirectUrl ||
+      pathname.startsWith(redirectUrl);
+
+    // Se é admin/setup, permite
+    if (isAdminOrSetup) {
+      console.log(
+        `✅ Rota administrativa permitida durante manutenção: ${pathname}`,
+      );
+    } else {
+      // Verifica se a rota atual está habilitada no controle de rotas
+      let routeIsEnabled = false;
+
+      if (pathname === "/" && maintenanceConfig.routeHomeEnabled) {
+        routeIsEnabled = true;
+      } else if (
+        pathname.startsWith("/user") &&
+        maintenanceConfig.routeUserEnabled
+      ) {
+        routeIsEnabled = true;
+      } else if (
+        pathname.startsWith("/coach") &&
+        maintenanceConfig.routeCoachEnabled
+      ) {
+        routeIsEnabled = true;
+      } else if (
+        pathname.startsWith("/employee") &&
+        maintenanceConfig.routeEmployeeEnabled
+      ) {
+        routeIsEnabled = true;
+      } else if (
+        pathname.startsWith("/shopping") &&
+        maintenanceConfig.routeShoppingEnabled
+      ) {
+        routeIsEnabled = true;
+      } else if (
+        pathname.startsWith("/blog") &&
+        maintenanceConfig.routeBlogEnabled
+      ) {
+        routeIsEnabled = true;
+      } else if (
+        pathname.startsWith("/services") &&
+        maintenanceConfig.routeServicesEnabled
+      ) {
+        routeIsEnabled = true;
+      } else if (
+        pathname.startsWith("/contact") &&
+        maintenanceConfig.routeContactEnabled
+      ) {
+        routeIsEnabled = true;
+      } else if (
+        pathname.startsWith("/waitlist") &&
+        maintenanceConfig.routeWaitlistEnabled
+      ) {
+        routeIsEnabled = true;
+      }
+
+      // Se a rota não está habilitada, redireciona para a página de manutenção
+      if (!routeIsEnabled) {
+        console.log(
+          `🚧 MODO MANUTENÇÃO + Rota desabilitada - Redirecionando ${pathname} para ${redirectUrl}`,
+        );
+        return NextResponse.redirect(new URL(redirectUrl, request.url));
+      } else {
+        console.log(
+          `✅ MODO MANUTENÇÃO mas rota ${pathname} está habilitada - permitindo acesso`,
+        );
+      }
+    }
   }
 
   // Verifica se a rota está protegida primeiro

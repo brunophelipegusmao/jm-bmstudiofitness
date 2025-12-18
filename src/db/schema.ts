@@ -489,6 +489,29 @@ export const studioSettingsTable = pgTable("tb_studio_settings", {
   // Lista de Espera
   waitlistEnabled: boolean("waitlist_enabled").notNull().default(false),
 
+  // Modo Manutenção
+  maintenanceMode: boolean("maintenance_mode").notNull().default(false),
+  maintenanceRedirectUrl: text("maintenance_redirect_url").default("/waitlist"),
+
+  // Controle de Acesso às Rotas
+  routeHomeEnabled: boolean("route_home_enabled").notNull().default(true),
+  routeUserEnabled: boolean("route_user_enabled").notNull().default(true),
+  routeCoachEnabled: boolean("route_coach_enabled").notNull().default(true),
+  routeEmployeeEnabled: boolean("route_employee_enabled")
+    .notNull()
+    .default(true),
+  routeShoppingEnabled: boolean("route_shopping_enabled")
+    .notNull()
+    .default(true),
+  routeBlogEnabled: boolean("route_blog_enabled").notNull().default(true),
+  routeServicesEnabled: boolean("route_services_enabled")
+    .notNull()
+    .default(true),
+  routeContactEnabled: boolean("route_contact_enabled").notNull().default(true),
+  routeWaitlistEnabled: boolean("route_waitlist_enabled")
+    .notNull()
+    .default(true),
+
   // Termos e políticas de texto
   termsAndConditions: text("terms_and_conditions"),
   privacyPolicy: text("privacy_policy"),

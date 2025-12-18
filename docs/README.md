@@ -148,6 +148,24 @@ JWT_SECRET="seu-secret-jwt-super-seguro"
 NEXTAUTH_URL="http://localhost:3000"
 ```
 
+5. **Execute as migrations do banco**
+
+```bash
+npm run db:push
+```
+
+6. **Inicie o servidor de desenvolvimento**
+
+```bash
+npm run dev
+```
+
+7. **Configure o primeiro administrador**
+
+Acesse `http://localhost:3000/setup` e crie o primeiro usuário administrador.
+
+📖 **Documentação completa**: [SETUP-INICIAL.md](./SETUP-INICIAL.md)
+
 5. **Execute as migrações**
 
 ```bash
