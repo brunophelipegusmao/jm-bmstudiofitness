@@ -476,7 +476,7 @@ export function UserManagementTab({
                         }}
                         variant="outline"
                         size="sm"
-                        className="min-w-[80px] flex-1 border-[#C2A537]/50 bg-[#C2A537]/10 text-[#C2A537] hover:bg-[#C2A537]/20"
+                        className="min-w-20 flex-1 border-[#C2A537]/50 bg-[#C2A537]/10 text-[#C2A537] hover:bg-[#C2A537]/20"
                         disabled={actionLoading}
                         title="Editar dados"
                       >
@@ -512,7 +512,7 @@ export function UserManagementTab({
                             }}
                             variant="outline"
                             size="sm"
-                            className="min-w-[40px] border-red-500/50 bg-red-500/10 text-red-400 hover:bg-red-500/20"
+                            className="min-w-10 border-red-500/50 bg-red-500/10 text-red-400 hover:bg-red-500/20"
                             disabled={actionLoading}
                             title="Excluir aluno"
                           >
