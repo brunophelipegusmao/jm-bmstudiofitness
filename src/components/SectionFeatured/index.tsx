@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-import { getStudioSettingsAction } from "@/actions/admin/get-studio-settings-action";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
@@ -46,6 +45,41 @@ const isValidImageUrl = (url: string): boolean => {
   }
 };
 
+// Imagens padrão do carrossel
+const DEFAULT_CAROUSEL_IMAGES = [
+  {
+    src: "/banner-01.png",
+    alt: "Estúdio - Equipamentos de Musculação",
+    href: "/equipamentos",
+    loading: "eager" as const,
+    priority: true,
+  },
+  {
+    src: "/banner-03.png",
+    alt: "Aulas de Grupo - Fitness",
+    href: "/aulas",
+    loading: "eager" as const,
+  },
+  {
+    src: "/banner-04.png",
+    alt: "Personal Training",
+    href: "/personal",
+    loading: "lazy" as const,
+  },
+  {
+    src: "/banner-05.png",
+    alt: "Nutrição Esportiva",
+    href: "/nutricao",
+    loading: "lazy" as const,
+  },
+  {
+    src: "/banner-06.png",
+    alt: "Ambiente do Estúdio",
+    href: "/sobre",
+    loading: "lazy" as const,
+  },
+];
+
 export default function SectionFeatured() {
   // Preferências do usuário para movimento reduzido
   const prefersReducedMotion =
@@ -68,14 +102,18 @@ export default function SectionFeatured() {
       loading?: "lazy" | "eager";
       priority?: boolean;
     }>
-  >([]);
+  >(DEFAULT_CAROUSEL_IMAGES);
 
   useEffect(() => {
     const loadCarouselImages = async () => {
       try {
-        const settings = await getStudioSettingsAction();
+        // TODO: Implementar endpoint /api/settings no backend
+        // const settings = await apiClient.get('/settings');
 
-        // Coletar todas as imagens do carrossel que não estão vazias
+        // Por enquanto, usa imagens padrão
+        setCarouselImages(DEFAULT_CAROUSEL_IMAGES);
+
+        /* Código para quando o endpoint estiver pronto:
         const images = [
           settings.carouselImage1,
           settings.carouselImage2,
@@ -86,70 +124,23 @@ export default function SectionFeatured() {
           settings.carouselImage7,
         ]
           .filter((img) => img && img.trim() !== "")
-          .filter((img) => isValidImageUrl(img!)) // Filtra apenas URLs válidas
+          .filter((img) => isValidImageUrl(img!))
           .map((src, index) => ({
             src: src!.trim(),
             alt: `Imagem ${index + 1} - ${settings.studioName || "JM Fitness Studio"}`,
             href: "/",
-            // Carregamento prioritário para as primeiras imagens
             loading: (index < 2 ? "eager" : "lazy") as "eager" | "lazy",
-            // Primeira imagem tem prioridade alta para LCP
             priority: index === 0,
           }));
 
-        console.log("Imagens válidas do carrossel:", images);
-
-        // Se não houver imagens configuradas, usar as padrões
-        if (images.length === 0) {
-          console.log(
-            "Nenhuma imagem válida encontrada, usando imagens padrão",
-          );
-          setCarouselImages([
-            {
-              src: "/banner-01.png",
-              alt: "Estúdio - Equipamentos de Musculação",
-              href: "/equipamentos",
-            },
-            {
-              src: "/banner-03.png",
-              alt: "Aulas de Grupo - Fitness",
-              href: "/aulas",
-            },
-            {
-              src: "/banner-04.png",
-              alt: "Personal Training",
-              href: "/personal",
-            },
-            {
-              src: "/banner-05.png",
-              alt: "Nutrição Esportiva",
-              href: "/nutricao",
-            },
-            {
-              src: "/banner-06.png",
-              alt: "Ambiente do Estúdio",
-              href: "/sobre",
-            },
-          ]);
-        } else {
-          console.log("Imagens do carrossel carregadas:", images);
+        if (images.length > 0) {
           setCarouselImages(images);
         }
+        */
       } catch (error) {
         console.error("Erro ao carregar imagens do carrossel:", error);
-        // Em caso de erro, usar imagens padrão
-        setCarouselImages([
-          {
-            src: "/banner-01.png",
-            alt: "Estúdio - Equipamentos de Musculação",
-            href: "/equipamentos",
-          },
-          {
-            src: "/banner-03.png",
-            alt: "Aulas de Grupo - Fitness",
-            href: "/aulas",
-          },
-        ]);
+        // Em caso de erro, mantém imagens padrão
+        setCarouselImages(DEFAULT_CAROUSEL_IMAGES);
       }
     };
 

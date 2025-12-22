@@ -9,11 +9,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import {
-  createAdminAction,
-  type CreateAdminFormData,
-} from "@/actions/admin/create-admin-action";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -43,6 +40,7 @@ type FormData = z.infer<typeof createAdminSchema>;
 
 export default function CreateAdminPage() {
   const router = useRouter();
+  const { apiClient } = useAuth();
   const [success, setSuccess] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -59,15 +57,21 @@ export default function CreateAdminPage() {
   });
 
   async function onSubmit(data: FormData) {
-    setServerError(null);
+    try {
+      setServerError(null);
 
-    // Remover confirmPassword antes de enviar
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { confirmPassword, ...adminData } = data;
+      // Remover confirmPassword antes de enviar
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { confirmPassword, ...adminData } = data;
 
-    const result = await createAdminAction(adminData as CreateAdminFormData);
+      // TODO: Implementar endpoint no backend
+      // await apiClient.post('/users/admins', adminData);
+      console.warn(
+        "Endpoint /users/admins não implementado. Dados:",
+        adminData,
+      );
 
-    if (result.success) {
+      // Simulação temporária
       setSuccess(true);
       reset();
 
@@ -75,13 +79,11 @@ export default function CreateAdminPage() {
       setTimeout(() => {
         router.push("/admin/dashboard");
       }, 2000);
-    } else {
-      setServerError(result.message);
-
-      // Se houver erros de validação específicos, exibir
-      if (result.errors) {
-        console.error("Erros de validação:", result.errors);
-      }
+    } catch (error: any) {
+      setServerError(
+        error.response?.data?.message || "Erro ao criar administrador",
+      );
+      console.error("Erro ao criar admin:", error);
     }
   }
 

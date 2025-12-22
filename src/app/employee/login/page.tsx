@@ -2,27 +2,43 @@
 
 import { LogIn } from "lucide-react";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-import {
-  employeeLoginAction,
-  EmployeeLoginState,
-} from "@/actions/auth/employee-login-action";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function EmployeeLoginPage() {
-  const initialState: EmployeeLoginState = {
-    email: "",
-    error: "",
-  };
+  const { login } = useAuth();
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const [isPending, setIsPending] = useState(false);
 
-  const [state, formAction, isPending] = useActionState(
-    employeeLoginAction,
-    initialState,
-  );
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+    setIsPending(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+      const result = await login(email, password);
+      if (result.success) {
+        router.push("/employee/dashboard");
+      } else {
+        setError(result.error || "Erro ao fazer login");
+      }
+    } catch (err) {
+      setError("Erro ao conectar com o servidor");
+    } finally {
+      setIsPending(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-gray-900 via-black to-gray-900 px-4">
@@ -39,7 +55,7 @@ export default function EmployeeLoginPage() {
           </p>
         </CardHeader>
         <CardContent>
-          <form action={formAction} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-slate-300">
                 Email
@@ -49,7 +65,6 @@ export default function EmployeeLoginPage() {
                 name="email"
                 type="email"
                 placeholder="seu.email@jmfitness.com"
-                defaultValue={state.email}
                 required
                 className="border-[#C2A537]/30 bg-slate-900/50 text-slate-200 placeholder:text-slate-500 focus:border-[#C2A537] focus:ring-[#C2A537]"
               />
@@ -69,9 +84,9 @@ export default function EmployeeLoginPage() {
               />
             </div>
 
-            {state.error && (
+            {error && (
               <div className="rounded-md border border-red-500/30 bg-red-500/10 p-3">
-                <p className="text-sm text-red-400">{state.error}</p>
+                <p className="text-sm text-red-400">{error}</p>
               </div>
             )}
 

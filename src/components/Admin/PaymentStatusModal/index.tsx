@@ -4,7 +4,7 @@
 
 import { Download } from "lucide-react";
 import { useState } from "react";
-import { StudentPaymentData } from "@/actions/admin/get-students-payments-action";
+import type { StudentPaymentData } from "@/types/payments";
 import {
   Dialog,
   DialogContent,
@@ -40,7 +40,7 @@ export function PaymentStatusModal({
       await reportModule.generatePaymentReport(students, type);
     } catch (error) {
       console.error("Erro ao gerar relatório:", error);
-       
+
       alert("Erro ao gerar relatório. Por favor, tente novamente.");
     } finally {
       setIsGeneratingPDF(false);
@@ -55,12 +55,14 @@ export function PaymentStatusModal({
       if (onUpdatePayment) {
         await onUpdatePayment(userId, paid);
       } else {
-        const action = await import("@/actions/admin/update-payment-action");
-        await action.updatePaymentAction(userId, paid);
+        // TODO: Implementar chamada para API quando onUpdatePayment não for fornecido
+        // await apiClient.patch(`/students/${userId}/payment`, { paid });
+        console.warn(
+          "onUpdatePayment não fornecido. Atualize o componente pai.",
+        );
       }
     } catch (error) {
       console.error("Erro ao atualizar pagamento (modal):", error);
-       
       alert("Erro ao atualizar pagamento. Tente novamente.");
     } finally {
       setLoadingIds((s) => ({ ...s, [userId]: false }));

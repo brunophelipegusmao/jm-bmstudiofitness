@@ -2,7 +2,7 @@ import "jspdf-autotable";
 
 import { jsPDF } from "jspdf";
 
-import { StudentPaymentData } from "@/actions/admin/get-students-payments-action";
+import { StudentPaymentData } from "@/types/payments";
 import { formatCurrency } from "@/lib/payment-utils";
 
 export async function generatePaymentReport(

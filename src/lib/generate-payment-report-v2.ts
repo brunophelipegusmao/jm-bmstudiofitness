@@ -3,7 +3,7 @@ import { jsPDF } from "jspdf";
 // @ts-ignore
 import { default as autoTable } from "jspdf-autotable";
 
-import { StudentPaymentData } from "@/actions/admin/get-students-payments-action";
+import { StudentPaymentData } from "@/types/payments";
 import { formatCurrency } from "@/lib/payment-utils";
 
 export async function generatePaymentReport(

@@ -2,10 +2,11 @@
 
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2, Shield } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-import { loginAction } from "@/actions/auth/login-action";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Card,
   CardContent,
@@ -17,9 +18,34 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const AdminLogin = () => {
-  const initialState = { email: "", error: "" };
-  const [state, action, isPending] = useActionState(loginAction, initialState);
+  const { login } = useAuth();
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isPending, setIsPending] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+    setIsPending(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+      const result = await login(email, password);
+      if (result.success) {
+        router.push("/admin/dashboard");
+      } else {
+        setError(result.error || "Erro ao fazer login");
+      }
+    } catch (err) {
+      setError("Erro ao conectar com o servidor");
+    } finally {
+      setIsPending(false);
+    }
+  };
 
   return (
     <motion.div
@@ -87,18 +113,18 @@ const AdminLogin = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.8 }}
                   >
-                    {state.error && (
+                    {error && (
                       <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.4 }}
                         className="mb-4 rounded-lg border border-red-500/50 bg-red-900/20 p-3 text-sm text-red-300 backdrop-blur-sm"
                       >
-                        {state.error}
+                        {error}
                       </motion.div>
                     )}
 
-                    <form action={action} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                       <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -118,7 +144,6 @@ const AdminLogin = () => {
                           placeholder="admin@jmfitnessstudio.com"
                           required
                           disabled={isPending}
-                          defaultValue={state.email}
                           className="border-[#C2A537]/30 bg-slate-900/50 text-white transition-all duration-300 placeholder:text-slate-500 focus:border-[#C2A537] focus:ring-[#C2A537]/20"
                         />
                       </motion.div>

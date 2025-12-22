@@ -3,11 +3,12 @@
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-import { loginAction } from "@/actions/auth/login-action";
 import QuickCheckInCard from "@/components/QuickCheckIn";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Card,
   CardContent,
@@ -19,12 +20,34 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
+  const { login } = useAuth();
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const initialState = { email: "", error: "" };
-  const [state, formAction, isPending] = useActionState(
-    loginAction,
-    initialState,
-  );
+  const [error, setError] = useState("");
+  const [isPending, setIsPending] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+    setIsPending(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+      const result = await login(email, password);
+      if (result.success) {
+        router.push("/user/dashboard");
+      } else {
+        setError(result.error || "Erro ao fazer login");
+      }
+    } catch (err) {
+      setError("Erro ao conectar com o servidor");
+    } finally {
+      setIsPending(false);
+    }
+  };
 
   return (
     <motion.div
@@ -94,18 +117,18 @@ export default function LoginPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.6, delay: 0.8 }}
                     >
-                      {state.error && (
+                      {error && (
                         <motion.div
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ duration: 0.4 }}
                           className="mb-4 rounded-lg border border-red-500/50 bg-red-900/20 p-3 text-sm text-red-300 backdrop-blur-sm"
                         >
-                          {state.error}
+                          {error}
                         </motion.div>
                       )}
 
-                      <form action={formAction} className="space-y-6">
+                      <form onSubmit={handleSubmit} className="space-y-6">
                         <motion.div
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}

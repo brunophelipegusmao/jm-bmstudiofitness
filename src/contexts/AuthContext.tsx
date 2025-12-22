@@ -1,0 +1,142 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
+import { apiClient } from "@/lib/api-client";
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  cpf?: string;
+}
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  isAuthenticated: boolean;
+  login: (
+    email: string,
+    password: string,
+  ) => Promise<{ success: boolean; error?: string }>;
+  register: (data: {
+    email: string;
+    password: string;
+    name: string;
+    cpf: string;
+  }) => Promise<{ success: boolean; error?: string }>;
+  logout: () => void;
+  refreshUser: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  async function checkAuth() {
+    try {
+      const token = apiClient.getAccessToken();
+
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      const profile = await apiClient.getProfile();
+      setUser(profile);
+    } catch (error) {
+      console.error("Erro ao verificar autenticação:", error);
+      apiClient.clearTokens();
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function login(email: string, password: string) {
+    try {
+      setLoading(true);
+      const response = await apiClient.login({ login: email, password });
+      setUser(response.user);
+      router.push("/dashboard");
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message || "Erro ao fazer login" };
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function register(data: {
+    email: string;
+    password: string;
+    name: string;
+    cpf: string;
+  }) {
+    try {
+      setLoading(true);
+      const response = await apiClient.register({ ...data, role: "ALUNO" });
+      setUser(response.user);
+      router.push("/dashboard");
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message || "Erro ao registrar" };
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function logout() {
+    apiClient.clearTokens();
+    setUser(null);
+    router.push("/");
+  }
+
+  async function refreshUser() {
+    try {
+      const profile = await apiClient.getProfile();
+      setUser(profile);
+    } catch (error) {
+      console.error("Erro ao atualizar usuário:", error);
+    }
+  }
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isAuthenticated: !!user,
+        login,
+        register,
+        logout,
+        refreshUser,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth deve ser usado dentro de um AuthProvider");
+  }
+  return context;
+}

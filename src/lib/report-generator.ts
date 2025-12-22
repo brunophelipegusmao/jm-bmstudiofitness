@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 
-import type { FinancialReportData } from "@/actions/admin/get-financial-reports-action";
+import type { FinancialReportData } from "@/types/payments";
 
 /**
  * Adiciona cabeçalho com logo e timbre ao PDF
@@ -25,7 +25,7 @@ function addPDFHeader(doc: jsPDF, title: string) {
   doc.circle(35, 28, 16, "F");
   doc.setFillColor(0, 0, 0);
   doc.circle(35, 28, 14, "F");
-  
+
   doc.setTextColor(194, 165, 55);
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");

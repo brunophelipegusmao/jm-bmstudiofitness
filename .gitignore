@@ -49,6 +49,10 @@ next-env.d.ts
 .vscode/
 .idea/
 
+# Windows reserved names
+nul
+NUL
+
 # development files (migrations, debug scripts)
 .dev/
 *.swp

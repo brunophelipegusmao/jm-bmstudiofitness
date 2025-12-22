@@ -14,8 +14,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
-import { logoutAction } from "@/actions/auth/logout-action";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SidebarItem {
   id: string;
@@ -66,10 +66,11 @@ export function EmployeeSidebar({
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
     startTransition(async () => {
-      await logoutAction();
+      await logout();
       router.push("/");
     });
   };

@@ -3,7 +3,7 @@ import "jspdf-autotable";
 import { jsPDF } from "jspdf";
 import { UserOptions } from "jspdf-autotable";
 
-import { StudentPaymentData } from "@/actions/admin/get-students-payments-action";
+import { StudentPaymentData } from "@/types/payments";
 import { formatCurrency } from "@/lib/payment-utils";
 
 interface TableConfig extends UserOptions {

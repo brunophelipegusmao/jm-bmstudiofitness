@@ -2,10 +2,11 @@
 
 import { motion } from "framer-motion";
 import { Eye, EyeOff, GraduationCap, Loader2 } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-import { coachLoginAction } from "@/actions/auth/coach-login-action";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Card,
   CardContent,
@@ -17,12 +18,34 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const CoachLogin = () => {
-  const initialState = { email: "", error: "" };
-  const [state, action, isPending] = useActionState(
-    coachLoginAction,
-    initialState,
-  );
+  const { login } = useAuth();
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isPending, setIsPending] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+    setIsPending(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+      const result = await login(email, password);
+      if (result.success) {
+        router.push("/coach");
+      } else {
+        setError(result.error || "Erro ao fazer login");
+      }
+    } catch (err) {
+      setError("Erro ao conectar com o servidor");
+    } finally {
+      setIsPending(false);
+    }
+  };
 
   return (
     <motion.div
@@ -68,15 +91,21 @@ const CoachLogin = () => {
                   <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.6 }}
+                    transition={{ duration: 0.4 }}
+                    className="flex flex-col items-center gap-4"
                   >
-                    <CardTitle className="flex items-center justify-center gap-3 bg-gradient-to-r from-[#FFD700] via-[#C2A537] to-[#B8941F] bg-clip-text text-xl font-bold text-transparent md:text-2xl">
+                    {error && (
                       <motion.div
-                        whileHover={{ rotate: 360, scale: 1.1 }}
-                        transition={{ duration: 0.5 }}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.4 }}
+                        className="mb-4 rounded-lg border border-red-500/50 bg-red-900/20 p-3 text-sm text-red-300 backdrop-blur-sm"
                       >
-                        <GraduationCap className="h-6 w-6 text-[#C2A537]" />
+                        {error}
                       </motion.div>
+                    )}
+                    <GraduationCap className="h-16 w-16 text-[#C2A537]" />
+                    <CardTitle className="font-oswald text-center text-2xl font-bold tracking-wide text-[#C2A537] uppercase md:text-3xl">
                       Login do Professor
                     </CardTitle>
                     <CardDescription className="text-center text-sm text-slate-300 md:text-base">
@@ -101,7 +130,7 @@ const CoachLogin = () => {
                       </motion.div>
                     )}
 
-                    <form action={action} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                       <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}

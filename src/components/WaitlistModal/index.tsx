@@ -1,11 +1,9 @@
 "use client";
 
-import { AnimatePresence,motion } from "framer-motion";
-import { ArrowRight,Users, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, Users, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
-import { getStudioSettingsAction } from "@/actions/admin/studio-settings-actions";
 
 export default function WaitlistModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,9 +15,11 @@ export default function WaitlistModal() {
 
   async function checkWaitlistStatus() {
     try {
-      const result = await getStudioSettingsAction();
+      // TODO: Buscar da API: const { data } = await apiClient.get('/settings');
+      // Por enquanto, desabilitado por padrão
+      const waitlistEnabled = false;
 
-      if (result.success && result.data?.waitlistEnabled) {
+      if (waitlistEnabled) {
         setIsOpen(true);
       }
     } catch (error) {
