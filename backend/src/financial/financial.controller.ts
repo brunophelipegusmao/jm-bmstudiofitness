@@ -1,20 +1,21 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
 } from '@nestjs/common';
-import { FinancialService } from './financial.service';
-import { CreateFinancialDto } from './dto/create-financial.dto';
-import { UpdateFinancialDto, MarkAsPaidDto } from './dto/update-financial.dto';
-import { QueryFinancialDto } from './dto/query-financial.dto';
-import { Roles } from '../common/decorators/roles.decorator';
+
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../database/schema';
+import { CreateFinancialDto } from './dto/create-financial.dto';
+import { QueryFinancialDto } from './dto/query-financial.dto';
+import { MarkAsPaidDto,UpdateFinancialDto } from './dto/update-financial.dto';
+import { FinancialService } from './financial.service';
 
 @Controller('financial')
 export class FinancialController {

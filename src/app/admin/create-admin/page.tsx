@@ -10,9 +10,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Schema de validação
 const createAdminSchema = z
@@ -40,7 +40,7 @@ type FormData = z.infer<typeof createAdminSchema>;
 
 export default function CreateAdminPage() {
   const router = useRouter();
-  const { apiClient } = useAuth();
+  // const { apiClient } = useAuth(); // TODO: Ativar quando endpoint estiver pronto
   const [success, setSuccess] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 

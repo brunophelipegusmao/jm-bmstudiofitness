@@ -1,15 +1,16 @@
 import {
-  Controller,
-  Post,
   Body,
+  Controller,
   Get,
   HttpCode,
   HttpStatus,
+  Post,
 } from '@nestjs/common';
-import { N8nWebhooksService } from './n8n-webhooks.service';
-import { TriggerWebhookDto } from './dto/webhook-event.dto';
+
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../database/schema';
+import { TriggerWebhookDto } from './dto/webhook-event.dto';
+import { N8nWebhooksService } from './n8n-webhooks.service';
 
 @Controller('n8n-webhooks')
 export class N8nWebhooksController {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * API Client para integração com Backend NestJS
  * Base URL: http://localhost:3001/api
@@ -109,9 +110,9 @@ class ApiClient {
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       "Content-Type": "application/json",
-      ...(options.headers || {}),
+      ...((options.headers as Record<string, string>) || {}),
     };
 
     // Adiciona token de autenticação se disponível

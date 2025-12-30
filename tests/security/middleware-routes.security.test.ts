@@ -11,9 +11,10 @@
 // - Rotas públicas vs protegidas
 
 import { NextRequest, NextResponse } from "next/server";
-import { middleware } from "@/middleware";
+
 import { getUserFromRequestEdge } from "@/lib/auth-edge";
 import { getMaintenanceConfigCached } from "@/lib/maintenance-edge";
+import { middleware } from "@/middleware";
 
 jest.mock("@/lib/auth-edge");
 jest.mock("@/lib/maintenance-edge");

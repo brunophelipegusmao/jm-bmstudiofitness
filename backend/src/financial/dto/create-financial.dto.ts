@@ -1,11 +1,11 @@
 import {
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
-  IsBoolean,
-  IsString,
   IsOptional,
-  Min,
+  IsString,
   Max,
+  Min,
 } from 'class-validator';
 
 export class CreateFinancialDto {

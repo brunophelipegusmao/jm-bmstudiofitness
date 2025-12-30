@@ -11,10 +11,11 @@
 // - Contexto de permissões (próprio vs outros)
 
 import { cookies } from "next/headers";
-import { checkPermission, canCreateUserType } from "@/lib/check-permission";
-import { requireAdmin, getCurrentUser } from "@/lib/auth-server";
-import { verifyToken } from "@/lib/auth-utils";
+
 import { verifyTokenEdge } from "@/lib/auth-edge";
+import { getCurrentUser,requireAdmin } from "@/lib/auth-server";
+import { verifyToken } from "@/lib/auth-utils";
+import { canCreateUserType,checkPermission } from "@/lib/check-permission";
 import { UserRole } from "@/types/user-roles";
 
 jest.mock("next/headers");

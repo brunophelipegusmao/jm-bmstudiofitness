@@ -1,19 +1,20 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
   Param,
+  Patch,
+  Post,
   Query,
 } from '@nestjs/common';
-import { StudentsService } from './students.service';
-import { CreateHealthMetricsDto } from './dto/create-health-metrics.dto';
-import { UpdateHealthMetricsDto } from './dto/update-health-metrics.dto';
-import { QueryStudentsDto } from './dto/query-students.dto';
-import { Roles } from '../common/decorators/roles.decorator';
+
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../database/schema';
+import { CreateHealthMetricsDto } from './dto/create-health-metrics.dto';
+import { QueryStudentsDto } from './dto/query-students.dto';
+import { UpdateHealthMetricsDto } from './dto/update-health-metrics.dto';
+import { StudentsService } from './students.service';
 
 @Controller('students')
 export class StudentsController {

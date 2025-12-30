@@ -1,28 +1,29 @@
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  ConflictException,
   BadRequestException,
+  ConflictException,
   ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
 } from '@nestjs/common';
-import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
-import { eq, and, isNull, or, like, sql, desc, asc } from 'drizzle-orm';
 import * as bcrypt from 'bcryptjs';
+import { and, asc,desc, eq, isNull, like, or, sql } from 'drizzle-orm';
+import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+
 import {
-  tbUsers,
-  tbPersonalData,
   tbEmployeePermissions,
+  tbPersonalData,
   tbStudentPermissions,
+  tbUsers,
   UserRole,
 } from '../database/schema';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto, UpdatePasswordDto } from './dto/update-user.dto';
 import { QueryUsersDto } from './dto/query-users.dto';
 import {
   UpdateEmployeePermissionsDto,
   UpdateStudentPermissionsDto,
 } from './dto/update-permissions.dto';
+import { UpdatePasswordDto,UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {

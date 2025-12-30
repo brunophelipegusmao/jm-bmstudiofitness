@@ -75,8 +75,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(response.user);
       router.push("/dashboard");
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message || "Erro ao fazer login" };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erro ao fazer login";
+      return { success: false, error: message };
     } finally {
       setLoading(false);
     }
@@ -94,8 +95,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(response.user);
       router.push("/dashboard");
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message || "Erro ao registrar" };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erro ao registrar";
+      return { success: false, error: message };
     } finally {
       setLoading(false);
     }

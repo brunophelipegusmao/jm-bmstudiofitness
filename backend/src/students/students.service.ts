@@ -1,22 +1,23 @@
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  ForbiddenException,
   BadRequestException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
 } from '@nestjs/common';
+import { and, desc,eq, isNull, like, or, sql } from 'drizzle-orm';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
-import { eq, and, isNull, or, like, sql, desc } from 'drizzle-orm';
+
 import {
-  tbUsers,
-  tbPersonalData,
   tbHealthMetrics,
+  tbPersonalData,
   tbStudentPermissions,
+  tbUsers,
   UserRole,
 } from '../database/schema';
 import { CreateHealthMetricsDto } from './dto/create-health-metrics.dto';
-import { UpdateHealthMetricsDto } from './dto/update-health-metrics.dto';
 import { QueryStudentsDto } from './dto/query-students.dto';
+import { UpdateHealthMetricsDto } from './dto/update-health-metrics.dto';
 
 @Injectable()
 export class StudentsService {

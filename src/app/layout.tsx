@@ -4,7 +4,6 @@ import clsx from "clsx";
 import type { Metadata } from "next";
 import { Anton, Geist, Geist_Mono, Oswald } from "next/font/google";
 
-import { AuthProvider } from "@/contexts/AuthContext";
 import { ClientWrapper } from "@/components/ClientWrapper";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
@@ -13,6 +12,7 @@ import { SecurityManager } from "@/components/SecurityManager";
 import { SessionManager } from "@/components/SessionManager";
 import { ToastProvider } from "@/components/ToastProvider";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

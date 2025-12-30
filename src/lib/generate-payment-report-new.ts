@@ -2,8 +2,8 @@ import "jspdf-autotable";
 
 import { jsPDF } from "jspdf";
 
-import { StudentPaymentData } from "@/types/payments";
 import { formatCurrency } from "@/lib/payment-utils";
+import { StudentPaymentData } from "@/types/payments";
 
 export async function generatePaymentReport(
   students: StudentPaymentData[],

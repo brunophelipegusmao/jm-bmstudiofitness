@@ -3,8 +3,8 @@ import { jsPDF } from "jspdf";
 // @ts-ignore
 import { default as autoTable } from "jspdf-autotable";
 
-import { StudentPaymentData } from "@/types/payments";
 import { formatCurrency } from "@/lib/payment-utils";
+import { StudentPaymentData } from "@/types/payments";
 
 export async function generatePaymentReport(
   students: StudentPaymentData[],

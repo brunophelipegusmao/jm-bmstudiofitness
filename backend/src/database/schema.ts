@@ -4,9 +4,9 @@ import {
   integer,
   pgTable,
   text,
+  timestamp,
   uuid,
   varchar,
-  timestamp,
 } from 'drizzle-orm/pg-core';
 
 // Enum para roles de usuário
@@ -130,6 +130,284 @@ export const tbStudentPermissions = pgTable('tb_student_permissions', {
   canEditInjuries: boolean('can_edit_injuries').default(true).notNull(),
   canEditRoutine: boolean('can_edit_routine').default(true).notNull(),
   canEditSupplements: boolean('can_edit_supplements').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Tabela de configurações do estúdio
+export const tbStudioSettings = pgTable('tb_studio_settings', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  // Informações básicas
+  studioName: text('studio_name').notNull().default('JM Fitness Studio'),
+  email: text('email').notNull().default('contato@jmfitness.com'),
+  phone: text('phone').notNull().default('(21) 98099-5749'),
+  address: text('address').notNull().default('Rua das Flores, 123'),
+  city: text('city').notNull().default('Rio de Janeiro'),
+  state: text('state').notNull().default('RJ'),
+  zipCode: text('zip_code').notNull().default('20000-000'),
+
+  // Horários de funcionamento
+  mondayOpen: text('monday_open').notNull().default('06:00'),
+  mondayClose: text('monday_close').notNull().default('22:00'),
+  tuesdayOpen: text('tuesday_open').notNull().default('06:00'),
+  tuesdayClose: text('tuesday_close').notNull().default('22:00'),
+  wednesdayOpen: text('wednesday_open').notNull().default('06:00'),
+  wednesdayClose: text('wednesday_close').notNull().default('22:00'),
+  thursdayOpen: text('thursday_open').notNull().default('06:00'),
+  thursdayClose: text('thursday_close').notNull().default('22:00'),
+  fridayOpen: text('friday_open').notNull().default('06:00'),
+  fridayClose: text('friday_close').notNull().default('22:00'),
+  saturdayOpen: text('saturday_open'),
+  saturdayClose: text('saturday_close'),
+  sundayOpen: text('sunday_open'),
+  sundayClose: text('sunday_close'),
+
+  // Valores e planos (em centavos)
+  monthlyFeeDefault: integer('monthly_fee_default').notNull().default(15000),
+  registrationFee: integer('registration_fee').notNull().default(5000),
+  personalTrainingHourlyRate: integer('personal_training_hourly_rate')
+    .notNull()
+    .default(10000),
+
+  // Políticas
+  paymentDueDateDefault: integer('payment_due_date_default')
+    .notNull()
+    .default(10),
+  gracePeriodDays: integer('grace_period_days').notNull().default(5),
+  maxCheckInsPerDay: integer('max_check_ins_per_day').notNull().default(2),
+  allowWeekendCheckIn: boolean('allow_weekend_check_in')
+    .notNull()
+    .default(false),
+
+  // Lista de Espera
+  waitlistEnabled: boolean('waitlist_enabled').notNull().default(false),
+
+  // Modo Manutenção
+  maintenanceMode: boolean('maintenance_mode').notNull().default(false),
+  maintenanceRedirectUrl: text('maintenance_redirect_url').default('/waitlist'),
+
+  // Controle de Acesso às Rotas
+  routeHomeEnabled: boolean('route_home_enabled').notNull().default(true),
+  routeUserEnabled: boolean('route_user_enabled').notNull().default(true),
+  routeCoachEnabled: boolean('route_coach_enabled').notNull().default(true),
+  routeEmployeeEnabled: boolean('route_employee_enabled')
+    .notNull()
+    .default(true),
+  routeShoppingEnabled: boolean('route_shopping_enabled')
+    .notNull()
+    .default(true),
+  routeBlogEnabled: boolean('route_blog_enabled').notNull().default(true),
+  routeServicesEnabled: boolean('route_services_enabled')
+    .notNull()
+    .default(true),
+  routeContactEnabled: boolean('route_contact_enabled').notNull().default(true),
+  routeWaitlistEnabled: boolean('route_waitlist_enabled')
+    .notNull()
+    .default(true),
+
+  // Termos e políticas de texto
+  termsAndConditions: text('terms_and_conditions'),
+  privacyPolicy: text('privacy_policy'),
+  cancellationPolicy: text('cancellation_policy'),
+
+  // Imagens do carrossel da página inicial (máximo 7)
+  carouselImage1: text('carousel_image_1').default('/gym1.jpg'),
+  carouselImage2: text('carousel_image_2').default('/gym2.jpg'),
+  carouselImage3: text('carousel_image_3').default('/gym3.jpg'),
+  carouselImage4: text('carousel_image_4'),
+  carouselImage5: text('carousel_image_5'),
+  carouselImage6: text('carousel_image_6'),
+  carouselImage7: text('carousel_image_7'),
+
+  // Metadados
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Tabela de tokens de reset de senha
+export const tbPasswordResetTokens = pgTable('tb_password_reset_tokens', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => tbUsers.id),
+  token: text('token').notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  used: boolean('used').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Tabela de funcionários
+export const tbEmployees = pgTable('tb_employees', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .unique()
+    .references(() => tbUsers.id),
+  position: text('position').notNull(),
+  shift: text('shift').notNull(),
+  shiftStartTime: text('shift_start_time').notNull(),
+  shiftEndTime: text('shift_end_time').notNull(),
+  salaryInCents: integer('salary_in_cents').notNull(),
+  hireDate: date('hire_date').notNull(),
+  deletedAt: timestamp('deleted_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Tabela de histórico de salários
+export const tbEmployeeSalaryHistory = pgTable('tb_employee_salary_history', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  employeeId: uuid('employee_id')
+    .notNull()
+    .references(() => tbEmployees.id),
+  previousSalaryInCents: integer('previous_salary_in_cents').notNull(),
+  newSalaryInCents: integer('new_salary_in_cents').notNull(),
+  changeReason: text('change_reason'),
+  changedBy: uuid('changed_by')
+    .notNull()
+    .references(() => tbUsers.id),
+  effectiveDate: date('effective_date').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Tabela de registro de ponto
+export const tbEmployeeTimeRecords = pgTable('tb_employee_time_records', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  employeeId: uuid('employee_id')
+    .notNull()
+    .references(() => tbEmployees.id),
+  date: date('date').notNull(),
+  checkInTime: text('check_in_time'),
+  checkOutTime: text('check_out_time'),
+  totalHours: text('total_hours'),
+  notes: text('notes'),
+  approved: boolean('approved').default(false).notNull(),
+  approvedBy: uuid('approved_by').references(() => tbUsers.id),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Tabela de planos
+export const tbPlans = pgTable('tb_plans', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: text('name').notNull(),
+  description: text('description'),
+  priceInCents: integer('price_in_cents').notNull(),
+  durationInDays: integer('duration_in_days').notNull(),
+  features: text('features').array(),
+  isPopular: boolean('is_popular').default(false).notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  sortOrder: integer('sort_order').default(0).notNull(),
+  deletedAt: timestamp('deleted_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Tabela de lista de espera
+export const tbWaitlist = pgTable('tb_waitlist', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull(),
+  phone: text('phone'),
+  interestPlanId: uuid('interest_plan_id').references(() => tbPlans.id),
+  source: text('source'),
+  notes: text('notes'),
+  status: text('status').default('pending').notNull(),
+  contactedAt: timestamp('contacted_at'),
+  convertedAt: timestamp('converted_at'),
+  convertedToUserId: uuid('converted_to_user_id').references(() => tbUsers.id),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Tabela de categorias do blog
+export const tbBlogCategories = pgTable('tb_blog_categories', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: text('name').notNull(),
+  slug: text('slug').notNull().unique(),
+  description: text('description'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Tabela de posts do blog
+export const tbBlogPosts = pgTable('tb_blog_posts', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  title: text('title').notNull(),
+  slug: text('slug').notNull().unique(),
+  excerpt: text('excerpt'),
+  content: text('content').notNull(),
+  coverImage: text('cover_image'),
+  categoryId: uuid('category_id').references(() => tbBlogCategories.id),
+  authorId: uuid('author_id')
+    .notNull()
+    .references(() => tbUsers.id),
+  isPublished: boolean('is_published').default(false).notNull(),
+  publishedAt: timestamp('published_at'),
+  metaTitle: text('meta_title'),
+  metaDescription: text('meta_description'),
+  viewCount: integer('view_count').default(0).notNull(),
+  deletedAt: timestamp('deleted_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Tabela de despesas do estúdio
+export const tbExpenses = pgTable('tb_expenses', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  description: text('description').notNull(),
+  amountInCents: integer('amount_in_cents').notNull(),
+  category: text('category').notNull(),
+  paymentMethod: text('payment_method'),
+  expenseDate: date('expense_date').notNull(),
+  receipt: text('receipt'),
+  notes: text('notes'),
+  createdBy: uuid('created_by')
+    .notNull()
+    .references(() => tbUsers.id),
+  deletedAt: timestamp('deleted_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Tabela de recibos de pagamentos
+export const tbPaymentReceipts = pgTable('tb_payment_receipts', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  financialId: uuid('financial_id')
+    .notNull()
+    .references(() => tbFinancial.id),
+  receiptNumber: text('receipt_number').notNull().unique(),
+  issuedAt: timestamp('issued_at').defaultNow().notNull(),
+  issuedBy: uuid('issued_by')
+    .notNull()
+    .references(() => tbUsers.id),
+  pdfUrl: text('pdf_url'),
+  emailSentAt: timestamp('email_sent_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Tabela de medidas corporais
+export const tbBodyMeasurements = pgTable('tb_body_measurements', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => tbUsers.id),
+  measurementDate: date('measurement_date').notNull(),
+  weight: text('weight'),
+  height: text('height'),
+  bodyFatPercentage: text('body_fat_percentage'),
+  muscleMass: text('muscle_mass'),
+  chest: text('chest'),
+  waist: text('waist'),
+  hips: text('hips'),
+  leftArm: text('left_arm'),
+  rightArm: text('right_arm'),
+  leftThigh: text('left_thigh'),
+  rightThigh: text('right_thigh'),
+  leftCalf: text('left_calf'),
+  rightCalf: text('right_calf'),
+  notes: text('notes'),
+  measuredBy: uuid('measured_by').references(() => tbUsers.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

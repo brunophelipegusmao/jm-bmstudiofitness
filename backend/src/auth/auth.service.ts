@@ -1,16 +1,30 @@
 import {
-  Injectable,
-  Inject,
-  UnauthorizedException,
-  ConflictException,
   BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { eq, and } from 'drizzle-orm';
+import { and, eq, gt } from 'drizzle-orm';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
-import { tbUsers, tbPersonalData, UserRole } from '../database/schema';
-import { LoginDto, RegisterDto, RefreshTokenDto } from './dto/auth.dto';
+import { v4 as uuidv4 } from 'uuid';
+
+import {
+  tbPasswordResetTokens,
+  tbPersonalData,
+  tbUsers,
+  UserRole,
+} from '../database/schema';
+import {
+  ForgotPasswordDto,
+  LoginDto,
+  RefreshTokenDto,
+  RegisterDto,
+  ResetPasswordDto,
+  ValidateResetTokenDto,
+} from './dto/auth.dto';
 import { AuthResponse, JwtPayload } from './interfaces/auth.interface';
 
 @Injectable()
@@ -229,5 +243,162 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  /**
+   * Solicita reset de senha - gera token e retorna (em produção enviaria por email)
+   */
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<{
+    success: boolean;
+    message: string;
+    token?: string; // Em produção, não retornaria o token, enviaria por email
+  }> {
+    // Buscar usuário pelo email
+    const [personalData] = await this.db
+      .select()
+      .from(tbPersonalData)
+      .where(eq(tbPersonalData.email, forgotPasswordDto.email))
+      .limit(1);
+
+    // Não revelamos se o email existe ou não por segurança
+    if (!personalData) {
+      return {
+        success: true,
+        message:
+          'Se o email existir no sistema, um link de recuperação será enviado.',
+      };
+    }
+
+    // Verificar se usuário está ativo
+    const [user] = await this.db
+      .select()
+      .from(tbUsers)
+      .where(
+        and(eq(tbUsers.id, personalData.userId), eq(tbUsers.isActive, true)),
+      )
+      .limit(1);
+
+    if (!user) {
+      return {
+        success: true,
+        message:
+          'Se o email existir no sistema, um link de recuperação será enviado.',
+      };
+    }
+
+    // Gerar token único
+    const token = uuidv4();
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+    // Invalidar tokens anteriores do usuário
+    await this.db
+      .update(tbPasswordResetTokens)
+      .set({ used: true })
+      .where(eq(tbPasswordResetTokens.userId, user.id));
+
+    // Criar novo token
+    await this.db.insert(tbPasswordResetTokens).values({
+      userId: user.id,
+      token,
+      expiresAt,
+    });
+
+    // Em produção, aqui enviaria o email com o link de reset
+    // Por ora, retornamos o token para testes
+    return {
+      success: true,
+      message:
+        'Se o email existir no sistema, um link de recuperação será enviado.',
+      token, // Remover em produção
+    };
+  }
+
+  /**
+   * Valida se um token de reset é válido
+   */
+  async validateResetToken(validateDto: ValidateResetTokenDto): Promise<{
+    valid: boolean;
+    message: string;
+    email?: string;
+  }> {
+    const [tokenRecord] = await this.db
+      .select()
+      .from(tbPasswordResetTokens)
+      .where(
+        and(
+          eq(tbPasswordResetTokens.token, validateDto.token),
+          eq(tbPasswordResetTokens.used, false),
+          gt(tbPasswordResetTokens.expiresAt, new Date()),
+        ),
+      )
+      .limit(1);
+
+    if (!tokenRecord) {
+      return {
+        valid: false,
+        message: 'Token inválido ou expirado',
+      };
+    }
+
+    // Buscar email do usuário
+    const [personalData] = await this.db
+      .select()
+      .from(tbPersonalData)
+      .where(eq(tbPersonalData.userId, tokenRecord.userId))
+      .limit(1);
+
+    return {
+      valid: true,
+      message: 'Token válido',
+      email: personalData?.email,
+    };
+  }
+
+  /**
+   * Reseta a senha usando o token
+   */
+  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    // Validar token
+    const [tokenRecord] = await this.db
+      .select()
+      .from(tbPasswordResetTokens)
+      .where(
+        and(
+          eq(tbPasswordResetTokens.token, resetPasswordDto.token),
+          eq(tbPasswordResetTokens.used, false),
+          gt(tbPasswordResetTokens.expiresAt, new Date()),
+        ),
+      )
+      .limit(1);
+
+    if (!tokenRecord) {
+      throw new BadRequestException('Token inválido ou expirado');
+    }
+
+    // Hash da nova senha
+    const hashedPassword = await bcrypt.hash(resetPasswordDto.newPassword, 12);
+
+    // Atualizar senha do usuário
+    await this.db
+      .update(tbUsers)
+      .set({
+        password: hashedPassword,
+        updatedAt: new Date(),
+      })
+      .where(eq(tbUsers.id, tokenRecord.userId));
+
+    // Marcar token como usado
+    await this.db
+      .update(tbPasswordResetTokens)
+      .set({ used: true })
+      .where(eq(tbPasswordResetTokens.id, tokenRecord.id));
+
+    return {
+      success: true,
+      message: 'Senha alterada com sucesso! Você pode fazer login agora.',
+    };
   }
 }

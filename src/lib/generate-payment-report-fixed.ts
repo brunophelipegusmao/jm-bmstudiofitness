@@ -3,8 +3,8 @@ import "jspdf-autotable";
 import { jsPDF } from "jspdf";
 import { UserOptions } from "jspdf-autotable";
 
-import { StudentPaymentData } from "@/types/payments";
 import { formatCurrency } from "@/lib/payment-utils";
+import { StudentPaymentData } from "@/types/payments";
 
 interface TableConfig extends UserOptions {
   startY: number;

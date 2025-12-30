@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+
 import { TriggerWebhookDto, WebhookEventType } from './dto/webhook-event.dto';
 import {
   WebhookPayload,

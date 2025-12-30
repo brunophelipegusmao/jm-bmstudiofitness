@@ -1,15 +1,24 @@
 import {
-  Controller,
-  Post,
   Body,
+  Controller,
+  Get,
   HttpCode,
   HttpStatus,
-  Get,
+  Param,
+  Post,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { LoginDto, RegisterDto, RefreshTokenDto } from './dto/auth.dto';
-import { Public } from '../common/decorators/public.decorator';
+
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Public } from '../common/decorators/public.decorator';
+import { AuthService } from './auth.service';
+import {
+  ForgotPasswordDto,
+  LoginDto,
+  RefreshTokenDto,
+  RegisterDto,
+  ResetPasswordDto,
+  ValidateResetTokenDto,
+} from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -51,5 +60,44 @@ export class AuthController {
   async logout(@CurrentUser() user: any) {
     // Aqui você pode invalidar tokens, limpar refresh tokens do banco, etc.
     return { message: 'Logout realizado com sucesso' };
+  }
+
+  /**
+   * Solicitar reset de senha (esqueci minha senha)
+   */
+  @Public()
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(forgotPasswordDto);
+  }
+
+  /**
+   * Validar token de reset de senha
+   */
+  @Public()
+  @Post('validate-reset-token')
+  @HttpCode(HttpStatus.OK)
+  async validateResetToken(@Body() validateDto: ValidateResetTokenDto) {
+    return this.authService.validateResetToken(validateDto);
+  }
+
+  /**
+   * Validar token de reset de senha (via GET para links)
+   */
+  @Public()
+  @Get('validate-reset-token/:token')
+  async validateResetTokenGet(@Param('token') token: string) {
+    return this.authService.validateResetToken({ token });
+  }
+
+  /**
+   * Resetar senha usando token
+   */
+  @Public()
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 }

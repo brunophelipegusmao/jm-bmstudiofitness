@@ -1,9 +1,9 @@
 import {
-  IsString,
+  IsEnum,
   IsNotEmpty,
   IsObject,
   IsOptional,
-  IsEnum,
+  IsString,
 } from 'class-validator';
 
 export enum WebhookEventType {

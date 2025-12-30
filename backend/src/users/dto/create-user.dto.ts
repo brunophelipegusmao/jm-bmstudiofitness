@@ -1,12 +1,13 @@
 import {
   IsEmail,
-  IsNotEmpty,
-  IsString,
-  MinLength,
   IsEnum,
+  IsNotEmpty,
   IsOptional,
+  IsString,
   Length,
+  MinLength,
 } from 'class-validator';
+
 import { UserRole } from '../../database/schema';
 
 export class CreateUserDto {

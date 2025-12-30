@@ -1,5 +1,5 @@
 // STUB TEMPORÁRIO
 export {
-  softDeleteEmployeeAction,
   reactivateEmployeeAction,
+  softDeleteEmployeeAction,
 } from "../__stubs__";

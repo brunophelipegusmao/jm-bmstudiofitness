@@ -192,20 +192,6 @@ export default function BlogPage() {
                   Não há posts publicados no momento. Execute o seed do banco de
                   dados para criar posts de exemplo.
                 </p>
-                <div className="rounded-lg border border-slate-700 bg-slate-900/50 p-6 text-left">
-                  <h3 className="mb-3 text-lg font-semibold text-[#C2A537]">
-                    💡 Como adicionar posts:
-                  </h3>
-                  <ol className="space-y-2 text-sm text-slate-300">
-                    <li>1. No terminal, execute: npm run db:seed</li>
-                    <li>
-                      2. Ou acesse a área administrativa em /admin/dashboard
-                    </li>
-                    <li>
-                      3. Vá na aba &quot;Blog&quot; e crie posts manualmente
-                    </li>
-                  </ol>
-                </div>
               </motion.div>
             </div>
           ) : (

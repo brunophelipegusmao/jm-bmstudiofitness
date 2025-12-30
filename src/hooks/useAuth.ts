@@ -45,8 +45,9 @@ export function useAuth() {
       const response = await apiClient.login({ login: email, password });
       setUser(response.user);
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erro ao fazer login";
+      return { success: false, error: message };
     }
   }
 
@@ -60,8 +61,9 @@ export function useAuth() {
       const response = await apiClient.register({ ...data, role: "ALUNO" });
       setUser(response.user);
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erro ao registrar";
+      return { success: false, error: message };
     }
   }
 

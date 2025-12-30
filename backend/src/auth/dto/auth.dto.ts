@@ -50,3 +50,25 @@ export class RefreshTokenDto {
   @IsNotEmpty()
   refreshToken: string;
 }
+
+export class ForgotPasswordDto {
+  @IsEmail({}, { message: 'Email inválido' })
+  @IsNotEmpty({ message: 'Email é obrigatório' })
+  email: string;
+}
+
+export class ResetPasswordDto {
+  @IsString()
+  @IsNotEmpty({ message: 'Token é obrigatório' })
+  token: string;
+
+  @IsString()
+  @MinLength(6, { message: 'A nova senha deve ter no mínimo 6 caracteres' })
+  newPassword: string;
+}
+
+export class ValidateResetTokenDto {
+  @IsString()
+  @IsNotEmpty({ message: 'Token é obrigatório' })
+  token: string;
+}

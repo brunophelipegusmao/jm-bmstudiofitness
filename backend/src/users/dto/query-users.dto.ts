@@ -1,5 +1,6 @@
-import { IsOptional, IsString, IsEnum, IsNumber, Min } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+
 import { UserRole } from '../../database/schema';
 
 export class QueryUsersDto {

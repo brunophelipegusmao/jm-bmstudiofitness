@@ -1,11 +1,12 @@
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
   ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
 } from '@nestjs/common';
+import { and, desc, eq, gte, isNull,lte, sql } from 'drizzle-orm';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
-import { eq, and, gte, lte, sql, desc, isNull } from 'drizzle-orm';
+
 import { tbCheckIns, tbUsers, UserRole } from '../database/schema';
 import { CreateCheckInDto } from './dto/create-check-in.dto';
 import { QueryCheckInsDto } from './dto/query-check-ins.dto';

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * STUBS TEMPORÁRIOS - Server Actions
  *
@@ -6,6 +8,8 @@
  *
  * TODO: Remover este arquivo quando todos os componentes migrarem para API
  */
+
+import type { Post } from "@/types/posts";
 
 // ============================================
 // ADMIN ACTIONS
@@ -55,12 +59,12 @@ export async function softDeleteStudentAction(...args: any[]) {
 
 export async function getCurrentUserIdAction(...args: any[]) {
   console.warn("[STUB] getCurrentUserIdAction chamado");
-  return null;
+  return { success: false, userId: null, error: "Funcionalidade em migração" };
 }
 
 export async function getAllStudentsFullDataAction(...args: any[]) {
   console.warn("[STUB] getAllStudentsFullDataAction chamado");
-  return { success: false, data: [] };
+  return [] as any[];
 }
 
 export async function getUserDataAction(...args: any[]) {
@@ -110,7 +114,7 @@ export async function getDashboardStatsAction(...args: any[]) {
 
 export async function getStudentsPaymentsAction(...args: any[]) {
   console.warn("[STUB] getStudentsPaymentsAction chamado");
-  return { success: false, paidStudents: [], pendingStudents: [] };
+  return [] as any[];
 }
 
 export async function updatePaymentAction(...args: any[]) {
@@ -293,17 +297,17 @@ export async function getWaitlistAdminAction(...args: any[]) {
 
 export async function createUserAction(...args: any[]) {
   console.warn("[STUB] createUserAction chamado");
-  return { success: false, message: "Funcionalidade em migração" };
+  return { success: false, message: "Funcionalidade em migração", error: "Funcionalidade em migração", user: null };
 }
 
 export async function deleteUserAction(...args: any[]) {
   console.warn("[STUB] deleteUserAction chamado");
-  return { success: false, message: "Funcionalidade em migração" };
+  return { success: false, message: "Funcionalidade em migração", error: "Funcionalidade em migração" };
 }
 
 export async function getAllUsersAction(...args: any[]) {
   console.warn("[STUB] getAllUsersAction chamado");
-  return { success: false, users: [] };
+  return { success: false, users: [], error: "Funcionalidade em migração" };
 }
 
 // ============================================
@@ -315,7 +319,7 @@ export async function incrementPostViewsAction(...args: any[]) {
   return { success: true };
 }
 
-export async function getPublishedPostBySlugAction(...args: any[]) {
+export async function getPublishedPostBySlugAction(...args: any[]): Promise<Post | null> {
   console.warn("[STUB] getPublishedPostBySlugAction chamado");
   return null;
 }

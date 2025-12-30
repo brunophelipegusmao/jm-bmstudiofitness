@@ -2,15 +2,21 @@
 
 export interface StudentPaymentData {
   id: string;
+  userId?: string;
   name: string;
   email: string;
+  cpf?: string;
   telephone: string;
   planName: string;
   planValue: number;
   paid: boolean;
+  isUpToDate?: boolean;
   paymentDate?: Date | null;
-  dueDate: Date;
+  lastPaymentDate?: Date | null;
+  dueDate: Date | number;
   lateDate?: Date | null;
+  monthlyFeeValueInCents?: number;
+  formattedValue?: string;
 }
 
 export interface PaymentReport {
@@ -31,4 +37,23 @@ export interface FinancialReportData {
   paidCount: number;
   pendingCount: number;
   payments: StudentPaymentData[];
+  overview?: {
+    totalStudents: number;
+    activeStudents: number;
+    totalRevenue: string;
+    pendingPayments: string;
+    monthlyGrowth: number;
+    paymentRate: number;
+  };
+  recentPayments?: Array<{
+    studentName: string;
+    amount: string;
+    date: string;
+    status: "paid" | "pending" | "late";
+  }>;
+  monthlyData?: Array<{
+    month: string;
+    revenue: number;
+    students: number;
+  }>;
 }

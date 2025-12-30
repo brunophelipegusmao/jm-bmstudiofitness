@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { FinancialService } from './financial.service';
-import { FinancialController } from './financial.controller';
-import { DatabaseModule } from '../database/database.module';
+
 import { AuthModule } from '../auth/auth.module';
+import { DatabaseModule } from '../database/database.module';
+import { FinancialController } from './financial.controller';
+import { FinancialService } from './financial.service';
 
 @Module({
   imports: [DatabaseModule, AuthModule],

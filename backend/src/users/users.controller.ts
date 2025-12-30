@@ -1,24 +1,25 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { UserRole } from '../database/schema';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto, UpdatePasswordDto } from './dto/update-user.dto';
 import { QueryUsersDto } from './dto/query-users.dto';
 import {
   UpdateEmployeePermissionsDto,
   UpdateStudentPermissionsDto,
 } from './dto/update-permissions.dto';
-import { Roles } from '../common/decorators/roles.decorator';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { UserRole } from '../database/schema';
+import { UpdatePasswordDto,UpdateUserDto } from './dto/update-user.dto';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {

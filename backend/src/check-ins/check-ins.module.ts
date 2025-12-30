@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { CheckInsService } from './check-ins.service';
-import { CheckInsController } from './check-ins.controller';
-import { DatabaseModule } from '../database/database.module';
+
 import { AuthModule } from '../auth/auth.module';
+import { DatabaseModule } from '../database/database.module';
+import { CheckInsController } from './check-ins.controller';
+import { CheckInsService } from './check-ins.service';
 
 @Module({
   imports: [DatabaseModule, AuthModule],

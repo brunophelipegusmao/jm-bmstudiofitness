@@ -1,8 +1,8 @@
 import {
-  IsEmail,
-  IsString,
-  IsOptional,
   IsBoolean,
+  IsEmail,
+  IsOptional,
+  IsString,
   Length,
 } from 'class-validator';
 

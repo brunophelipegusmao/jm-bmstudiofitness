@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // STUB TEMPORÁRIO - Edge runtime auth
 // TODO: Implementar autenticação no edge quando necessário
 
@@ -11,7 +13,7 @@ export function getUser() {
   return null;
 }
 
-export function getUserFromRequestEdge(request: any) {
+export function getUserFromRequestEdge(_request: Request) {
   console.warn("[STUB] getUserFromRequestEdge chamado");
   return null;
 }

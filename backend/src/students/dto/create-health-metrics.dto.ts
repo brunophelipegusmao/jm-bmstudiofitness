@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsOptional, IsBoolean } from 'class-validator';
+import { IsBoolean,IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateHealthMetricsDto {
   @IsNotEmpty({ message: 'ID do usuário é obrigatório' })
