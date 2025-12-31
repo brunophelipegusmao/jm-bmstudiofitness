@@ -30,3 +30,10 @@ export interface EventCalendarData {
   events: Event[];
   birthdays: BirthdayEntry[];
 }
+
+export interface PersonalEvent extends Event {
+  isPublic: boolean;
+  approvalStatus: string;
+  requestPublic: boolean;
+  eventDate: Date | string;
+}

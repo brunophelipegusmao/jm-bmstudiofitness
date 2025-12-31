@@ -404,6 +404,25 @@ export const tbEventAttendance = pgTable('tb_event_attendance', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Eventos pessoais de alunos
+export const tbPersonalEvents = pgTable('tb_personal_events', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => tbUsers.id),
+  title: text('title').notNull(),
+  description: text('description').notNull(),
+  eventDate: date('event_date').notNull(),
+  eventTime: text('event_time'),
+  location: text('location'),
+  hideLocation: boolean('hide_location').notNull().default(false),
+  requestPublic: boolean('request_public').notNull().default(false),
+  approvalStatus: text('approval_status').notNull().default('private'),
+  isPublic: boolean('is_public').notNull().default(false),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // Tabela de medidas corporais
 export const tbBodyMeasurements = pgTable('tb_body_measurements', {
   id: uuid('id').defaultRandom().primaryKey(),

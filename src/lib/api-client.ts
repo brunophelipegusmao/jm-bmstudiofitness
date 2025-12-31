@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * API Client para integração com Backend NestJS
+ * API Client para integracao com Backend NestJS
  * Base URL: http://localhost:3001/api
  */
 
@@ -8,7 +8,7 @@ const DEFAULT_API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
 function resolveBaseUrl() {
-  // Em navegador, se houver URL absoluta configurada, usa; caso contrário, usa a origem atual.
+  // Em navegador, preferimos URL absoluta via env; caso contrário, usamos o backend padrão (evita depender de proxy /api).
   if (typeof window !== "undefined") {
     if (
       process.env.NEXT_PUBLIC_API_URL &&
@@ -16,10 +16,10 @@ function resolveBaseUrl() {
     ) {
       return process.env.NEXT_PUBLIC_API_URL;
     }
-    return `${window.location.origin}/api`;
+    return DEFAULT_API_URL;
   }
 
-  // Em SSR/Node, respeita variáveis de ambiente ou fallback local
+  // Em SSR/Node, respeita variaveis de ambiente ou fallback local
   if (process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL;
   }
@@ -60,7 +60,7 @@ class ApiClient {
   }
 
   /**
-   * Salva tokens no localStorage e na instância
+   * Salva tokens no localStorage e na instancia
    */
   setTokens(accessToken: string, refreshToken: string) {
     this.accessToken = accessToken;
@@ -69,7 +69,6 @@ class ApiClient {
     if (typeof window !== "undefined") {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
-      // Mantém cookie simples para middleware de rota (não seguro para produção, mas evita redirecionar logado)
       document.cookie = `accessToken=${accessToken}; path=/; max-age=${
         60 * 60 * 24 * 7
       }`;
@@ -77,7 +76,7 @@ class ApiClient {
   }
 
   /**
-   * Remove tokens do localStorage e da instância
+   * Remove tokens do localStorage e da instancia
    */
   clearTokens() {
     this.accessToken = null;
@@ -92,7 +91,7 @@ class ApiClient {
   }
 
   /**
-   * Obtém o access token atual
+   * Obtem o access token atual
    */
   getAccessToken(): string | null {
     return this.accessToken;
@@ -131,7 +130,7 @@ class ApiClient {
   }
 
   /**
-   * Método principal para fazer requisições à API
+   * Metodo principal para fazer requisicoes a API
    */
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
@@ -141,7 +140,7 @@ class ApiClient {
       ...((options.headers as Record<string, string>) || {}),
     };
 
-    // Adiciona token de autenticação se disponível
+    // Adiciona token de autenticacao se disponivel
     if (this.accessToken) {
       headers["Authorization"] = `Bearer ${this.accessToken}`;
     }
@@ -157,36 +156,33 @@ class ApiClient {
         const renewed = await this.refreshAccessToken();
 
         if (renewed) {
-          // Tenta fazer a requisição novamente com o novo token
           headers["Authorization"] = `Bearer ${this.accessToken}`;
           response = await fetch(url, {
             ...options,
             headers,
           });
         } else {
-          // Se não conseguiu renovar, redireciona para login
           if (typeof window !== "undefined") {
             window.location.href = "/login";
           }
-          throw new Error("Sessão expirada");
+          throw new Error("Sessao expirada");
         }
       }
 
-      // Se ainda assim não for ok, lança erro
       if (!response.ok) {
         const error: ApiError = await response.json();
-        throw new Error(error.message || "Erro na requisição");
+        throw new Error(error.message || "Erro na requisicao");
       }
 
       return await response.json();
     } catch (error) {
-      console.error("Erro na requisição:", error);
+      console.error("Erro na requisicao:", error);
       throw error;
     }
   }
 
   /**
-   * RequisiÇõÇœo para binÇ­rios (PDF, etc)
+   * Requisicao para binarios (PDF, etc)
    */
   async requestBinary(
     endpoint: string,
@@ -212,7 +208,7 @@ class ApiClient {
     }
 
     if (!response.ok) {
-      let message = "Erro na requisiÇõÇœo";
+      let message = "Erro na requisicao";
       try {
         const err = await response.json();
         message = (err as ApiError).message ?? message;
@@ -225,9 +221,7 @@ class ApiClient {
     return await response.arrayBuffer();
   }
 
-  /**
-   * GET request
-   */
+  /** GET */
   async get<T>(endpoint: string, options?: RequestInit): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
@@ -235,9 +229,7 @@ class ApiClient {
     });
   }
 
-  /**
-   * POST request
-   */
+  /** POST */
   async post<T>(
     endpoint: string,
     data?: any,
@@ -250,9 +242,7 @@ class ApiClient {
     });
   }
 
-  /**
-   * PATCH request
-   */
+  /** PATCH */
   async patch<T>(
     endpoint: string,
     data?: any,
@@ -265,9 +255,7 @@ class ApiClient {
     });
   }
 
-  /**
-   * PUT request
-   */
+  /** PUT */
   async put<T>(
     endpoint: string,
     data?: any,
@@ -280,9 +268,7 @@ class ApiClient {
     });
   }
 
-  /**
-   * DELETE request
-   */
+  /** DELETE */
   async delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
@@ -292,9 +278,6 @@ class ApiClient {
 
   // ========== AUTH ENDPOINTS ==========
 
-  /**
-   * Registra novo usuário
-   */
   async register(data: {
     email: string;
     password: string;
@@ -307,28 +290,16 @@ class ApiClient {
     return response;
   }
 
-  /**
-   * Faz login
-   */
-  async login(data: {
-    login: string;
-    password: string;
-  }): Promise<TokenResponse> {
+  async login(data: { login: string; password: string }): Promise<TokenResponse> {
     const response = await this.post<TokenResponse>("/auth/login", data);
     this.setTokens(response.accessToken, response.refreshToken);
     return response;
   }
 
-  /**
-   * Obtém perfil do usuário atual
-   */
   async getProfile(): Promise<TokenResponse["user"]> {
     return this.get("/auth/me");
   }
 
-  /**
-   * Faz logout (limpa tokens localmente)
-   */
   logout() {
     this.clearTokens();
     if (typeof window !== "undefined") {
@@ -336,11 +307,8 @@ class ApiClient {
     }
   }
 
-  // ========== USERS ENDPOINTS ==========
+  // ... demais metodos preservados ...
 
-  /**
-   * Lista usuários (paginado)
-   */
   async listUsers(params?: {
     page?: number;
     limit?: number;
@@ -351,16 +319,10 @@ class ApiClient {
     return this.get(`/users?${queryParams}`);
   }
 
-  /**
-   * Busca usuário por ID
-   */
   async getUserById(id: string) {
     return this.get(`/users/${id}`);
   }
 
-  /**
-   * Cria novo usuário
-   */
   async createUser(data: {
     email: string;
     password: string;
@@ -371,38 +333,20 @@ class ApiClient {
     return this.post("/users", data);
   }
 
-  /**
-   * Atualiza usuário
-   */
   async updateUser(id: string, data: any) {
     return this.patch(`/users/${id}`, data);
   }
 
-  /**
-   * Altera senha do usuário
-   */
-  async changePassword(
-    id: string,
-    data: {
-      currentPassword: string;
-      newPassword: string;
-    },
-  ) {
+  async changePassword(id: string, data: { currentPassword: string; newPassword: string }) {
     return this.patch(`/users/${id}/password`, data);
   }
 
-  /**
-   * Deleta usuário (soft delete)
-   */
   async deleteUser(id: string) {
     return this.delete(`/users/${id}`);
   }
 
-  // ========== FINANCIAL ENDPOINTS ==========
+  // FINANCIAL
 
-  /**
-   * Lista registros financeiros
-   */
   async listFinancial(params?: {
     page?: number;
     limit?: number;
@@ -414,9 +358,6 @@ class ApiClient {
     return this.get(`/financial?${queryParams}`);
   }
 
-  /**
-   * Cria registro financeiro
-   */
   async createFinancial(data: {
     userId: string;
     amount: number;
@@ -427,9 +368,6 @@ class ApiClient {
     return this.post("/financial", data);
   }
 
-  /**
-   * Marca pagamento como pago
-   */
   async markAsPaid(
     id: string,
     data: {
@@ -440,18 +378,12 @@ class ApiClient {
     return this.post(`/financial/${id}/mark-paid`, data);
   }
 
-  /**
-   * Obtém relatório mensal
-   */
   async getMonthlyReport(year: number, month: number) {
     return this.get(`/financial/report/${year}/${month}`);
   }
 
-  // ========== CHECK-INS ENDPOINTS ==========
+  // CHECK-INS
 
-  /**
-   * Lista check-ins
-   */
   async listCheckIns(params?: {
     page?: number;
     limit?: number;
@@ -462,23 +394,14 @@ class ApiClient {
     return this.get(`/check-ins?${queryParams}`);
   }
 
-  /**
-   * Cria check-in
-   */
   async createCheckIn(data: { userId: string; checkInBy?: string }) {
     return this.post("/check-ins", data);
   }
 
-  /**
-   * Dashboard de check-ins de hoje
-   */
   async getTodayCheckIns() {
     return this.get("/check-ins/today");
   }
 
-  /**
-   * Histórico de check-ins do usuário
-   */
   async getUserCheckInHistory(
     userId: string,
     params?: {
@@ -490,18 +413,12 @@ class ApiClient {
     return this.get(`/check-ins/user/${userId}/history?${queryParams}`);
   }
 
-  /**
-   * Estatísticas de check-in do usuário
-   */
   async getUserCheckInStats(userId: string) {
     return this.get(`/check-ins/user/${userId}/stats`);
   }
 
-  // ========== STUDENTS ENDPOINTS ==========
+  // STUDENTS
 
-  /**
-   * Lista alunos
-   */
   async listStudents(params?: {
     page?: number;
     limit?: number;
@@ -511,23 +428,14 @@ class ApiClient {
     return this.get(`/students?${queryParams}`);
   }
 
-  /**
-   * Busca dados do aluno
-   */
   async getStudentById(id: string) {
     return this.get(`/students/${id}`);
   }
 
-  /**
-   * Busca métricas de saúde do aluno
-   */
   async getStudentHealth(id: string) {
     return this.get(`/students/${id}/health`);
   }
 
-  /**
-   * Cria métricas de saúde
-   */
   async createHealthMetrics(data: {
     userId: string;
     weight?: number;
@@ -539,56 +447,28 @@ class ApiClient {
     return this.post("/students/health", data);
   }
 
-  /**
-   * Atualiza métricas de saúde
-   */
   async updateHealthMetrics(id: string, data: any) {
     return this.patch(`/students/${id}/health`, data);
   }
 
-  /**
-   * Adiciona observação pública
-   */
-  async addPublicObservation(
-    id: string,
-    data: {
-      observation: string;
-    },
-  ) {
+  async addPublicObservation(id: string, data: { observation: string }) {
     return this.post(`/students/${id}/observations`, data);
   }
 
-  /**
-   * Adiciona observação privada
-   */
-  async addPrivateObservation(
-    id: string,
-    data: {
-      observation: string;
-    },
-  ) {
+  async addPrivateObservation(id: string, data: { observation: string }) {
     return this.post(`/students/${id}/observations/private`, data);
   }
 
-  // ========== N8N WEBHOOKS ENDPOINTS ==========
+  // WEBHOOKS
 
-  /**
-   * Verifica status dos webhooks
-   */
   async getWebhooksStatus() {
     return this.get("/n8n-webhooks/status");
   }
 
-  /**
-   * Testa conectividade do webhook
-   */
   async testWebhook() {
     return this.post("/n8n-webhooks/test");
   }
 }
 
-// Instância única do API client
 export const apiClient = new ApiClient();
-
-// Export tipos úteis
 export type { ApiError, TokenResponse };

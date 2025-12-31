@@ -1,4 +1,4 @@
-import {
+﻿import {
   Body,
   Controller,
   Get,
@@ -15,6 +15,7 @@ import { CreateHealthMetricsDto } from './dto/create-health-metrics.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { QueryStudentsDto } from './dto/query-students.dto';
 import { UpdateHealthMetricsDto } from './dto/update-health-metrics.dto';
+import { CreatePersonalEventDto, UpdatePersonalEventStatusDto } from './dto/personal-event.dto';
 import { StudentsService } from './students.service';
 
 @Controller('students')
@@ -40,7 +41,7 @@ export class StudentsController {
   }
 
   /**
-   * Buscar dados do prÇüprio aluno autenticado
+   * Buscar dados do proprio aluno autenticado
    */
   @Get('me')
   getMe(
@@ -48,6 +49,52 @@ export class StudentsController {
     @CurrentUser('role') role: UserRole,
   ) {
     return this.studentsService.getDashboardData(userId, role);
+  }
+
+  /**
+   * Historico de saude do proprio aluno
+   */
+  @Get('health/history')
+  getMyHealthHistory(
+    @CurrentUser('userId') userId: string,
+    @CurrentUser('role') role: UserRole,
+  ) {
+    return this.studentsService.getHealthHistory(userId, role);
+  }
+
+  /**
+   * Eventos pessoais do aluno autenticado
+   */
+  @Get('personal-events')
+  getMyPersonalEvents(@CurrentUser('userId') userId: string) {
+    return this.studentsService.listPersonalEvents(userId);
+  }
+
+  @Post('personal-events')
+  @Roles(UserRole.ALUNO)
+  createPersonalEvent(
+    @CurrentUser('userId') userId: string,
+    @Body() dto: CreatePersonalEventDto,
+  ) {
+    return this.studentsService.createPersonalEvent(userId, dto);
+  }
+
+  @Post('personal-events/:id/request-public')
+  @Roles(UserRole.ALUNO)
+  requestPublic(
+    @Param('id') id: string,
+    @CurrentUser('userId') userId: string,
+  ) {
+    return this.studentsService.requestPublicEvent(userId, id);
+  }
+
+  @Patch('personal-events/:id/approve')
+  @Roles(UserRole.ADMIN, UserRole.MASTER, UserRole.COACH)
+  approvePersonalEvent(
+    @Param('id') id: string,
+    @Body() dto: UpdatePersonalEventStatusDto,
+  ) {
+    return this.studentsService.approvePersonalEvent(id, dto.approve ?? true);
   }
 
   /**
@@ -63,7 +110,7 @@ export class StudentsController {
   }
 
   /**
-   * Buscar métricas de saúde
+   * Buscar metricas de saude
    */
   @Get(':id/health')
   getHealthMetrics(
@@ -75,18 +122,19 @@ export class StudentsController {
   }
 
   /**
-   * Criar métricas de saúde (COACH+)
+   * Criar metricas de saude (COACH+)
    */
   @Post('health')
-  @Roles(UserRole.COACH, UserRole.ADMIN, UserRole.MASTER)
+  @Roles(UserRole.COACH, UserRole.ADMIN, UserRole.MASTER, UserRole.FUNCIONARIO)
   createHealthMetrics(@Body() createHealthMetricsDto: CreateHealthMetricsDto) {
     return this.studentsService.createHealthMetrics(createHealthMetricsDto);
   }
 
   /**
-   * Atualizar métricas de saúde (com verificação de permissões)
+   * Atualizar metricas de saude (com verificacao de permissoes)
    */
   @Patch(':id/health')
+  @Roles(UserRole.COACH, UserRole.ADMIN, UserRole.MASTER, UserRole.FUNCIONARIO)
   updateHealthMetrics(
     @Param('id') id: string,
     @Body() updateHealthMetricsDto: UpdateHealthMetricsDto,
@@ -111,7 +159,7 @@ export class StudentsController {
   }
 
   /**
-   * Adicionar observação pública (COACH+)
+   * Adicionar observacao publica (COACH+)
    */
   @Post(':id/observations')
   @Roles(UserRole.COACH, UserRole.ADMIN, UserRole.MASTER)
@@ -123,7 +171,7 @@ export class StudentsController {
   }
 
   /**
-   * Adicionar observação privada (COACH+)
+   * Adicionar observacao privada (COACH+)
    */
   @Post(':id/observations/private')
   @Roles(UserRole.COACH, UserRole.ADMIN, UserRole.MASTER)
@@ -134,3 +182,4 @@ export class StudentsController {
     return this.studentsService.addCoachObservation(id, observation, true);
   }
 }
+

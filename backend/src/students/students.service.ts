@@ -16,6 +16,7 @@ import {
   tbPersonalData,
   tbStudentPermissions,
   tbCheckIns,
+  tbPersonalEvents,
   tbUsers,
   UserRole,
 } from '../database/schema';
@@ -23,6 +24,7 @@ import { CreateHealthMetricsDto } from './dto/create-health-metrics.dto';
 import { QueryStudentsDto } from './dto/query-students.dto';
 import { UpdateHealthMetricsDto } from './dto/update-health-metrics.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import { CreatePersonalEventDto } from './dto/personal-event.dto';
 
 @Injectable()
 export class StudentsService {
@@ -38,7 +40,7 @@ export class StudentsService {
     const { search, page = 1, limit = 10 } = queryDto;
     const offset = (page - 1) * limit;
 
-    // Construir condiÃ§Ãµes
+    // Construir condies
     const conditions: SQLWrapper[] = [
       isNull(tbUsers.deletedAt),
       eq(tbUsers.userRole, UserRole.ALUNO),
@@ -94,7 +96,7 @@ export class StudentsService {
    * Dados completos para o dashboard do aluno (inclusive para roles elevadas)
    */
   async getDashboardData(userId: string, userRole: UserRole) {
-    // Se for aluno, garante que estÃ‡Â­ pegando prÃ‡Ã¼prio ID
+    // Se for aluno, garante que est pegando prprio ID
     if (userRole === UserRole.ALUNO && !userId) {
       throw new ForbiddenException('Acesso negado');
     }
@@ -117,7 +119,7 @@ export class StudentsService {
       .limit(1);
 
     if (!user) {
-      throw new NotFoundException('UsuÃ‡Â­rio nÃ‡Å“o encontrado');
+      throw new NotFoundException('Usurio no encontrado');
     }
 
     const [health] = await this.db
@@ -183,7 +185,7 @@ export class StudentsService {
    * Buscar dados completos do aluno
    */
   async findOne(id: string, requestingUserId: string, userRole: UserRole) {
-    // Aluno sÃ³ pode ver prÃ³prios dados
+    // Aluno s pode ver prprios dados
     if (userRole === UserRole.ALUNO && id !== requestingUserId) {
       throw new ForbiddenException('Acesso negado');
     }
@@ -208,21 +210,21 @@ export class StudentsService {
       .limit(1);
 
     if (!student) {
-      throw new NotFoundException('Aluno nÃ£o encontrado');
+      throw new NotFoundException('Aluno no encontrado');
     }
 
     return student;
   }
 
   /**
-   * Buscar mÃ©tricas de saÃºde do aluno
+   * Buscar mtricas de sade do aluno
    */
   async getHealthMetrics(
     userId: string,
     requestingUserId: string,
     userRole: UserRole,
   ) {
-    // Aluno sÃ³ pode ver prÃ³prias mÃ©tricas
+    // Aluno s pode ver prprias mtricas
     if (userRole === UserRole.ALUNO && userId !== requestingUserId) {
       throw new ForbiddenException('Acesso negado');
     }
@@ -233,15 +235,15 @@ export class StudentsService {
       .where(eq(tbHealthMetrics.userId, userId))
       .limit(1);
 
-    // Se nÃ£o existe, retornar objeto vazio
+    // Se no existe, retornar objeto vazio
     if (!metrics) {
       return {
         userId,
-        message: 'Nenhuma mÃ©trica cadastrada ainda',
+        message: 'Nenhuma mtrica cadastrada ainda',
       };
     }
 
-    // Aluno nÃ£o pode ver anotaÃ§Ãµes particulares dos coaches
+    // Aluno no pode ver anotaes particulares dos coaches
     if (userRole === UserRole.ALUNO) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { coachObservationsParticular, ...metricsWithoutPrivate } = metrics;
@@ -250,12 +252,140 @@ export class StudentsService {
 
     return metrics;
   }
+  /**
+   * Historico de saude do proprio aluno
+   */
+  async getHealthHistory(userId: string, userRole: UserRole) {
+    if (userRole === UserRole.ALUNO && !userId) {
+      throw new ForbiddenException("Acesso negado");
+    }
+
+    const [metrics] = await this.db
+      .select()
+      .from(tbHealthMetrics)
+      .where(eq(tbHealthMetrics.userId, userId))
+      .limit(1);
+
+    if (!metrics) {
+      return {
+        success: true,
+        message: "Nenhum dado de saude encontrado",
+        history: [],
+        currentHealth: null,
+      };
+    }
+
+    const historyEntry = {
+      id: metrics.id,
+      heightCm: metrics.heightCm ? Number(metrics.heightCm) : null,
+      weightKg: metrics.weightKg ?? null,
+      notes: metrics.otherNotes ?? null,
+      updatedAt: metrics.updatedAt as string,
+      createdAt: metrics.updatedAt as string,
+    };
+
+    return {
+      success: true,
+      message: "",
+      history: [historyEntry],
+      currentHealth: {
+        heightCm: metrics.heightCm ? Number(metrics.heightCm) : 0,
+        weightKg: metrics.weightKg ? Number(metrics.weightKg) : 0,
+        bloodType: metrics.bloodType ?? "",
+        updatedAt: metrics.updatedAt as string,
+      },
+    };
+  }
 
   /**
-   * Criar mÃ©tricas de saÃºde
+   * Eventos pessoais do aluno
+   */
+  async listPersonalEvents(userId: string) {
+    const events = await this.db
+      .select()
+      .from(tbPersonalEvents)
+      .where(and(eq(tbPersonalEvents.userId, userId)))
+      .orderBy(desc(tbPersonalEvents.eventDate));
+
+    return events;
+  }
+
+  async createPersonalEvent(userId: string, dto: CreatePersonalEventDto) {
+    const [event] = await this.db
+      .insert(tbPersonalEvents)
+      .values({
+        userId,
+        title: dto.title,
+        description: dto.description,
+        eventDate: dto.date,
+        eventTime: dto.time,
+        location: dto.location,
+        hideLocation: dto.hideLocation ?? false,
+        requestPublic: dto.requestPublic ?? false,
+        approvalStatus: dto.requestPublic ? "pending" : "private",
+        isPublic: false,
+      })
+      .returning();
+
+    return event;
+  }
+
+  async requestPublicEvent(userId: string, id: string) {
+    const [event] = await this.db
+      .select()
+      .from(tbPersonalEvents)
+      .where(and(eq(tbPersonalEvents.id, id), eq(tbPersonalEvents.userId, userId)))
+      .limit(1);
+
+    if (!event) {
+      throw new NotFoundException("Evento pessoal nao encontrado");
+    }
+
+    const [updated] = await this.db
+      .update(tbPersonalEvents)
+      .set({
+        requestPublic: true,
+        approvalStatus: "pending",
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(tbPersonalEvents.id, id))
+      .returning();
+
+    return updated;
+  }
+
+  async approvePersonalEvent(id: string, approve: boolean) {
+    const [event] = await this.db
+      .select()
+      .from(tbPersonalEvents)
+      .where(eq(tbPersonalEvents.id, id))
+      .limit(1);
+
+    if (!event) {
+      throw new NotFoundException("Evento pessoal nao encontrado");
+    }
+
+    const status = approve ? "approved" : "rejected";
+    const isPublic = approve;
+
+    const [updated] = await this.db
+      .update(tbPersonalEvents)
+      .set({
+        approvalStatus: status,
+        isPublic,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(tbPersonalEvents.id, id))
+      .returning();
+
+    return updated;
+  
+
+  /**
+   * Criar metricas de saude
    */
   async createHealthMetrics(createHealthMetricsDto: CreateHealthMetricsDto) {
-    // Verificar se usuÃ¡rio existe e Ã© aluno
+    // Verificar se usuario existe e eh aluno
     const [user] = await this.db
       .select()
       .from(tbUsers)
@@ -268,10 +398,10 @@ export class StudentsService {
       .limit(1);
 
     if (!user) {
-      throw new NotFoundException('Aluno nÃ£o encontrado');
+      throw new NotFoundException('Aluno nao encontrado');
     }
 
-    // Verificar se jÃ¡ existe mÃ©trica
+    // Verificar se ja existe metrica
     const [existing] = await this.db
       .select()
       .from(tbHealthMetrics)
@@ -280,7 +410,7 @@ export class StudentsService {
 
     if (existing) {
       throw new BadRequestException(
-        'MÃ©tricas jÃ¡ existem para este aluno. Use PATCH para atualizar.',
+        'Mtricas j existem para este aluno. Use PATCH para atualizar.',
       );
     }
 
@@ -331,7 +461,7 @@ export class StudentsService {
   }
 
   /**
-   * Atualizar mÃ©tricas de saÃºde
+   * Atualizar mtricas de sade
    */
   async updateHealthMetrics(
     userId: string,
@@ -339,7 +469,7 @@ export class StudentsService {
     requestingUserId: string,
     userRole: UserRole,
   ) {
-    // Buscar permissÃµes se for aluno tentando editar
+    // Buscar permisses se for aluno tentando editar
     if (userRole === UserRole.ALUNO && userId === requestingUserId) {
       const [permissions] = await this.db
         .select()
@@ -347,13 +477,13 @@ export class StudentsService {
         .where(eq(tbStudentPermissions.userId, userId))
         .limit(1);
 
-      // Verificar cada campo que o aluno estÃ¡ tentando editar
+      // Verificar cada campo que o aluno est tentando editar
       const updates: any = {};
 
       if (updateHealthMetricsDto.heightCm !== undefined) {
         if (!permissions?.canEditHeight) {
           throw new ForbiddenException(
-            'VocÃª nÃ£o tem permissÃ£o para editar altura',
+            'Voc no tem permisso para editar altura',
           );
         }
         updates.heightCm = updateHealthMetricsDto.heightCm;
@@ -362,7 +492,7 @@ export class StudentsService {
       if (updateHealthMetricsDto.weightKg !== undefined) {
         if (!permissions?.canEditWeight) {
           throw new ForbiddenException(
-            'VocÃª nÃ£o tem permissÃ£o para editar peso',
+            'Voc no tem permisso para editar peso',
           );
         }
         updates.weightKg = updateHealthMetricsDto.weightKg;
@@ -371,7 +501,7 @@ export class StudentsService {
       if (updateHealthMetricsDto.bloodType !== undefined) {
         if (!permissions?.canEditBloodType) {
           throw new ForbiddenException(
-            'VocÃª nÃ£o tem permissÃ£o para editar tipo sanguÃ­neo',
+            'Voc no tem permisso para editar tipo sanguneo',
           );
         }
         updates.bloodType = updateHealthMetricsDto.bloodType;
@@ -380,7 +510,7 @@ export class StudentsService {
       if (updateHealthMetricsDto.medications !== undefined) {
         if (!permissions?.canEditMedications) {
           throw new ForbiddenException(
-            'VocÃª nÃ£o tem permissÃ£o para editar medicaÃ§Ãµes',
+            'Voc no tem permisso para editar medicaes',
           );
         }
         updates.medications = updateHealthMetricsDto.medications;
@@ -389,7 +519,7 @@ export class StudentsService {
       if (updateHealthMetricsDto.allergies !== undefined) {
         if (!permissions?.canEditAllergies) {
           throw new ForbiddenException(
-            'VocÃª nÃ£o tem permissÃ£o para editar alergias',
+            'Voc no tem permisso para editar alergias',
           );
         }
         updates.allergies = updateHealthMetricsDto.allergies;
@@ -398,7 +528,7 @@ export class StudentsService {
       if (updateHealthMetricsDto.injuries !== undefined) {
         if (!permissions?.canEditInjuries) {
           throw new ForbiddenException(
-            'VocÃª nÃ£o tem permissÃ£o para editar lesÃµes',
+            'Voc no tem permisso para editar leses',
           );
         }
         updates.injuries = updateHealthMetricsDto.injuries;
@@ -410,7 +540,7 @@ export class StudentsService {
       ) {
         if (!permissions?.canEditRoutine) {
           throw new ForbiddenException(
-            'VocÃª nÃ£o tem permissÃ£o para editar rotina',
+            'Voc no tem permisso para editar rotina',
           );
         }
         if (updateHealthMetricsDto.alimentalRoutine)
@@ -425,7 +555,7 @@ export class StudentsService {
       ) {
         if (!permissions?.canEditSupplements) {
           throw new ForbiddenException(
-            'VocÃª nÃ£o tem permissÃ£o para editar suplementos',
+            'Voc no tem permisso para editar suplementos',
           );
         }
         if (updateHealthMetricsDto.useSupplements !== undefined)
@@ -434,13 +564,13 @@ export class StudentsService {
           updates.whatSupplements = updateHealthMetricsDto.whatSupplements;
       }
 
-      // Aluno nÃ£o pode editar anotaÃ§Ãµes de coach
+      // Aluno no pode editar anotaes de coach
       if (
         updateHealthMetricsDto.coachObservations ||
         updateHealthMetricsDto.coachObservationsParticular
       ) {
         throw new ForbiddenException(
-          'VocÃª nÃ£o pode editar anotaÃ§Ãµes de coaches',
+          'Voc no pode editar anotaes de coaches',
         );
       }
 
@@ -478,7 +608,7 @@ export class StudentsService {
       .returning();
 
     if (!updated) {
-      throw new NotFoundException('Métricas de saúde não encontradas');
+      throw new NotFoundException('Mtricas de sade no encontradas');
     }
 
     return updated;
@@ -509,7 +639,7 @@ export class StudentsService {
       .limit(1);
 
     if (!student) {
-      throw new NotFoundException('Aluno não encontrado');
+      throw new NotFoundException('Aluno no encontrado');
     }
 
     const [health] = await this.db
@@ -564,7 +694,7 @@ export class StudentsService {
       .where(and(eq(tbUsers.id, id), isNull(tbUsers.deletedAt)));
 
     if (!user) {
-      throw new NotFoundException('Aluno não encontrado');
+      throw new NotFoundException('Aluno no encontrado');
     }
 
     if (dto.name) {
@@ -596,7 +726,7 @@ export class StudentsService {
           .set(personalUpdate)
           .where(eq(tbPersonalData.userId, id));
       } else {
-        // tbPersonalData exige campos obrigatórios: cpf, bornDate, address, telephone, email
+        // tbPersonalData exige campos obrigatrios: cpf, bornDate, address, telephone, email
         if (
           personalUpdate.cpf === undefined ||
           personalUpdate.bornDate === undefined ||
@@ -657,7 +787,7 @@ export class StudentsService {
   }
 
   /**
-   * Adicionar observaÃ§Ã£o de coach (apenas COACH, ADMIN, MASTER)
+   * Adicionar observao de coach (apenas COACH, ADMIN, MASTER)
    */
   async addCoachObservation(
     userId: string,
@@ -676,7 +806,7 @@ export class StudentsService {
 
     if (!existing) {
       throw new NotFoundException(
-        'MÃ©tricas de saÃºde nÃ£o encontradas. Crie as mÃ©tricas primeiro.',
+        'Mtricas de sade no encontradas. Crie as mtricas primeiro.',
       );
     }
 
@@ -698,3 +828,8 @@ export class StudentsService {
     return updated;
   }
 }
+
+
+
+
+
