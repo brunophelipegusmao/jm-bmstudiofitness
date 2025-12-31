@@ -66,6 +66,17 @@ export class CheckInsController {
   }
 
   /**
+   * Check-ins do prÇüprio aluno autenticado (dashboard)
+   */
+  @Get('student')
+  getStudentCheckIns(
+    @CurrentUser('userId') userId: string,
+    @CurrentUser('role') role: UserRole,
+  ) {
+    return this.checkInsService.getStudentCheckIns(userId, role);
+  }
+
+  /**
    * Buscar check-in por ID
    */
   @Get(':id')

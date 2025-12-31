@@ -1,11 +1,12 @@
-import { apiClient } from "@/lib/api-client";
+﻿import { apiClient } from "@/lib/api-client";
 
 export interface PaymentStatus {
+  financialId: string | null;
   paid: boolean;
   monthlyFeeValue: number;
   dueDate: number;
   lastPaymentDate: string | null;
-  paymentMethod: string;
+  paymentMethod: string | null;
 }
 
 export interface PaymentStatusResponse {
@@ -22,13 +23,37 @@ export interface PayMonthlyFeeResult {
 
 export async function getMyPaymentStatusAction(): Promise<PaymentStatusResponse> {
   try {
-    const response = await apiClient.get<PaymentStatusResponse>(
-      "/payments/status",
-    );
+    const response = await apiClient.get<{
+      success?: boolean;
+      message?: string;
+      data?: {
+        financial: {
+          id: string | null;
+          paid: boolean;
+          monthlyFeeValueInCents: number;
+          dueDate: number;
+          lastPaymentDate: string | null;
+          paymentMethod: string | null;
+        };
+      };
+    }>("/students/me");
+
+    const financial = response?.data?.financial;
+    const mapped: PaymentStatus | null = financial
+      ? {
+          financialId: financial.id ?? null,
+          paid: financial.paid ?? false,
+          monthlyFeeValue: financial.monthlyFeeValueInCents ?? 0,
+          dueDate: financial.dueDate ?? 0,
+          lastPaymentDate: financial.lastPaymentDate ?? null,
+          paymentMethod: financial.paymentMethod ?? null,
+        }
+      : null;
+
     return {
       success: response?.success ?? true,
-      data: response?.data ?? null,
-      error: response?.error,
+      data: mapped,
+      error: response?.message,
     };
   } catch (error) {
     const message =
@@ -42,9 +67,13 @@ export async function payMonthlyFeeAction(params: {
   transactionId?: string;
 }): Promise<PayMonthlyFeeResult> {
   try {
+    const { paymentId, ...rest } = params as any;
+    if (!paymentId) {
+      throw new Error("ID do lancamento financeiro nao encontrado");
+    }
     const response = await apiClient.post<PayMonthlyFeeResult>(
-      "/payments/pay",
-      params,
+      `/financial/${paymentId}/mark-paid`,
+      { paymentMethod: rest.paymentMethod ?? "manual" },
     );
     return {
       success: response?.success ?? true,
@@ -57,3 +86,4 @@ export async function payMonthlyFeeAction(params: {
     return { success: false, error: message };
   }
 }
+

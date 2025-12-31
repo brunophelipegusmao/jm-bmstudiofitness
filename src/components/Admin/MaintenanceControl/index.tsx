@@ -33,7 +33,7 @@ export function MaintenanceControlPanel() {
   const [routeCoachEnabled, setRouteCoachEnabled] = useState(false);
   const [routeEmployeeEnabled, setRouteEmployeeEnabled] = useState(false);
   const [routeShoppingEnabled, setRouteShoppingEnabled] = useState(false);
-  const [routeBlogEnabled, setRouteBlogEnabled] = useState(false);
+  const [routeEventsEnabled, setRouteEventsEnabled] = useState(false);
   const [routeServicesEnabled, setRouteServicesEnabled] = useState(false);
   const [routeContactEnabled, setRouteContactEnabled] = useState(true);
   const [routeWaitlistEnabled, setRouteWaitlistEnabled] = useState(true);
@@ -68,7 +68,7 @@ export function MaintenanceControlPanel() {
         setRouteCoachEnabled(result.data.routeCoachEnabled ?? false);
         setRouteEmployeeEnabled(result.data.routeEmployeeEnabled ?? false);
         setRouteShoppingEnabled(result.data.routeShoppingEnabled ?? false);
-        setRouteBlogEnabled(result.data.routeBlogEnabled ?? false);
+        setRouteEventsEnabled(result.data.routeEventsEnabled ?? false);
         setRouteServicesEnabled(result.data.routeServicesEnabled ?? false);
         setRouteContactEnabled(result.data.routeContactEnabled ?? true);
         setRouteWaitlistEnabled(result.data.routeWaitlistEnabled ?? true);
@@ -122,7 +122,7 @@ export function MaintenanceControlPanel() {
         routeCoachEnabled,
         routeEmployeeEnabled,
         routeShoppingEnabled,
-        routeBlogEnabled,
+        routeEventsEnabled,
         routeServicesEnabled,
         routeContactEnabled,
         routeWaitlistEnabled,
@@ -436,24 +436,26 @@ export function MaintenanceControlPanel() {
                   </button>
                 </div>
 
-                {/* Rota Blog */}
+                {/* Rota Eventos */}
                 <div className="flex items-center justify-between rounded-lg border border-[#C2A537]/20 bg-slate-900/50 p-4">
                   <div className="flex items-center gap-3">
                     <FileText className="h-5 w-5 text-[#C2A537]" />
                     <div>
-                      <p className="text-sm font-medium text-slate-200">Blog</p>
-                      <p className="text-xs text-slate-400">/blog/*</p>
+                      <p className="text-sm font-medium text-slate-200">
+                        Eventos
+                      </p>
+                      <p className="text-xs text-slate-400">/events/*</p>
                     </div>
                   </div>
                   <button
-                    onClick={() => setRouteBlogEnabled(!routeBlogEnabled)}
+                    onClick={() => setRouteEventsEnabled(!routeEventsEnabled)}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      routeBlogEnabled ? "bg-[#C2A537]" : "bg-gray-600"
+                      routeEventsEnabled ? "bg-[#C2A537]" : "bg-gray-600"
                     }`}
                   >
                     <span
                       className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        routeBlogEnabled ? "translate-x-6" : "translate-x-1"
+                        routeEventsEnabled ? "translate-x-6" : "translate-x-1"
                       }`}
                     />
                   </button>

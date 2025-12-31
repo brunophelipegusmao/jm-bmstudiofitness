@@ -238,6 +238,63 @@ export class CheckInsService {
   }
 
   /**
+   * Check-ins do prÇüprio usuÇ­rio (para dashboard do aluno)
+   */
+  async getStudentCheckIns(userId: string, userRole: UserRole) {
+    // Aluno sÇü pode ver prÇüprio histÇürico; outros roles podem ver qualquer aluno (usando o prÇüprio ID aqui)
+    const targetUserId = userId;
+    if (userRole === UserRole.ALUNO && !targetUserId) {
+      throw new ForbiddenException('Acesso negado');
+    }
+
+    const checkIns = await this.db
+      .select({
+        id: tbCheckIns.id,
+        userId: tbCheckIns.userId,
+        checkInDate: tbCheckIns.checkInDate,
+        checkInTime: tbCheckIns.checkInTime,
+        method: tbCheckIns.method,
+        identifier: tbCheckIns.identifier,
+        checkedInBy: tbCheckIns.checkedInBy,
+        createdAt: tbCheckIns.createdAt,
+      })
+      .from(tbCheckIns)
+      .where(eq(tbCheckIns.userId, targetUserId))
+      .orderBy(desc(tbCheckIns.checkInDate), desc(tbCheckIns.checkInTime));
+
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const thisYear = now.getFullYear();
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(now.getDate() - 7);
+
+    const stats = {
+      totalCheckIns: checkIns.length,
+      thisMonth: checkIns.filter((c) => {
+        const d = new Date(`${c.checkInDate}T${c.checkInTime}:00`);
+        return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+      }).length,
+      thisWeek: checkIns.filter((c) => {
+        const d = new Date(`${c.checkInDate}T${c.checkInTime}:00`);
+        return d >= oneWeekAgo;
+      }).length,
+      lastCheckIn: checkIns[0]?.checkInDate ?? null,
+    };
+
+    const mapped = checkIns.map((c) => ({
+      ...c,
+      checkInTimestamp: `${c.checkInDate}T${c.checkInTime}:00`,
+    }));
+
+    return {
+      success: true,
+      message: '',
+      checkIns: mapped,
+      stats,
+    };
+  }
+
+  /**
    * Buscar check-in por ID
    */
   async findOne(id: string, requestingUserId: string, userRole: UserRole) {

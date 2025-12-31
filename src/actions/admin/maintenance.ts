@@ -8,7 +8,7 @@ export interface MaintenanceSettings {
   routeCoachEnabled?: boolean;
   routeEmployeeEnabled?: boolean;
   routeShoppingEnabled?: boolean;
-  routeBlogEnabled?: boolean;
+  routeEventsEnabled?: boolean;
   routeServicesEnabled?: boolean;
   routeContactEnabled?: boolean;
   routeWaitlistEnabled?: boolean;

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 
-import PostListHome from "@/components/PostListHome";
+import EventListHome from "@/components/EventListHome";
 import SectionFeatured from "@/components/SectionFeatured";
 import SectionHistory from "@/components/SectionHistory";
 import WaitlistModal from "@/components/WaitlistModal";
@@ -19,7 +19,7 @@ export default function HomePage() {
       >
         <SectionFeatured />
         <SectionHistory />
-        <PostListHome />
+        <EventListHome />
       </motion.div>
     </>
   );

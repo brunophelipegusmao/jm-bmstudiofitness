@@ -4,137 +4,177 @@ import { Edit3, Eye, EyeOff, PlusCircle, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import {
-  createPostAction,
-  deletePostAction,
-  getPostsAction,
-  updatePostAction,
-} from "@/actions/admin/manage-posts-action";
+  createEventAction,
+  deleteEventAction,
+  getEventsAction,
+  downloadEventAttendancePdfAction,
+  getEventAttendanceAction,
+  updateEventAction,
+} from "@/actions/admin/manage-events-action";
 import { CreatePostFormAdvanced } from "@/components/Dashboard/CreatePostFormAdvanced";
 import { EditPostForm } from "@/components/Dashboard/EditPostForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Post } from "@/types/posts";
+import type { Event } from "@/types/events";
 
 export function ManagePostForm() {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [attendanceByEvent, setAttendanceByEvent] = useState<
+    Record<string, Awaited<ReturnType<typeof getEventAttendanceAction>>>
+  >({});
+  const [loadingAttendanceId, setLoadingAttendanceId] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
-    loadPosts();
+    loadEvents();
   }, []);
 
-  const loadPosts = async () => {
+  const loadEvents = async () => {
     try {
       setLoading(true);
-      const data = await getPostsAction();
-      setPosts(data);
+      const data = await getEventsAction();
+      setEvents(data);
     } catch (error) {
-      console.error("Error loading posts:", error);
-      // Verificar se é erro de permissão
+      console.error("Error loading events:", error);
       if (
         error instanceof Error &&
         error.message.includes("Apenas administradores")
       ) {
-        alert("Acesso negado. Apenas administradores podem gerenciar posts.");
+        alert("Acesso negado. Apenas administradores podem gerenciar eventos.");
       } else {
-        alert("Erro ao carregar posts. Tente novamente.");
+        alert("Erro ao carregar eventos. Tente novamente.");
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCreatePost = async (postData: {
+  const handleLoadAttendance = async (eventId: string) => {
+    if (attendanceByEvent[eventId]) return;
+    try {
+      setLoadingAttendanceId(eventId);
+      const data = await getEventAttendanceAction(eventId);
+      setAttendanceByEvent((prev) => ({ ...prev, [eventId]: data }));
+    } catch (error) {
+      console.error("Error loading attendance:", error);
+      alert("Erro ao carregar confirmações.");
+    } finally {
+      setLoadingAttendanceId(null);
+    }
+  };
+
+  const handleCreateEvent = async (eventData: {
     title: string;
-    content: string;
-    excerpt: string;
+    description: string;
+    date: string;
+    time?: string;
+    location?: string;
+    hideLocation?: boolean;
     imageUrl?: string;
     published: boolean;
-    categoryId?: string;
-    metaTitle?: string;
-    metaDescription?: string;
-    metaKeywords?: string;
-    tags?: string[];
   }) => {
     try {
-      await createPostAction(postData);
+      await createEventAction(eventData);
       setShowCreateForm(false);
-      await loadPosts();
+      await loadEvents();
     } catch (error) {
-      console.error("Error creating post:", error);
+      console.error("Error creating event:", error);
       if (
         error instanceof Error &&
         error.message.includes("Apenas administradores")
       ) {
-        alert("Acesso negado. Apenas administradores podem criar posts.");
+        alert("Acesso negado. Apenas administradores podem criar eventos.");
       } else {
-        alert("Erro ao criar post. Tente novamente.");
+        alert("Erro ao criar evento. Tente novamente.");
       }
       throw error;
     }
   };
 
   const handleTogglePublished = async (
-    postId: string,
+    eventId: string,
     published: boolean,
   ) => {
     try {
-      await updatePostAction(postId, { published });
-      await loadPosts();
+      await updateEventAction(eventId, { published });
+      await loadEvents();
     } catch (error) {
-      console.error("Error updating post:", error);
+      console.error("Error updating event:", error);
       if (
         error instanceof Error &&
         error.message.includes("Apenas administradores")
       ) {
-        alert("Acesso negado. Apenas administradores podem editar posts.");
+        alert("Acesso negado. Apenas administradores podem editar eventos.");
       } else {
-        alert("Erro ao atualizar post. Tente novamente.");
+        alert("Erro ao atualizar evento. Tente novamente.");
       }
     }
   };
 
-  const handleDeletePost = async (postId: string) => {
-    if (!confirm("Tem certeza que deseja excluir este post?")) {
+  const handleDeleteEvent = async (eventId: string) => {
+    if (!confirm("Tem certeza que deseja excluir este evento?")) {
       return;
     }
 
     try {
-      await deletePostAction(postId);
-      await loadPosts();
+      await deleteEventAction(eventId);
+      await loadEvents();
     } catch (error) {
-      console.error("Error deleting post:", error);
+      console.error("Error deleting event:", error);
       if (
         error instanceof Error &&
         error.message.includes("Apenas administradores")
       ) {
-        alert("Acesso negado. Apenas administradores podem excluir posts.");
+        alert("Acesso negado. Apenas administradores podem excluir eventos.");
       } else {
-        alert("Erro ao excluir post. Tente novamente.");
+        alert("Erro ao excluir evento. Tente novamente.");
       }
+    }
+  };
+
+  const handleDownloadReport = async (event: Event) => {
+    try {
+      setDownloadingId(event.id);
+      const blob = await downloadEventAttendancePdfAction(event.id);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `confirmacoes-${event.slug}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading report:", error);
+      alert("Erro ao baixar relatório de confirmações.");
+    } finally {
+      setDownloadingId(null);
     }
   };
 
   if (showCreateForm) {
     return (
       <CreatePostFormAdvanced
-        onSubmit={handleCreatePost}
+        onSubmit={handleCreateEvent}
         onCancel={() => setShowCreateForm(false)}
       />
     );
   }
 
-  if (editingPost) {
+  if (editingEvent) {
     return (
       <EditPostForm
-        post={editingPost}
+        event={editingEvent}
         onComplete={() => {
-          setEditingPost(null);
-          loadPosts();
+          setEditingEvent(null);
+          loadEvents();
         }}
-        onCancel={() => setEditingPost(null)}
+        onCancel={() => setEditingEvent(null)}
       />
     );
   }
@@ -143,15 +183,19 @@ export function ManagePostForm() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-[#C2A537]">Gerenciar Posts</h2>
-          <p className="text-slate-400">Gerencie todos os posts do blog</p>
+          <h2 className="text-2xl font-bold text-[#C2A537]">
+            Gerenciar Eventos
+          </h2>
+          <p className="text-slate-400">
+            Crie e atualize os eventos publicados no site
+          </p>
         </div>
         <Button
           onClick={() => setShowCreateForm(true)}
           className="bg-[#C2A537] text-black hover:bg-[#D4B547]"
         >
           <PlusCircle className="mr-2 h-4 w-4" />
-          Novo Post
+          Novo Evento
         </Button>
       </div>
 
@@ -161,54 +205,54 @@ export function ManagePostForm() {
         </div>
       ) : (
         <div className="grid gap-6">
-          {posts.length === 0 ? (
+          {events.length === 0 ? (
             <Card className="border-slate-700/50 bg-slate-800/30">
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <p className="text-center text-slate-400">
-                  Nenhum post encontrado.
+                  Nenhum evento encontrado.
                   <br />
-                  Clique em &quot;Novo Post&quot; para criar seu primeiro post.
+                  Clique em &quot;Novo Evento&quot; para cadastrar.
                 </p>
               </CardContent>
             </Card>
           ) : (
-            posts.map((post) => (
+            events.map((event) => {
+              const attendance = attendanceByEvent[event.id];
+              const hasAttendance = attendance && attendance.length > 0;
+              const showAttendance = Boolean(attendance);
+
+              return (
               <Card
-                key={post.id}
+                key={event.id}
                 className="border-slate-700/50 bg-slate-800/30"
               >
                 <CardHeader>
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <CardTitle className="mb-2 text-lg text-white">
-                        {post.title}
+                        {event.title}
                       </CardTitle>
-                      <div className="flex items-center gap-4 text-sm text-slate-400">
-                        <span>{post.published ? "Publicado" : "Rascunho"}</span>
-                        {post.category && (
-                          <span
-                            className="rounded px-2 py-1 text-xs"
-                            style={{
-                              backgroundColor: post.category.color + "20",
-                              color: post.category.color,
-                            }}
-                          >
-                            {post.category.name}
-                          </span>
+                      <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400">
+                        <span>{event.published ? "Publicado" : "Rascunho"}</span>
+                        <span>
+                          {event.date.toLocaleDateString("pt-BR")}
+                          {event.time ? ` às ${event.time}` : ""}
+                        </span>
+                        {event.location && !event.hideLocation && (
+                          <span>{event.location}</span>
                         )}
-                        <span>{post.readTime} min de leitura</span>
-                        <span>{post.views} visualizações</span>
+                        <span>{event.views ?? 0} visualizacoes</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() =>
-                          handleTogglePublished(post.id, !post.published)
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            handleTogglePublished(event.id, !event.published)
                         }
                         className="border-[#C2A537] bg-[#C2A537] text-black hover:bg-[#D4B547]"
                       >
-                        {post.published ? (
+                        {event.published ? (
                           <EyeOff className="h-4 w-4" />
                         ) : (
                           <Eye className="h-4 w-4" />
@@ -216,38 +260,81 @@ export function ManagePostForm() {
                       </Button>
                       <Button
                         size="sm"
-                        onClick={() => setEditingPost(post)}
+                        onClick={() => setEditingEvent(event)}
                         className="border-[#C2A537] bg-[#C2A537] text-black hover:bg-[#D4B547]"
                       >
                         <Edit3 className="h-4 w-4" />
                       </Button>
                       <Button
                         size="sm"
-                        onClick={() => handleDeletePost(post.id)}
+                        onClick={() => handleDeleteEvent(event.id)}
                         className="border-red-600 bg-red-600 text-white hover:bg-red-700"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDownloadReport(event)}
+                        disabled={downloadingId === event.id}
+                        className="border-[#C2A537] text-[#C2A537] hover:bg-[#C2A537]/10"
+                      >
+                        {downloadingId === event.id ? "Baixando..." : "Relatório"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleLoadAttendance(event.id)}
+                        disabled={loadingAttendanceId === event.id}
+                        className="border-slate-600 text-slate-200 hover:bg-slate-700"
+                      >
+                        {loadingAttendanceId === event.id
+                          ? "Carregando..."
+                          : "Ver confirmações"}
+                      </Button>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="mb-4 text-slate-300">{post.excerpt}</p>
-                  {post.tags && post.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {post.tags.map((tag) => (
-                        <span
-                          key={tag.id}
-                          className="rounded bg-slate-700 px-2 py-1 text-xs text-slate-300"
-                        >
-                          #{tag.name}
-                        </span>
-                      ))}
+                <CardContent className="space-y-4">
+                  <p className="text-slate-300">
+                    {event.summary || event.description}
+                  </p>
+                  {showAttendance && (
+                    <div className="rounded-lg border border-slate-700 bg-slate-900/40 p-3">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-semibold text-white">
+                          Confirmações ({attendance?.length ?? 0})
+                        </h4>
+                      </div>
+                      {hasAttendance ? (
+                        <div className="mt-2 space-y-2 text-sm text-slate-200">
+                          {attendance!.map((a) => (
+                            <div
+                              key={a.id}
+                              className="flex flex-col rounded border border-slate-800 bg-slate-900/60 px-3 py-2"
+                            >
+                              <span className="font-semibold">{a.name}</span>
+                              {a.email && (
+                                <span className="text-slate-400">{a.email}</span>
+                              )}
+                              <span className="text-xs text-slate-500">
+                                Confirmado em:{" "}
+                                {new Date(a.confirmedAt).toLocaleString("pt-BR")}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="mt-2 text-sm text-slate-400">
+                          Nenhuma confirmação registrada.
+                        </p>
+                      )}
                     </div>
                   )}
                 </CardContent>
               </Card>
-            ))
+              );
+            })
           )}
         </div>
       )}

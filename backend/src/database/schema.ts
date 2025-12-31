@@ -197,6 +197,7 @@ export const tbStudioSettings = pgTable('tb_studio_settings', {
     .notNull()
     .default(true),
   routeBlogEnabled: boolean('route_blog_enabled').notNull().default(true),
+  routeEventsEnabled: boolean('route_events_enabled').notNull().default(true),
   routeServicesEnabled: boolean('route_services_enabled')
     .notNull()
     .default(true),
@@ -320,7 +321,7 @@ export const tbWaitlist = pgTable('tb_waitlist', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// Tabela de categorias do blog
+// Tabela de categorias (legado do blog)
 export const tbBlogCategories = pgTable('tb_blog_categories', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: text('name').notNull(),
@@ -330,13 +331,18 @@ export const tbBlogCategories = pgTable('tb_blog_categories', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// Tabela de posts do blog
+// Tabela de eventos (usa tabela legada tb_blog_posts)
 export const tbBlogPosts = pgTable('tb_blog_posts', {
   id: uuid('id').defaultRandom().primaryKey(),
   title: text('title').notNull(),
   slug: text('slug').notNull().unique(),
   excerpt: text('excerpt'),
   content: text('content').notNull(),
+  eventDate: date('event_date').notNull(),
+  eventTime: text('event_time'),
+  location: text('location'),
+  hideLocation: boolean('hide_location').notNull().default(false),
+  requireAttendance: boolean('require_attendance').notNull().default(false),
   coverImage: text('cover_image'),
   categoryId: uuid('category_id').references(() => tbBlogCategories.id),
   authorId: uuid('author_id')
@@ -383,6 +389,18 @@ export const tbPaymentReceipts = pgTable('tb_payment_receipts', {
     .references(() => tbUsers.id),
   pdfUrl: text('pdf_url'),
   emailSentAt: timestamp('email_sent_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Confirmações de presença em eventos
+export const tbEventAttendance = pgTable('tb_event_attendance', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  eventId: uuid('event_id')
+    .notNull()
+    .references(() => tbBlogPosts.id),
+  name: text('name').notNull(),
+  email: text('email'),
+  confirmedAt: timestamp('confirmed_at').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

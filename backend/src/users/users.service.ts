@@ -310,7 +310,8 @@ export class UsersService {
       personalUpdate.address = updateUserDto.address;
     if (updateUserDto.telephone !== undefined)
       personalUpdate.telephone = updateUserDto.telephone;
-    if (updateUserDto.email !== undefined) personalUpdate.email = updateUserDto.email;
+    if (updateUserDto.email !== undefined)
+      personalUpdate.email = updateUserDto.email;
 
     if (Object.keys(personalUpdate).length > 0) {
       await this.db
@@ -447,7 +448,9 @@ export class UsersService {
    */
   async softDelete(id: string, requestingUserId: string, role: UserRole) {
     if (role !== UserRole.MASTER && role !== UserRole.ADMIN) {
-      throw new ForbiddenException('Apenas ADMIN ou MASTER podem desativar usuários');
+      throw new ForbiddenException(
+        'Apenas ADMIN ou MASTER podem desativar usuários',
+      );
     }
 
     if (id === requestingUserId) {

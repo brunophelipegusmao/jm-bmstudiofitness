@@ -170,7 +170,7 @@ export class UpdateSettingsDto {
 
   @IsOptional()
   @IsBoolean()
-  routeBlogEnabled?: boolean;
+  routeEventsEnabled?: boolean;
 
   @IsOptional()
   @IsBoolean()
@@ -258,7 +258,7 @@ export class UpdateMaintenanceDto {
 
   @IsOptional()
   @IsBoolean()
-  routeBlogEnabled?: boolean;
+  routeEventsEnabled?: boolean;
 
   @IsOptional()
   @IsBoolean()
@@ -296,7 +296,7 @@ export class UpdateRoutesDto {
 
   @IsOptional()
   @IsBoolean()
-  routeBlogEnabled?: boolean;
+  routeEventsEnabled?: boolean;
 
   @IsOptional()
   @IsBoolean()

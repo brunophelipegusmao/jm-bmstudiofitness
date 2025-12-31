@@ -7,20 +7,42 @@ export interface Plan {
   features: string[];
   price: string;
   priceValue: number;
-  duration: string;
-  capacity: string;
-  icon: string;
-  gradient: string;
+  durationDays: number;
+  durationLabel: string;
   popular: boolean;
   active: boolean;
   displayOrder: number;
 }
 
-type PlanPayload = Omit<Plan, "id" | "active" | "popular" | "displayOrder"> & {
-  id?: string;
+type PlanPayload = {
+  title: string;
+  description: string;
+  features: string[];
+  priceValue: number;
+  durationDays: number;
   active?: boolean;
   popular?: boolean;
   displayOrder?: number;
+};
+
+const mapFromApi = (input: any): Plan => {
+  const priceInCents = Number(input.priceInCents ?? 0);
+  const durationInDays = Number(input.durationInDays ?? 0);
+  return {
+    id: String(input.id ?? ""),
+    title: String(input.name ?? input.title ?? ""),
+    description: String(input.description ?? ""),
+    features: Array.isArray(input.features) ? input.features : [],
+    price: priceInCents
+      ? `R$ ${(priceInCents / 100).toFixed(2).replace(".", ",")}`
+      : "R$ 0,00",
+    priceValue: priceInCents,
+    durationDays: durationInDays,
+    durationLabel: durationInDays ? `${durationInDays} dias` : "",
+    popular: Boolean(input.isPopular),
+    active: input.isActive !== false,
+    displayOrder: Number(input.sortOrder ?? 0),
+  };
 };
 
 export async function getPlansAdminAction(): Promise<{
@@ -30,7 +52,8 @@ export async function getPlansAdminAction(): Promise<{
 }> {
   try {
     const plans = await apiClient.get<Plan[]>("/plans");
-    return { success: true, data: Array.isArray(plans) ? plans : [] };
+    const mapped = Array.isArray(plans) ? plans.map(mapFromApi) : [];
+    return { success: true, data: mapped };
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Erro ao carregar planos";
@@ -40,7 +63,16 @@ export async function getPlansAdminAction(): Promise<{
 
 export async function createPlanAction(input: PlanPayload) {
   try {
-    await apiClient.post("/plans", input);
+    await apiClient.post("/plans", {
+      name: input.title,
+      description: input.description,
+      priceInCents: input.priceValue,
+      durationInDays: input.durationDays,
+      features: input.features,
+      isPopular: input.popular,
+      isActive: input.active,
+      sortOrder: input.displayOrder,
+    });
     return { success: true };
   } catch (error) {
     const message =
@@ -54,7 +86,16 @@ export async function updatePlanAction(
 ) {
   try {
     const { id, ...input } = payload;
-    await apiClient.patch(`/plans/${id}`, input);
+    await apiClient.patch(`/plans/${id}`, {
+      name: input.title,
+      description: input.description,
+      priceInCents: input.priceValue,
+      durationInDays: input.durationDays,
+      features: input.features,
+      isPopular: input.popular,
+      isActive: input.active,
+      sortOrder: input.displayOrder,
+    });
     return { success: true };
   } catch (error) {
     const message =

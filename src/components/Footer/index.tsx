@@ -146,7 +146,7 @@ export function Footer() {
                   href="/services"
                   className="block transform text-gray-300 transition-colors duration-300 hover:translate-x-1 hover:text-[#C2A537]"
                 >
-                  Serviços
+                  Planos
                 </Link>
                 <Link
                   href="/contact"

@@ -1,20 +1,6 @@
 "use client";
 
-import {
-  Calendar,
-  Clock,
-  Dumbbell,
-  Edit,
-  Eye,
-  EyeOff,
-  Heart,
-  Plus,
-  Star,
-  Target,
-  Trash2,
-  Users,
-  Zap,
-} from "lucide-react";
+import { Clock, Edit, Eye, EyeOff, Plus, Star, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import {
@@ -43,33 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
-const iconOptions = [
-  { value: "Dumbbell", label: "Dumbbell (Musculação)", icon: Dumbbell },
-  { value: "Target", label: "Target (Personal)", icon: Target },
-  { value: "Zap", label: "Zap (Funcional)", icon: Zap },
-  { value: "Heart", label: "Heart (Cardio)", icon: Heart },
-  { value: "Users", label: "Users (Grupos)", icon: Users },
-  { value: "Calendar", label: "Calendar (Avaliação)", icon: Calendar },
-  { value: "Clock", label: "Clock (Horários)", icon: Clock },
-];
-
-const gradientOptions = [
-  { value: "from-[#FFD700] via-[#C2A537] to-[#B8941F]", label: "Dourado 1" },
-  { value: "from-[#C2A537] via-[#D4B547] to-[#E6C658]", label: "Dourado 2" },
-  { value: "from-[#B8941F] via-[#C2A537] to-[#D4B547]", label: "Dourado 3" },
-  { value: "from-[#D4B547] via-[#FFD700] to-[#C2A537]", label: "Dourado 4" },
-  { value: "from-[#E6C658] via-[#D4B547] to-[#C2A537]", label: "Dourado 5" },
-  { value: "from-[#C2A537] via-[#B8941F] to-[#FFD700]", label: "Dourado 6" },
-];
 
 export function AdminPlansTab() {
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -79,17 +39,12 @@ export function AdminPlansTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isNewPlan, setIsNewPlan] = useState(false);
 
-  // Form state
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     features: "",
-    price: "",
     priceValue: 0,
-    duration: "",
-    capacity: "",
-    icon: "Dumbbell",
-    gradient: gradientOptions[0].value,
+    durationDays: 0,
     popular: false,
     active: true,
     displayOrder: 0,
@@ -98,22 +53,17 @@ export function AdminPlansTab() {
   const loadPlans = async () => {
     setLoading(true);
     setError(null);
-    try {
-      const result = await getPlansAdminAction();
-      if (result.success && result.data) {
-        setPlans(result.data);
-      } else {
-        setError(result.error || "Erro ao carregar planos");
-      }
-    } catch {
-      setError("Erro ao carregar planos");
-    } finally {
-      setLoading(false);
+    const result = await getPlansAdminAction();
+    if (result.success && result.data) {
+      setPlans(result.data);
+    } else {
+      setError(result.error || "Erro ao carregar planos");
     }
+    setLoading(false);
   };
 
   useEffect(() => {
-    loadPlans();
+    void loadPlans();
   }, []);
 
   const handleOpenDialog = (plan?: Plan) => {
@@ -124,12 +74,8 @@ export function AdminPlansTab() {
         title: plan.title,
         description: plan.description,
         features: plan.features.join("\n"),
-        price: plan.price,
         priceValue: plan.priceValue,
-        duration: plan.duration,
-        capacity: plan.capacity,
-        icon: plan.icon,
-        gradient: plan.gradient,
+        durationDays: plan.durationDays,
         popular: plan.popular,
         active: plan.active,
         displayOrder: plan.displayOrder,
@@ -141,12 +87,8 @@ export function AdminPlansTab() {
         title: "",
         description: "",
         features: "",
-        price: "",
         priceValue: 0,
-        duration: "",
-        capacity: "",
-        icon: "Dumbbell",
-        gradient: gradientOptions[0].value,
+        durationDays: 0,
         popular: false,
         active: true,
         displayOrder: plans.length + 1,
@@ -157,86 +99,54 @@ export function AdminPlansTab() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const planData = {
       title: formData.title,
       description: formData.description,
       features: formData.features
         .split("\n")
-        .filter((f) => f.trim())
-        .map((f) => f.trim()),
-      price: formData.price,
+        .map((f) => f.trim())
+        .filter(Boolean),
       priceValue: formData.priceValue,
-      duration: formData.duration,
-      capacity: formData.capacity,
-      icon: formData.icon,
-      gradient: formData.gradient,
+      durationDays: formData.durationDays,
       popular: formData.popular,
       active: formData.active,
       displayOrder: formData.displayOrder,
     };
 
-    try {
-      if (isNewPlan) {
-        const result = await createPlanAction(planData);
-        if (result.success) {
-          await loadPlans();
-          setIsDialogOpen(false);
-        } else {
-          setError(result.error || "Erro ao criar plano");
-        }
-      } else if (editingPlan) {
-        const result = await updatePlanAction({
-          id: editingPlan.id,
-          ...planData,
-        });
-        if (result.success) {
-          await loadPlans();
-          setIsDialogOpen(false);
-        } else {
-          setError(result.error || "Erro ao atualizar plano");
-        }
-      }
-    } catch {
-      setError("Erro ao salvar plano");
+    const action = isNewPlan
+      ? createPlanAction(planData)
+      : updatePlanAction({ id: editingPlan!.id, ...planData });
+
+    const result = await action;
+    if (!result.success) {
+      setError(result.error || "Erro ao salvar plano");
+      return;
     }
+
+    await loadPlans();
+    setIsDialogOpen(false);
   };
 
   const handleDelete = async (planId: string) => {
     if (!confirm("Tem certeza que deseja excluir este plano?")) return;
-
-    try {
-      const result = await deletePlanAction(planId);
-      if (result.success) {
-        await loadPlans();
-      } else {
-        setError(result.error || "Erro ao excluir plano");
-      }
-    } catch {
-      setError("Erro ao excluir plano");
+    const result = await deletePlanAction(planId);
+    if (!result.success) {
+      setError(result.error || "Erro ao excluir plano");
+      return;
     }
+    await loadPlans();
   };
 
   const toggleActive = async (plan: Plan) => {
-    try {
-      const result = await updatePlanAction({
-        id: plan.id,
-        active: !plan.active,
-      });
-      if (result.success) {
-        await loadPlans();
-      } else {
-        setError(result.error || "Erro ao atualizar status");
-      }
-    } catch {
-      setError("Erro ao atualizar status");
+    const result = await updatePlanAction({
+      id: plan.id,
+      active: !plan.active,
+    });
+    if (!result.success) {
+      setError(result.error || "Erro ao atualizar status");
+      return;
     }
-  };
-
-  const getIconComponent = (iconName: string) => {
-    const IconComponent =
-      iconOptions.find((opt) => opt.value === iconName)?.icon || Dumbbell;
-    return <IconComponent className="h-5 w-5" />;
+    await loadPlans();
   };
 
   if (loading) {
@@ -249,14 +159,11 @@ export function AdminPlansTab() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-zinc-50">
-            Gerenciar Planos e Serviços
-          </h2>
+          <h2 className="text-2xl font-bold text-zinc-50">Gerenciar Planos</h2>
           <p className="text-sm text-zinc-400">
-            Crie, edite ou remova planos exibidos na página /services
+            Crie, edite ou remova planos exibidos na página de planos.
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -323,20 +230,6 @@ export function AdminPlansTab() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="price">Preço (formatado)</Label>
-                  <Input
-                    id="price"
-                    value={formData.price}
-                    onChange={(e) =>
-                      setFormData({ ...formData, price: e.target.value })
-                    }
-                    className="border-zinc-700 bg-zinc-800 text-zinc-50"
-                    placeholder="R$ 89,90"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
                   <Label htmlFor="priceValue">Preço (centavos)</Label>
                   <Input
                     id="priceValue"
@@ -345,7 +238,7 @@ export function AdminPlansTab() {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        priceValue: parseInt(e.target.value),
+                        priceValue: Number(e.target.value) || 0,
                       })
                     }
                     className="border-zinc-700 bg-zinc-800 text-zinc-50"
@@ -355,73 +248,21 @@ export function AdminPlansTab() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="duration">Duração</Label>
+                  <Label htmlFor="durationDays">Duração (dias)</Label>
                   <Input
-                    id="duration"
-                    value={formData.duration}
+                    id="durationDays"
+                    type="number"
+                    value={formData.durationDays}
                     onChange={(e) =>
-                      setFormData({ ...formData, duration: e.target.value })
+                      setFormData({
+                        ...formData,
+                        durationDays: Number(e.target.value) || 0,
+                      })
                     }
                     className="border-zinc-700 bg-zinc-800 text-zinc-50"
-                    placeholder="Ilimitado"
+                    placeholder="30"
                     required
                   />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="capacity">Capacidade</Label>
-                  <Input
-                    id="capacity"
-                    value={formData.capacity}
-                    onChange={(e) =>
-                      setFormData({ ...formData, capacity: e.target.value })
-                    }
-                    className="border-zinc-700 bg-zinc-800 text-zinc-50"
-                    placeholder="Individual"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="icon">Ícone</Label>
-                  <Select
-                    value={formData.icon}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, icon: value })
-                    }
-                  >
-                    <SelectTrigger className="border-zinc-700 bg-zinc-800 text-zinc-50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="border-zinc-700 bg-zinc-800 text-zinc-50">
-                      {iconOptions.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="gradient">Gradiente</Label>
-                  <Select
-                    value={formData.gradient}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, gradient: value })
-                    }
-                  >
-                    <SelectTrigger className="border-zinc-700 bg-zinc-800 text-zinc-50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="border-zinc-700 bg-zinc-800 text-zinc-50">
-                      {gradientOptions.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                 </div>
 
                 <div className="space-y-2">
@@ -433,7 +274,7 @@ export function AdminPlansTab() {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        displayOrder: parseInt(e.target.value),
+                        displayOrder: Number(e.target.value) || 0,
                       })
                     }
                     className="border-zinc-700 bg-zinc-800 text-zinc-50"
@@ -491,14 +332,12 @@ export function AdminPlansTab() {
         </Dialog>
       </div>
 
-      {/* Error Message */}
       {error && (
         <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4">
           <p className="text-sm text-red-400">{error}</p>
         </div>
       )}
 
-      {/* Plans Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {plans.map((plan) => (
           <Card
@@ -511,10 +350,8 @@ export function AdminPlansTab() {
           >
             <CardHeader>
               <div className="flex items-start justify-between">
-                <div
-                  className={`rounded-lg bg-gradient-to-r ${plan.gradient} p-2 text-black`}
-                >
-                  {getIconComponent(plan.icon)}
+                <div className="rounded-lg bg-[#C2A537]/15 p-2 text-black">
+                  <Star className="h-4 w-4 text-[#C2A537]" />
                 </div>
                 <div className="flex gap-1">
                   {plan.popular && (
@@ -547,15 +384,18 @@ export function AdminPlansTab() {
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 text-xs text-zinc-400">
-                <div className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  {plan.duration}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Users className="h-3 w-3" />
-                  {plan.capacity}
-                </div>
+              <div className="flex items-center gap-2 text-xs text-zinc-400">
+                <Clock className="h-3 w-3" />
+                {plan.durationLabel}
+              </div>
+
+              <div className="space-y-1 text-xs text-zinc-300">
+                {plan.features.slice(0, 4).map((feat) => (
+                  <div key={feat} className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#C2A537]" />
+                    <span>{feat}</span>
+                  </div>
+                ))}
               </div>
 
               <div className="flex gap-2">

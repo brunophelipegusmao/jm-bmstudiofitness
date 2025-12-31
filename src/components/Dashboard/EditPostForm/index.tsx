@@ -1,67 +1,77 @@
 "use client";
 
 import { ArrowLeft, ImageIcon, Save } from "lucide-react";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
-import { updatePostAction } from "@/actions/admin/manage-posts-action";
+import { updateEventAction } from "@/actions/admin/manage-events-action";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { Post } from "@/types/posts";
+import type { Event } from "@/types/events";
 
-interface EditPostFormProps {
-  post: Post;
+interface EditEventFormProps {
+  event: Event;
   onComplete: () => void;
   onCancel: () => void;
 }
 
 export function EditPostForm({
-  post,
+  event,
   onComplete,
   onCancel,
-}: EditPostFormProps) {
+}: EditEventFormProps) {
   const [formData, setFormData] = useState({
     title: "",
-    content: "",
-    excerpt: "",
+    description: "",
+    date: "",
+    time: "",
+    location: "",
+    hideLocation: false,
     imageUrl: "",
     published: false,
+    requireAttendance: false,
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setFormData({
-      title: post.title,
-      content: post.content ?? "",
-      excerpt: post.excerpt ?? "",
-      imageUrl: post.imageUrl || "",
-      published: post.published ?? false,
+      title: event.title,
+      description: event.description ?? "",
+      date: event.date ? event.date.toISOString().slice(0, 10) : "",
+      time: event.time || "",
+      location: event.location || "",
+      hideLocation: event.hideLocation ?? false,
+      imageUrl: event.imageUrl || "",
+      published: event.published ?? false,
+      requireAttendance: event.requireAttendance ?? false,
     });
-  }, [post]);
+  }, [event]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (
-      !formData.title.trim() ||
-      !formData.content.trim() ||
-      !formData.excerpt.trim()
-    ) {
-      alert("Por favor, preencha todos os campos obrigatórios");
+    if (!formData.title.trim() || !formData.description.trim() || !formData.date) {
+      alert("Preencha titulo, data e descricao do evento.");
       return;
     }
 
     try {
       setLoading(true);
-      await updatePostAction(post.id, {
-        ...formData,
+      await updateEventAction(event.id, {
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        date: formData.date,
+        time: formData.time || undefined,
+        location: formData.location || undefined,
+        hideLocation: formData.hideLocation,
         imageUrl: formData.imageUrl || undefined,
+        published: formData.published,
+        requireAttendance: formData.requireAttendance,
       });
       onComplete();
     } catch (error) {
-      console.error("Error updating post:", error);
-      alert("Erro ao atualizar post. Tente novamente.");
+      console.error("Error updating event:", error);
+      alert("Erro ao atualizar evento. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -75,9 +85,9 @@ export function EditPostForm({
     <div className="animate-in slide-in-from-right-5 space-y-6 duration-300">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-[#C2A537]">Editar Post</h2>
+          <h2 className="text-2xl font-bold text-[#C2A537]">Editar Evento</h2>
           <p className="text-slate-400">
-            Modifique as informações do post &quot;{post.title}&quot;
+            Ajuste as informacoes do evento "{event.title}"
           </p>
         </div>
         <Button
@@ -93,60 +103,92 @@ export function EditPostForm({
         <Card className="border-slate-700/50 bg-slate-800/30">
           <CardHeader>
             <CardTitle className="text-[#C2A537]">
-              Informações do Post
+              Informacoes do Evento
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Title */}
             <div className="space-y-2">
               <Label htmlFor="title" className="text-slate-300">
-                Título *
+                Titulo *
               </Label>
               <Input
                 id="title"
                 value={formData.title}
                 onChange={(e) => handleChange("title", e.target.value)}
-                placeholder="Digite o título do post"
+                placeholder="Digite o titulo do evento"
                 className="border-slate-600 bg-slate-800/50 text-white placeholder-slate-400"
                 required
               />
             </div>
 
-            {/* Excerpt */}
-            <div className="space-y-2">
-              <Label htmlFor="excerpt" className="text-slate-300">
-                Resumo *
-              </Label>
-              <textarea
-                id="excerpt"
-                value={formData.excerpt}
-                onChange={(e) => handleChange("excerpt", e.target.value)}
-                placeholder="Escreva um breve resumo do post (máximo 200 caracteres)"
-                className="min-h-[100px] w-full rounded-md border border-slate-600 bg-slate-800/50 px-3 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-[#C2A537] focus:outline-none"
-                maxLength={200}
-                required
-              />
-              <p className="text-xs text-slate-500">
-                {formData.excerpt.length}/200 caracteres
-              </p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="date" className="text-slate-300">
+                  Data *
+                </Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => handleChange("date", e.target.value)}
+                  className="border-slate-600 bg-slate-800/50 text-white"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="time" className="text-slate-300">
+                  Hora
+                </Label>
+                <Input
+                  id="time"
+                  type="time"
+                  value={formData.time}
+                  onChange={(e) => handleChange("time", e.target.value)}
+                  className="border-slate-600 bg-slate-800/50 text-white"
+                />
+              </div>
             </div>
 
-            {/* Content */}
             <div className="space-y-2">
-              <Label htmlFor="content" className="text-slate-300">
-                Conteúdo *
+              <Label htmlFor="description" className="text-slate-300">
+                Descricao *
               </Label>
               <textarea
-                id="content"
-                value={formData.content}
-                onChange={(e) => handleChange("content", e.target.value)}
-                placeholder="Escreva o conteúdo completo do post"
-                className="min-h-[300px] w-full rounded-md border border-slate-600 bg-slate-800/50 px-3 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-[#C2A537] focus:outline-none"
+                id="description"
+                value={formData.description}
+                onChange={(e) => handleChange("description", e.target.value)}
+                placeholder="Descreva o evento"
+                className="min-h-[200px] w-full rounded-md border border-slate-600 bg-slate-800/50 px-3 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-[#C2A537] focus:outline-none"
                 required
               />
             </div>
 
-            {/* Image URL */}
+            <div className="space-y-2">
+              <Label htmlFor="location" className="text-slate-300">
+                Local (opcional)
+              </Label>
+              <Input
+                id="location"
+                value={formData.location}
+                onChange={(e) => handleChange("location", e.target.value)}
+                placeholder="Ex: Rua das Flores, 123"
+                className="border-slate-600 bg-slate-800/50 text-white placeholder-slate-400"
+              />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="hideLocation"
+                checked={formData.hideLocation}
+                onChange={(e) => handleChange("hideLocation", e.target.checked)}
+                className="rounded border-slate-600 bg-slate-800 text-[#C2A537] focus:ring-[#C2A537]"
+              />
+              <Label htmlFor="hideLocation" className="text-slate-300">
+                Ocultar local na pagina publica
+              </Label>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="imageUrl" className="text-slate-300">
                 URL da Imagem (opcional)
@@ -162,23 +204,8 @@ export function EditPostForm({
                   className="border-slate-600 bg-slate-800/50 pl-10 text-white placeholder-slate-400"
                 />
               </div>
-              {formData.imageUrl && (
-                <div className="mt-2">
-                  <Image
-                    src={formData.imageUrl}
-                    alt="Preview"
-                    width={200}
-                    height={128}
-                    className="h-32 max-w-xs rounded border border-slate-600 object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                  />
-                </div>
-              )}
             </div>
 
-            {/* Published Status */}
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
@@ -188,29 +215,42 @@ export function EditPostForm({
                 className="rounded border-slate-600 bg-slate-800 text-[#C2A537] focus:ring-[#C2A537]"
               />
               <Label htmlFor="published" className="text-slate-300">
-                Post publicado
+                Evento publicado
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="requireAttendance"
+                checked={formData.requireAttendance}
+                onChange={(e) =>
+                  handleChange("requireAttendance", e.target.checked)
+                }
+                className="rounded border-slate-600 bg-slate-800 text-[#C2A537] focus:ring-[#C2A537]"
+              />
+              <Label htmlFor="requireAttendance" className="text-slate-300">
+                Solicitar confirmação de presença
               </Label>
             </div>
 
-            {/* Metadata Info */}
             <div className="rounded-lg border border-slate-600 bg-slate-700/50 p-4">
               <h4 className="mb-2 font-medium text-slate-300">
-                Informações do Post
+                Informacoes do Evento
               </h4>
               <div className="grid gap-2 text-sm text-slate-400">
                 <div className="flex justify-between">
                   <span>Criado em:</span>
                   <span>
-                    {post.createdAt
-                      ? new Date(post.createdAt).toLocaleString("pt-BR")
+                    {event.createdAt
+                      ? new Date(event.createdAt).toLocaleString("pt-BR")
                       : "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Última atualização:</span>
+                  <span>Ultima atualizacao:</span>
                   <span>
-                    {post.updatedAt
-                      ? new Date(post.updatedAt).toLocaleString("pt-BR")
+                    {event.updatedAt
+                      ? new Date(event.updatedAt).toLocaleString("pt-BR")
                       : "N/A"}
                   </span>
                 </div>
@@ -218,16 +258,15 @@ export function EditPostForm({
                   <span>Status atual:</span>
                   <span
                     className={
-                      post.published ? "text-green-400" : "text-orange-400"
+                      event.published ? "text-green-400" : "text-orange-400"
                     }
                   >
-                    {post.published ? "Publicado" : "Rascunho"}
+                    {event.published ? "Publicado" : "Rascunho"}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex gap-4 pt-4">
               <Button
                 type="submit"
@@ -239,7 +278,7 @@ export function EditPostForm({
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}
-                {loading ? "Salvando..." : "Salvar Alterações"}
+                {loading ? "Salvando..." : "Salvar Alteracoes"}
               </Button>
 
               <Button

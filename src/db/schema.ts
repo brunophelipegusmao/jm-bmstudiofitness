@@ -302,7 +302,7 @@ export const studentHealthHistoryRelations = relations(
   }),
 );
 
-// Tabela para posts do blog
+// Tabela legada de posts (blog) - mantida para compatibilidade
 export const posts = pgTable("tb_posts", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   title: text("title").notNull(),
@@ -504,6 +504,7 @@ export const studioSettingsTable = pgTable("tb_studio_settings", {
     .notNull()
     .default(true),
   routeBlogEnabled: boolean("route_blog_enabled").notNull().default(true),
+  routeEventsEnabled: boolean("route_events_enabled").notNull().default(true),
   routeServicesEnabled: boolean("route_services_enabled")
     .notNull()
     .default(true),

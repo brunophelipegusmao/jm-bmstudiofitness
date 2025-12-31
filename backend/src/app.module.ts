@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { BlogModule } from './blog/blog.module';
+import { EventsModule } from './events/events.module';
 import { BodyMeasurementsModule } from './body-measurements/body-measurements.module';
 import { CheckInsModule } from './check-ins/check-ins.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
@@ -40,7 +40,7 @@ import { WaitlistModule } from './waitlist/waitlist.module';
     EmployeesModule,
     PlansModule,
     WaitlistModule,
-    BlogModule,
+    EventsModule,
     ExpensesModule,
     BodyMeasurementsModule,
   ],

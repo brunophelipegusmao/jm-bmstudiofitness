@@ -2,8 +2,8 @@ import {
   Body,
   Controller,
   Get,
-  Param,
   Patch,
+  Param,
   Post,
   Query,
 } from '@nestjs/common';
@@ -12,6 +12,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../database/schema';
 import { CreateHealthMetricsDto } from './dto/create-health-metrics.dto';
+import { UpdateStudentDto } from './dto/update-student.dto';
 import { QueryStudentsDto } from './dto/query-students.dto';
 import { UpdateHealthMetricsDto } from './dto/update-health-metrics.dto';
 import { StudentsService } from './students.service';
@@ -27,6 +28,15 @@ export class StudentsController {
   @Roles(UserRole.COACH, UserRole.ADMIN, UserRole.MASTER)
   findAll(@Query() queryDto: QueryStudentsDto) {
     return this.studentsService.findAll(queryDto);
+  }
+
+  /**
+   * Dados completos (ADMIN/MASTER)
+   */
+  @Get(':id/full')
+  @Roles(UserRole.ADMIN, UserRole.MASTER)
+  getFullProfile(@Param('id') id: string) {
+    return this.studentsService.getFullProfile(id);
   }
 
   /**
@@ -89,6 +99,15 @@ export class StudentsController {
       userId,
       role,
     );
+  }
+
+  /**
+   * Atualizar dados pessoais/financeiros do aluno (ADMIN/MASTER)
+   */
+  @Patch(':id')
+  @Roles(UserRole.ADMIN, UserRole.MASTER)
+  updateStudent(@Param('id') id: string, @Body() dto: UpdateStudentDto) {
+    return this.studentsService.updateStudent(id, dto);
   }
 
   /**

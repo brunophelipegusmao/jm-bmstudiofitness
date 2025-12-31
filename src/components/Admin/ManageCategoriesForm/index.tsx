@@ -136,10 +136,10 @@ export function ManageCategoriesForm() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-[#C2A537]">
-            Gerenciar Categorias
+            Gerenciar Categorias de Eventos
           </h2>
           <p className="text-slate-400">
-            Gerencie as categorias dos posts do blog
+            Gerencie categorias opcionais para eventos
           </p>
         </div>
         <Button

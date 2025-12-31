@@ -34,7 +34,7 @@ describe("🔐 Security Tests - Middleware & Route Protection", () => {
         routeCoachEnabled: true,
         routeEmployeeEnabled: true,
         routeShoppingEnabled: true,
-        routeBlogEnabled: true,
+        routeEventsEnabled: true,
         routeContactEnabled: true,
         routeServicesEnabled: true,
         routeAdminEnabled: true,
@@ -85,7 +85,7 @@ describe("🔐 Security Tests - Middleware & Route Protection", () => {
         "https://jmfitness.com/",
         "https://jmfitness.com/contact",
         "https://jmfitness.com/services",
-        "https://jmfitness.com/blog",
+        "https://jmfitness.com/events",
       ];
 
       for (const url of publicRoutes) {
@@ -232,7 +232,7 @@ describe("🔐 Security Tests - Middleware & Route Protection", () => {
         routeCoachEnabled: false,
         routeEmployeeEnabled: false,
         routeShoppingEnabled: false,
-        routeBlogEnabled: false,
+        routeEventsEnabled: false,
         routeContactEnabled: false,
         routeServicesEnabled: false,
         routeAdminEnabled: true, // Admin sempre habilitado

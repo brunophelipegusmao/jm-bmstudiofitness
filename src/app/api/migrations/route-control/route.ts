@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
       ADD COLUMN IF NOT EXISTS route_employee_enabled BOOLEAN NOT NULL DEFAULT false,
       ADD COLUMN IF NOT EXISTS route_shopping_enabled BOOLEAN NOT NULL DEFAULT false,
       ADD COLUMN IF NOT EXISTS route_blog_enabled BOOLEAN NOT NULL DEFAULT false,
+      ADD COLUMN IF NOT EXISTS route_events_enabled BOOLEAN NOT NULL DEFAULT true,
       ADD COLUMN IF NOT EXISTS route_services_enabled BOOLEAN NOT NULL DEFAULT false,
       ADD COLUMN IF NOT EXISTS route_contact_enabled BOOLEAN NOT NULL DEFAULT true,
       ADD COLUMN IF NOT EXISTS route_waitlist_enabled BOOLEAN NOT NULL DEFAULT true;

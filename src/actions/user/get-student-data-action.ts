@@ -19,9 +19,11 @@ export interface StudentData {
     updatedAt: string;
   };
   financial: {
+    id: string | null;
     paid: boolean;
     monthlyFeeValueInCents: number;
     dueDate: number;
+    paymentMethod: string | null;
     lastPaymentDate: string | null;
   };
 }

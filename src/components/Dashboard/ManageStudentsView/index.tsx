@@ -57,7 +57,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
       }
     : null;
 
-  // Hook para dialog de confirmaÃ§Ã£o
+  // Hook para dialog de confirmação
   const { confirm, isOpen, options, handleConfirm, handleCancel } =
     useConfirmDialog();
 
@@ -94,7 +94,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
     return matchesSearch && matchesFilter;
   });
 
-  // Calcular estatÃ­sticas
+  // Calcular estatísticas
   const stats = {
     total: students.length,
     active: students.filter((s) => s.isPaymentUpToDate).length,
@@ -145,8 +145,8 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
     try {
       setActionLoading(true);
 
-      // Como nÃ£o temos um campo isActive direto, esta funcionalidade
-      // precisaria ser expandida com base na lÃ³gica de negÃ³cio
+      // Como não temos um campo isActive direto, esta funcionalidade
+      // precisaria ser expandida com base na lógica de negócio
       showSuccessToast(
         `Status de ${student.name}: ${student.isPaymentUpToDate ? "Em dia" : "Pendente"}`,
       );
@@ -164,7 +164,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
   };
 
   const handleViewStudent = (student: StudentFullData) => {
-    // Redirecionar para pÃ¡gina de detalhes ou abrir modal
+    // Redirecionar para página de detalhes ou abrir modal
     console.log("View student:", student);
     showSuccessToast(`Visualizando ${student.name}`);
   };
@@ -173,7 +173,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
     try {
       const confirmed = await confirm({
         title: "Excluir Aluno",
-        message: `Tem certeza que deseja excluir o aluno "${student.name}"? Esta aÃ§Ã£o nÃ£o pode ser desfeita.`,
+        message: `Tem certeza que deseja excluir o aluno "${student.name}"? Esta ação não pode ser desfeita.`,
         confirmText: "Excluir",
         cancelText: "Cancelar",
         type: "danger",
@@ -185,7 +185,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
           await deleteStudentAction(student.userId);
 
         if (result.success) {
-          showSuccessToast(`Aluno "${student.name}" excluÃ­do com sucesso!`);
+          showSuccessToast(`Aluno "${student.name}" excluído com sucesso!`);
           // Recarregar lista
           const data = await getAllStudentsFullDataAction();
           setStudents(data);
@@ -223,7 +223,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
           variant="outline"
           className="border-slate-600 text-slate-300 hover:bg-slate-800"
         >
-          â† Voltar
+          † Voltar
         </Button>
       </div>
 
@@ -454,7 +454,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
         </CardContent>
       </Card>
 
-      {/* Modal de EdiÃ§Ã£o */}
+      {/* Modal de Edição */}
       {studentForModal && (
         <EditStudentModal
           isOpen={isEditModalOpen}
@@ -464,14 +464,14 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
           }}
           student={studentForModal}
           onSuccess={async () => {
-            // Recarregar lista apÃ³s ediÃ§Ã£o
+            // Recarregar lista após edição
             const data = await getAllStudentsFullDataAction();
             setStudents(data);
           }}
         />
       )}
 
-      {/* Dialog de confirmaÃ§Ã£o */}
+      {/* Dialog de confirmação */}
       <ConfirmDialog
         isOpen={isOpen}
         onClose={handleCancel}
@@ -485,4 +485,5 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
     </motion.div>
   );
 }
+
 

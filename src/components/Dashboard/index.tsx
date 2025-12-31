@@ -1,8 +1,7 @@
 export { AdministrativeTab } from "./AdministrativeTab";
 export { AdminTabs } from "./AdminTabs";
-export { BlogTab } from "./BlogTab";
+export { EventsTab } from "./BlogTab";
 export { ConfigurationTab } from "./ConfigurationTab";
-export { CreatePostForm } from "./CreatePostForm";
 export { DashboardHeader } from "./DashboardHeader";
 export { EditPostForm } from "./EditPostForm";
 export { EmployeeTab } from "./EmployeeTab";

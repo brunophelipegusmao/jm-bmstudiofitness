@@ -67,11 +67,11 @@ const menuItems: SidebarItem[] = [
     description: "Gestão financeira",
   },
   {
-    id: "blog",
-    label: "Blog",
+    id: "events",
+    label: "Eventos",
     icon: FileText,
-    href: "/admin/dashboard?tab=blog",
-    description: "Gerenciar posts",
+    href: "/admin/dashboard?tab=events",
+    description: "Gerenciar eventos",
   },
   {
     id: "plans",

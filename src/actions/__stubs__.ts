@@ -9,7 +9,7 @@
  * TODO: Remover este arquivo quando todos os componentes migrarem para API
  */
 
-import type { Post } from "@/types/posts";
+import type { Event } from "@/types/events";
 
 // ============================================
 // ADMIN ACTIONS
@@ -343,7 +343,7 @@ export async function incrementPostViewsAction(...args: any[]) {
 
 export async function getPublishedPostBySlugAction(
   ...args: any[]
-): Promise<Post | null> {
+): Promise<Event | null> {
   console.warn("[STUB] getPublishedPostBySlugAction chamado");
   return null;
 }

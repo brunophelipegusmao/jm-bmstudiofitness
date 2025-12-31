@@ -8,7 +8,7 @@ type RouteSettings = {
   routeCoachEnabled?: boolean;
   routeEmployeeEnabled?: boolean;
   routeShoppingEnabled?: boolean;
-  routeBlogEnabled?: boolean;
+  routeEventsEnabled?: boolean;
   routeServicesEnabled?: boolean;
   routeContactEnabled?: boolean;
   routeWaitlistEnabled?: boolean;
@@ -86,7 +86,7 @@ export async function middleware(request: NextRequest) {
           prefix: "/shopping",
           enabled: routeSettings.routeShoppingEnabled ?? false,
         },
-        { prefix: "/blog", enabled: routeSettings.routeBlogEnabled ?? false },
+        { prefix: "/events", enabled: routeSettings.routeEventsEnabled ?? false },
         {
           prefix: "/services",
           enabled: routeSettings.routeServicesEnabled ?? false,

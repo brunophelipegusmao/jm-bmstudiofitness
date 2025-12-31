@@ -8,12 +8,20 @@ const DEFAULT_API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
 function resolveBaseUrl() {
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
+  // Em navegador, se houver URL absoluta configurada, usa; caso contrário, usa a origem atual.
+  if (typeof window !== "undefined") {
+    if (
+      process.env.NEXT_PUBLIC_API_URL &&
+      /^https?:\/\//.test(process.env.NEXT_PUBLIC_API_URL)
+    ) {
+      return process.env.NEXT_PUBLIC_API_URL;
+    }
+    return `${window.location.origin}/api`;
   }
 
-  if (typeof window !== "undefined") {
-    return `${window.location.origin}/api`;
+  // Em SSR/Node, respeita variáveis de ambiente ou fallback local
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
   }
 
   return DEFAULT_API_URL;
@@ -175,6 +183,46 @@ class ApiClient {
       console.error("Erro na requisição:", error);
       throw error;
     }
+  }
+
+  /**
+   * RequisiÇõÇœo para binÇ­rios (PDF, etc)
+   */
+  async requestBinary(
+    endpoint: string,
+    options: RequestInit = {},
+  ): Promise<ArrayBuffer> {
+    const url = `${this.baseUrl}${endpoint}`;
+    const headers: Record<string, string> = {
+      ...((options.headers as Record<string, string>) || {}),
+    };
+
+    if (this.accessToken) {
+      headers["Authorization"] = `Bearer ${this.accessToken}`;
+    }
+
+    let response = await fetch(url, { ...options, headers });
+
+    if (response.status === 401 && this.refreshToken) {
+      const renewed = await this.refreshAccessToken();
+      if (renewed) {
+        headers["Authorization"] = `Bearer ${this.accessToken}`;
+        response = await fetch(url, { ...options, headers });
+      }
+    }
+
+    if (!response.ok) {
+      let message = "Erro na requisiÇõÇœo";
+      try {
+        const err = await response.json();
+        message = (err as ApiError).message ?? message;
+      } catch {
+        /* ignore */
+      }
+      throw new Error(message);
+    }
+
+    return await response.arrayBuffer();
   }
 
   /**

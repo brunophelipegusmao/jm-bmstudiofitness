@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Nossos Planos e Serviços",
+  title: "Nossos Planos",
   description:
-    "Conheça os planos do JM Fitness Studio: treinos personalizados, acompanhamento profissional, funcional e muito mais. Escolha o melhor plano para sua saúde e bem-estar!",
+    "Conheca os planos do JM Fitness Studio: treinos personalizados, acompanhamento profissional e muito mais. Escolha o melhor plano para sua saude e bem-estar!",
   openGraph: {
-    title: "Nossos Planos e Serviços | JM Fitness Studio",
+    title: "Nossos Planos | JM Fitness Studio",
     description:
-      "Descubra a variedade de planos e serviços que oferecemos para transformar sua jornada de saúde e bem-estar em uma experiência única e personalizada.",
+      "Descubra a variedade de planos que oferecemos para transformar sua jornada de saude e bem-estar em uma experiencia unica e personalizada.",
   },
 };
 

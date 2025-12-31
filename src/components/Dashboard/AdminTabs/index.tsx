@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -7,7 +7,7 @@ import { AdminPlansTab } from "@/components/Admin/AdminPlansTab";
 import { AdminSettingsTab } from "@/components/Admin/AdminSettingsTab";
 import { AdminSidebar } from "@/components/Admin/AdminSidebar";
 import { AdministrativeTab } from "@/components/Dashboard/AdministrativeTab";
-import { BlogTab } from "@/components/Dashboard/BlogTab";
+import { EventsTab } from "@/components/Dashboard/BlogTab";
 import { EmployeeTab } from "@/components/Dashboard/EmployeeTab";
 import { FinancialTab } from "@/components/Dashboard/FinancialTab";
 import { StudentsTab } from "@/components/Dashboard/StudentsTab";
@@ -21,11 +21,14 @@ interface AdminTabsProps {
 export function AdminTabs({ students, onStudentsChange }: AdminTabsProps) {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
-  const [activeTab, setActiveTab] = useState(tabParam || "administrative");
+  const normalizedTab = tabParam === "blog" ? "events" : tabParam;
+  const [activeTab, setActiveTab] = useState(
+    normalizedTab || "administrative",
+  );
 
   useEffect(() => {
     if (tabParam) {
-      setActiveTab(tabParam);
+      setActiveTab(tabParam === "blog" ? "events" : tabParam);
     }
   }, [tabParam]);
 
@@ -42,28 +45,29 @@ export function AdminTabs({ students, onStudentsChange }: AdminTabsProps) {
             <h1 className="mb-2 text-3xl font-bold text-[#C2A537]">
               {activeTab === "administrative" && "Painel Administrativo"}
               {activeTab === "students" && "Consultar Alunos"}
-              {activeTab === "users" && "Gerenciar Usuários"}
-              {activeTab === "employee" && "Funcionários"}
-              {activeTab === "financial" && "Gestão Financeira"}
-              {activeTab === "blog" && "Gerenciar Blog"}
-              {activeTab === "plans" && "Planos e Serviços"}
-              {activeTab === "settings" && "Configurações do Estúdio"}
+              {activeTab === "users" && "Gerenciar Usuarios"}
+              {activeTab === "employee" && "Funcionarios"}
+              {activeTab === "financial" && "Gestao Financeira"}
+              {activeTab === "events" && "Gerenciar Eventos"}
+              {activeTab === "plans" && "Planos"}
+              {activeTab === "settings" && "Configuracoes do Estudio"}
             </h1>
             <p className="text-slate-400">
               {activeTab === "administrative" &&
-                "Cadastre novos alunos e gerencie dados do estúdio"}
+                "Cadastre novos alunos e gerencie dados do estudio"}
               {activeTab === "students" &&
                 "Busque e visualize dados completos dos alunos"}
               {activeTab === "users" &&
-                "Gerencie usuários e permissões do sistema"}
-              {activeTab === "employee" && "Gerencie funcionários e seus dados"}
+                "Gerencie usuarios e permissoes do sistema"}
+              {activeTab === "employee" &&
+                "Gerencie funcionarios e seus dados"}
               {activeTab === "financial" &&
-                "Acompanhe relatórios e gestão financeira"}
-              {activeTab === "blog" && "Crie e gerencie posts do blog"}
+                "Acompanhe relatorios e gestao financeira"}
+              {activeTab === "events" && "Crie e gerencie eventos"}
               {activeTab === "plans" &&
-                "Gerencie os planos exibidos na página de serviços"}
+                "Gerencie os planos exibidos na pagina de planos"}
               {activeTab === "settings" &&
-                "Configure lista de espera e outros ajustes do estúdio"}
+                "Configure lista de espera e outros ajustes do estudio"}
             </p>
           </div>
 
@@ -84,7 +88,7 @@ export function AdminTabs({ students, onStudentsChange }: AdminTabsProps) {
             {activeTab === "users" && <UserManagementContainer />}
             {activeTab === "employee" && <EmployeeTab />}
             {activeTab === "financial" && <FinancialTab />}
-            {activeTab === "blog" && <BlogTab />}
+            {activeTab === "events" && <EventsTab />}
             {activeTab === "plans" && <AdminPlansTab />}
             {activeTab === "settings" && <AdminSettingsTab />}
           </div>

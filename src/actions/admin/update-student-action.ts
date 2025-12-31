@@ -9,7 +9,7 @@ export interface UpdateStudentData {
   address?: string;
   sex?: string;
   bornDate?: string;
-  monthlyFee?: number;
+  monthlyFeeValueInCents?: number;
   paymentMethod?: string;
   dueDate?: number;
   planId?: string;

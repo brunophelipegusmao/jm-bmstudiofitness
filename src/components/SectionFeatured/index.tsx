@@ -199,15 +199,6 @@ export default function SectionFeatured() {
               className="font-oswald relative bg-linear-to-r from-[#FFD700] via-[#C2A537] to-[#B8941F] bg-clip-text py-6 text-3xl font-bold text-transparent drop-shadow-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
             >
               <motion.span
-                initial={{ opacity: 0, y: -20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                viewport={{ once: true }}
-                className="font-oswald block animate-pulse"
-              >
-                Bem-vindo ao
-              </motion.span>
-              <motion.span
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, delay: 0.7 }}

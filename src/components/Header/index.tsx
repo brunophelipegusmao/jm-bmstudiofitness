@@ -29,8 +29,8 @@ export function Header() {
   const isCoachPage =
     pathname.startsWith("/coach") && !pathname.includes("/login");
   // isDashboardPage removed (not used) - keep individual flags
-  const isBlogPage = pathname?.startsWith("/blog");
-  const isServicesPage = pathname?.startsWith("/services");
+  const isEventsPage = pathname?.startsWith("/events");
+  const isPlansPage = pathname?.startsWith("/services");
   const isContactPage = pathname?.startsWith("/contact");
   const isStudentPage = pathname?.startsWith("/user");
 
@@ -529,13 +529,13 @@ export function Header() {
           >
             <Link
               href="/services"
-              className={isServicesPage ? primaryButton : secondaryButton}
-              aria-current={isServicesPage ? "page" : undefined}
+              className={isPlansPage ? primaryButton : secondaryButton}
+              aria-current={isPlansPage ? "page" : undefined}
             >
-              Serviços
+              Planos
             </Link>
           </motion.li>
-          {/* Blotão para o Blog - grande e destacado */}
+          {/* Botão para Eventos */}
           <motion.li
             initial={{ opacity: 0, y: -20, scale: 0.88 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -551,16 +551,16 @@ export function Header() {
             }}
           >
             <Link
-              href="/blog"
-              aria-label="Ir para o blog"
-              aria-current={isBlogPage ? "page" : undefined}
+              href="/events"
+              aria-label="Ir para eventos"
+              aria-current={isEventsPage ? "page" : undefined}
               className={
-                isBlogPage
+                isEventsPage
                   ? `${primaryButton} px-6 py-3 text-sm md:text-base`
                   : `${secondaryButton} px-6 py-3 text-sm md:text-base`
               }
             >
-              Blog
+              Eventos
             </Link>
           </motion.li>
           <motion.li
@@ -903,12 +903,12 @@ export function Header() {
                   <Link
                     href="/services"
                     className={
-                      isServicesPage
+                      isPlansPage
                         ? `${primaryButton} block w-full text-center`
                         : `${secondaryButton} block w-full text-center`
                     }
                     onClick={() => setIsMenuOpen(false)}
-                    aria-current={isServicesPage ? "page" : undefined}
+                    aria-current={isPlansPage ? "page" : undefined}
                   >
                     <div className="flex items-center justify-center space-x-2">
                       <svg
@@ -918,7 +918,7 @@ export function Header() {
                       >
                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                       </svg>
-                      <span>Serviços</span>
+                      <span>Planos</span>
                     </div>
                   </Link>
                 </motion.li>
@@ -944,15 +944,15 @@ export function Header() {
                   }}
                 >
                   <Link
-                    href="/blog"
+                    href="/events"
                     className={
-                      isBlogPage
+                      isEventsPage
                         ? `${primaryButton} block w-full text-center`
                         : `${secondaryButton} block w-full text-center`
                     }
                     onClick={() => setIsMenuOpen(false)}
-                    aria-label="Ir para o blog"
-                    aria-current={isBlogPage ? "page" : undefined}
+                    aria-label="Ir para eventos"
+                    aria-current={isEventsPage ? "page" : undefined}
                   >
                     <div className="flex items-center justify-center space-x-2">
                       <svg
@@ -962,7 +962,7 @@ export function Header() {
                       >
                         <path d="M4 4h16v2H4zM4 9h10v2H4zM4 14h16v2H4z" />
                       </svg>
-                      <span>Blog</span>
+                      <span>Eventos</span>
                     </div>
                   </Link>
                 </motion.li>
