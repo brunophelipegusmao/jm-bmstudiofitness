@@ -14,7 +14,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../database/schema';
 import { CreateFinancialDto } from './dto/create-financial.dto';
 import { QueryFinancialDto } from './dto/query-financial.dto';
-import { MarkAsPaidDto,UpdateFinancialDto } from './dto/update-financial.dto';
+import { MarkAsPaidDto, UpdateFinancialDto } from './dto/update-financial.dto';
 import { FinancialService } from './financial.service';
 
 @Controller('financial')
@@ -31,9 +31,10 @@ export class FinancialController {
   }
 
   /**
-   * Listar registros (com permissões)
+   * Listar registros (restrito a ADMIN/MASTER)
    */
   @Get()
+  @Roles(UserRole.ADMIN, UserRole.MASTER)
   findAll(
     @Query() queryDto: QueryFinancialDto,
     @CurrentUser('userId') userId: string,
@@ -52,9 +53,10 @@ export class FinancialController {
   }
 
   /**
-   * Buscar por ID
+   * Buscar por ID (restrito a ADMIN/MASTER)
    */
   @Get(':id')
+  @Roles(UserRole.ADMIN, UserRole.MASTER)
   findOne(
     @Param('id') id: string,
     @CurrentUser('userId') userId: string,
@@ -64,9 +66,10 @@ export class FinancialController {
   }
 
   /**
-   * Buscar por usuário
+   * Buscar por usuário (restrito a ADMIN/MASTER)
    */
   @Get('user/:userId')
+  @Roles(UserRole.ADMIN, UserRole.MASTER)
   findByUser(
     @Param('userId') targetUserId: string,
     @CurrentUser('userId') userId: string,

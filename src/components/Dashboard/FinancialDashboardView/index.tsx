@@ -8,17 +8,15 @@ import {
   CreditCard,
   DollarSign,
   FileText,
-  TrendingDown,
   TrendingUp,
   Users,
   Zap,
 } from "lucide-react";
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   type DashboardDetailedData,
   getDashboardDetailedAction,
-  type StudentWithDueDate,
 } from "@/actions/admin/get-dashboard-detailed-action";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,12 +51,7 @@ export function FinancialDashboardView({
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      const timeframe = selectedTimeframe as
-        | "today"
-        | "week"
-        | "month"
-        | "overdue";
-      const result = await getDashboardDetailedAction(timeframe);
+      const result = await getDashboardDetailedAction();
 
       if (result.success && result.data) {
         setDashboardData(result.data);

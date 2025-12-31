@@ -1146,7 +1146,9 @@ function HealthDataModal({
       {/* Info de Atualização */}
       <div className="text-center text-sm text-slate-500">
         Última atualização:{" "}
-        {new Date(student.healthUpdatedAt).toLocaleString("pt-BR")}
+        {student.healthUpdatedAt
+          ? new Date(student.healthUpdatedAt).toLocaleString("pt-BR")
+          : "-"}
       </div>
     </div>
   );
@@ -1281,7 +1283,7 @@ function FinancialDataModal({
             <input
               type="number"
               step="0.01"
-              value={(formData.monthlyFeeValueInCents / 100).toFixed(2)}
+              value={((formData.monthlyFeeValueInCents ?? 0) / 100).toFixed(2)}
               onChange={(e) =>
                 setFormData({
                   ...formData,
@@ -1341,7 +1343,9 @@ function FinancialDataModal({
           </select>
         ) : (
           <p className="mt-2 text-xl font-semibold text-white capitalize">
-            {student.paymentMethod.replace("_", " ")}
+            {student.paymentMethod
+              ? student.paymentMethod.replace("_", " ")
+              : "-"}
           </p>
         )}
       </div>

@@ -9,18 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-  excerpt: string;
-  imageUrl: string | null;
-  published: boolean;
-  authorId: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import type { Post } from "@/types/posts";
 
 interface EditPostFormProps {
   post: Post;
@@ -45,10 +34,10 @@ export function EditPostForm({
   useEffect(() => {
     setFormData({
       title: post.title,
-      content: post.content,
-      excerpt: post.excerpt,
+      content: post.content ?? "",
+      excerpt: post.excerpt ?? "",
       imageUrl: post.imageUrl || "",
-      published: post.published,
+      published: post.published ?? false,
     });
   }, [post]);
 
@@ -212,13 +201,17 @@ export function EditPostForm({
                 <div className="flex justify-between">
                   <span>Criado em:</span>
                   <span>
-                    {new Date(post.createdAt).toLocaleString("pt-BR")}
+                    {post.createdAt
+                      ? new Date(post.createdAt).toLocaleString("pt-BR")
+                      : "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Última atualização:</span>
                   <span>
-                    {new Date(post.updatedAt).toLocaleString("pt-BR")}
+                    {post.updatedAt
+                      ? new Date(post.updatedAt).toLocaleString("pt-BR")
+                      : "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between">

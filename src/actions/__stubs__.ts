@@ -164,7 +164,12 @@ export async function getDashboardDetailedAction(...args: any[]) {
 
 export async function getStudentMonthlyPaymentsAction(...args: any[]) {
   console.warn("[STUB] getStudentMonthlyPaymentsAction chamado");
-  return { success: false, payments: [] };
+  return {
+    success: false,
+    payments: [],
+    data: [],
+    error: "Funcionalidade em migração",
+  };
 }
 
 // ============================================
@@ -178,7 +183,7 @@ export async function employeeCheckInAction(...args: any[]) {
 
 export async function getTodayCheckInsAction(...args: any[]) {
   console.warn("[STUB] getTodayCheckInsAction chamado");
-  return { success: false, checkIns: [] };
+  return { success: true, message: "", checkIns: [], stats: { totalCheckIns: 0, thisMonth: 0, thisWeek: 0, lastCheckIn: null } };
 }
 
 export async function generateReceiptAction(...args: any[]) {
@@ -193,12 +198,12 @@ export async function manualReceiptAction(...args: any[]) {
 
 export async function generateManualReceiptAction(...args: any[]) {
   console.warn("[STUB] generateManualReceiptAction chamado");
-  return { success: false, message: "Funcionalidade em migração" };
+  return { success: false, message: "Funcionalidade em migração", data: null };
 }
 
 export async function getReceiptsLogAction(...args: any[]) {
   console.warn("[STUB] getReceiptsLogAction chamado");
-  return { success: false, receipts: [] };
+  return { success: false, receipts: [], data: [] };
 }
 
 export type ManualReceiptData = any;
@@ -209,7 +214,11 @@ export type ManualReceiptData = any;
 
 export async function quickCheckInAction(...args: any[]) {
   console.warn("[STUB] quickCheckInAction chamado");
-  return { success: false, message: "Funcionalidade em migração" };
+  return {
+    success: false,
+    message: "Funcionalidade em migração",
+    userName: "",
+  };
 }
 
 export async function createAlunoAction(...args: any[]) {
@@ -232,7 +241,11 @@ export async function getPublishedPostsAction(...args: any[]) {
 
 export async function createFirstAdmin(...args: any[]) {
   console.warn("[STUB] createFirstAdmin chamado");
-  return { success: false, message: "Funcionalidade em migração" };
+  return {
+    success: false,
+    message: "Funcionalidade em migração",
+    error: "Funcionalidade em migração",
+  };
 }
 
 export async function checkDatabase(...args: any[]) {
@@ -297,12 +310,21 @@ export async function getWaitlistAdminAction(...args: any[]) {
 
 export async function createUserAction(...args: any[]) {
   console.warn("[STUB] createUserAction chamado");
-  return { success: false, message: "Funcionalidade em migração", error: "Funcionalidade em migração", user: null };
+  return {
+    success: false,
+    message: "Funcionalidade em migração",
+    error: "Funcionalidade em migração",
+    user: null,
+  };
 }
 
 export async function deleteUserAction(...args: any[]) {
   console.warn("[STUB] deleteUserAction chamado");
-  return { success: false, message: "Funcionalidade em migração", error: "Funcionalidade em migração" };
+  return {
+    success: false,
+    message: "Funcionalidade em migração",
+    error: "Funcionalidade em migração",
+  };
 }
 
 export async function getAllUsersAction(...args: any[]) {
@@ -319,7 +341,9 @@ export async function incrementPostViewsAction(...args: any[]) {
   return { success: true };
 }
 
-export async function getPublishedPostBySlugAction(...args: any[]): Promise<Post | null> {
+export async function getPublishedPostBySlugAction(
+  ...args: any[]
+): Promise<Post | null> {
   console.warn("[STUB] getPublishedPostBySlugAction chamado");
   return null;
 }
@@ -429,7 +453,7 @@ export async function getPlansAction(...args: any[]) {
 
 export async function getPublicPlansAction(...args: any[]) {
   console.warn("[STUB] getPublicPlansAction chamado");
-  return [];
+  return { success: true, data: [] };
 }
 
 export type Plan = any;
@@ -441,7 +465,7 @@ export type PublicPlan = any;
 
 export async function getStudentsHealthDataAction(...args: any[]) {
   console.warn("[STUB] getStudentsHealthDataAction chamado");
-  return { success: false, students: [] };
+  return [] as StudentHealthData[];
 }
 
 export async function professorCheckInAction(...args: any[]) {
@@ -451,7 +475,7 @@ export async function professorCheckInAction(...args: any[]) {
 
 export async function getProfessorCheckInsAction(...args: any[]) {
   console.warn("[STUB] getProfessorCheckInsAction chamado");
-  return { success: false, checkIns: [] };
+  return { success: true, message: "", checkIns: [], stats: { totalCheckIns: 0, thisMonth: 0, thisWeek: 0, lastCheckIn: null } };
 }
 
 export async function updateCoachObservationsAction(...args: any[]) {
@@ -494,7 +518,12 @@ export async function getMyPaymentStatusAction(...args: any[]) {
 
 export async function generatePaymentReceiptAction(...args: any[]) {
   console.warn("[STUB] generatePaymentReceiptAction chamado");
-  return { success: false, message: "Funcionalidade em migração" };
+  return {
+    success: false,
+    message: "Funcionalidade em migração",
+    data: null,
+    error: "Funcionalidade em migração",
+  };
 }
 
 export type PaymentReceiptData = any;
@@ -521,7 +550,7 @@ export async function addStudentHealthEntryAction(...args: any[]) {
 
 export async function getStudentHealthHistoryAction(...args: any[]) {
   console.warn("[STUB] getStudentHealthHistoryAction chamado");
-  return { success: false, entries: [] };
+  return { success: false, message: "Funcionalidade em migra??o", history: [], currentHealth: null };
 }
 
 export async function checkInAction(...args: any[]) {
@@ -536,22 +565,22 @@ export async function confirmUserAction(...args: any[]) {
 
 export async function getCheckInsAction(...args: any[]) {
   console.warn("[STUB] getCheckInsAction chamado");
-  return { success: false, checkIns: [] };
+  return { success: true, message: "", checkIns: [], stats: { totalCheckIns: 0, thisMonth: 0, thisWeek: 0, lastCheckIn: null } };
 }
 
 export async function getStudentCheckInsAction(...args: any[]) {
   console.warn("[STUB] getStudentCheckInsAction chamado");
-  return { success: false, checkIns: [] };
+  return { success: true, message: "", checkIns: [], stats: { totalCheckIns: 0, thisMonth: 0, thisWeek: 0, lastCheckIn: null } };
 }
 
 export async function getHealthHistoryAction(...args: any[]) {
   console.warn("[STUB] getHealthHistoryAction chamado");
-  return { success: false, entries: [] };
+  return { success: false, message: "Funcionalidade em migra??o", history: [], currentHealth: null };
 }
 
 export async function getStudentDataAction(...args: any[]) {
   console.warn("[STUB] getStudentDataAction chamado");
-  return null;
+  return { success: false, message: "Funcionalidade em migra??o", data: null };
 }
 
 // ============================================
@@ -570,5 +599,13 @@ export async function testDatabaseConnection(...args: any[]) {
 
 export async function getDatabaseInfo(...args: any[]) {
   console.warn("[STUB] getDatabaseInfo chamado");
-  return { success: false, info: null };
+  return {
+    configured: false,
+    message: "Informações de banco de dados não disponíveis (stub)",
+    error: "Funcionalidade em migração",
+    host: "",
+    port: "",
+    database: "",
+    username: "",
+  };
 }

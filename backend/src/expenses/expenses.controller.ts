@@ -20,6 +20,7 @@ import {
   UpdateExpenseDto,
   QueryExpensesDto,
 } from './dto/expense.dto';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @Controller('expenses')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -57,8 +58,12 @@ export class ExpensesController {
 
   @Post()
   @Roles(UserRole.ADMIN, UserRole.MASTER)
-  async create(@Body() dto: CreateExpenseDto, @Request() req: any) {
-    return this.expensesService.create(dto, req.user.id);
+  // Corrigir acesso ao id do usuário
+  async create(
+    @Body() dto: CreateExpenseDto,
+    @CurrentUser() user: import('../auth/interfaces/auth.interface').JwtPayload,
+  ) {
+    return this.expensesService.create(dto, user.sub);
   }
 
   @Patch(':id')

@@ -5,8 +5,10 @@ import {
   Inject,
 } from '@nestjs/common';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import * as schema from '../database/schema';
 import { tbWaitlist, tbPlans } from '../database/schema';
 import { eq, desc, and, ilike, or } from 'drizzle-orm';
+import type { SQLWrapper } from 'drizzle-orm';
 import {
   CreateWaitlistDto,
   UpdateWaitlistDto,
@@ -19,11 +21,11 @@ import {
 export class WaitlistService {
   constructor(
     @Inject('DATABASE')
-    private readonly db: NeonHttpDatabase<any>,
+    private readonly db: NeonHttpDatabase<typeof schema>,
   ) {}
 
   async findAll(query: QueryWaitlistDto = {}) {
-    const conditions: any[] = [];
+    const conditions: SQLWrapper[] = [];
 
     if (query.status) {
       conditions.push(eq(tbWaitlist.status, query.status));
@@ -34,14 +36,19 @@ export class WaitlistService {
     }
 
     if (query.search) {
-      conditions.push(
-        or(
-          ilike(tbWaitlist.name, `%${query.search}%`),
-          ilike(tbWaitlist.email, `%${query.search}%`),
-          ilike(tbWaitlist.phone, `%${query.search}%`),
-        ),
-      );
+      const searchConditions: SQLWrapper[] = [];
+      if (query.search) {
+        searchConditions.push(ilike(tbWaitlist.name, `%${query.search}%`));
+        searchConditions.push(ilike(tbWaitlist.email, `%${query.search}%`));
+        searchConditions.push(ilike(tbWaitlist.phone, `%${query.search}%`));
+      }
+
+      if (searchConditions.length > 0) {
+        conditions.push(or(...searchConditions) as SQLWrapper);
+      }
     }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
     const entries = await this.db
       .select({
@@ -66,7 +73,7 @@ export class WaitlistService {
       })
       .from(tbWaitlist)
       .leftJoin(tbPlans, eq(tbWaitlist.interestPlanId, tbPlans.id))
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .where(whereClause)
       .orderBy(desc(tbWaitlist.createdAt));
 
     return entries;

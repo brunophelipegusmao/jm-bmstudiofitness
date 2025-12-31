@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import * as schema from '../database/schema';
 import { tbBodyMeasurements, tbUsers } from '../database/schema';
 import { eq, desc, and, gte, lte } from 'drizzle-orm';
+import type { SQLWrapper } from 'drizzle-orm';
 import {
   CreateBodyMeasurementDto,
   UpdateBodyMeasurementDto,
@@ -12,11 +14,11 @@ import {
 export class BodyMeasurementsService {
   constructor(
     @Inject('DATABASE')
-    private readonly db: NeonHttpDatabase<any>,
+    private readonly db: NeonHttpDatabase<typeof schema>,
   ) {}
 
   async findAll(query: QueryMeasurementsDto = {}) {
-    const conditions: any[] = [];
+    const conditions: SQLWrapper[] = [];
 
     if (query.studentId) {
       conditions.push(eq(tbBodyMeasurements.userId, query.studentId));
@@ -29,6 +31,8 @@ export class BodyMeasurementsService {
     if (query.endDate) {
       conditions.push(lte(tbBodyMeasurements.measurementDate, query.endDate));
     }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
     const measurements = await this.db
       .select({
@@ -58,7 +62,7 @@ export class BodyMeasurementsService {
       })
       .from(tbBodyMeasurements)
       .innerJoin(tbUsers, eq(tbBodyMeasurements.userId, tbUsers.id))
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .where(whereClause)
       .orderBy(desc(tbBodyMeasurements.measurementDate));
 
     return measurements;

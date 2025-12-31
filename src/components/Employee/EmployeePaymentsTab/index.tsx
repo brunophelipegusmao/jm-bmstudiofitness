@@ -48,7 +48,11 @@ export function EmployeePaymentsTab() {
         setPayments(result.data);
         setFilteredPayments(result.data);
       } else {
-        setError(result.error || "Erro ao carregar pagamentos");
+        const errorMessage =
+          (result as { error?: string; message?: string }).error ||
+          (result as { message?: string }).message ||
+          "Erro ao carregar pagamentos";
+        setError(errorMessage);
       }
     } catch {
       setError("Erro ao carregar dados de pagamentos");
@@ -80,7 +84,11 @@ export function EmployeePaymentsTab() {
       if (result.success) {
         await loadPayments();
       } else {
-        alert(result.error || "Erro ao atualizar status");
+        const errorMessage =
+          (result as { error?: string; message?: string }).error ||
+          (result as { message?: string }).message ||
+          "Erro ao atualizar status";
+        alert(errorMessage);
       }
     } catch {
       alert("Erro ao processar operação");
@@ -97,7 +105,11 @@ export function EmployeePaymentsTab() {
         setReceiptData(result.data);
         setShowReceipt(true);
       } else {
-        alert(result.error || "Erro ao gerar recibo");
+        const errorMessage =
+          (result as { error?: string; message?: string }).error ||
+          (result as { message?: string }).message ||
+          "Erro ao gerar recibo";
+        alert(errorMessage);
       }
     } catch {
       alert("Erro ao gerar recibo");

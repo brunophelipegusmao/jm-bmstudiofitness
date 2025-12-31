@@ -1,30 +1,44 @@
 version: "3.8"
 
 services:
+  # API NestJS
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: jmfitnessstudio-backend
+    restart: always
+    env_file:
+      - backend/.env
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    ports:
+      - "3001:3001"
+    networks:
+      - jmfitnessstudio-network
+
   # Aplicação Next.js
   app:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://backend:3001/api
     container_name: jmfitnessstudio-app
     restart: always
     environment:
       - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://backend:3001/api
       - PORT=3000
     env_file:
-      - .env.production
+      - .env
+    depends_on:
+      - backend
     networks:
       - jmfitnessstudio-network
     healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--quiet",
-          "--tries=1",
-          "--spider",
-          "http://localhost:3000/api/health",
-        ]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -43,6 +57,7 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
     depends_on:
       - app
+      - backend
     networks:
       - jmfitnessstudio-network
 
@@ -59,7 +74,7 @@ services:
       - GENERIC_TIMEZONE=America/Sao_Paulo
       - N8N_PATH=/n8n/
     env_file:
-      - .env.production
+      - .env
     volumes:
       - n8n-data:/home/node/.n8n
     networks:

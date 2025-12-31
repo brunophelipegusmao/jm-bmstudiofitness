@@ -1,9 +1,20 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 export class LoginDto {
   @IsEmail()
-  @IsNotEmpty()
-  email: string;
+  @IsOptional()
+  email?: string;
+
+  // Permite login usando "login" (email ou CPF)
+  @IsString()
+  @IsOptional()
+  login?: string;
 
   @IsString()
   @IsNotEmpty()
@@ -30,16 +41,16 @@ export class RegisterDto {
   cpf: string;
 
   @IsString()
-  @IsNotEmpty()
-  bornDate: string;
+  @IsOptional()
+  bornDate?: string;
 
   @IsString()
-  @IsNotEmpty()
-  address: string;
+  @IsOptional()
+  address?: string;
 
   @IsString()
-  @IsNotEmpty()
-  telephone: string;
+  @IsOptional()
+  telephone?: string;
 
   @IsString()
   role?: string;

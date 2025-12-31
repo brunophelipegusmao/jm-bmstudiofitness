@@ -3,6 +3,7 @@
 import { Edit3, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import type { Category } from "@/actions/admin/manage-categories-action";
 import {
   createCategoryAction,
   deleteCategoryAction,
@@ -13,15 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  description: string | null;
-  color: string;
-  createdAt: Date;
-}
 
 export function ManageCategoriesForm() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -42,7 +34,12 @@ export function ManageCategoriesForm() {
     try {
       setLoading(true);
       const data = await getCategoriesAction();
-      setCategories(data);
+      setCategories(
+        data.map((cat) => ({
+          ...cat,
+          slug: cat.slug ?? "",
+        })),
+      );
     } catch (error) {
       console.error("Error loading categories:", error);
       if (
@@ -97,13 +94,13 @@ export function ManageCategoriesForm() {
     setFormData({
       name: category.name,
       description: category.description || "",
-      color: category.color,
+      color: category.color ?? "#64748b",
     });
     setEditingCategory(category);
     setShowCreateForm(true);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja excluir esta categoria?")) {
       return;
     }

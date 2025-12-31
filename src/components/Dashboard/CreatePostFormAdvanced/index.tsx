@@ -3,20 +3,15 @@
 import { ArrowLeft, ImageIcon, Save, Tag } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { getCategoriesAction } from "@/actions/admin/manage-categories-action";
+import {
+  type Category,
+  getCategoriesAction,
+} from "@/actions/admin/manage-categories-action";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  description: string | null;
-  color: string;
-}
 
 interface CreatePostFormProps {
   onSubmit: (data: {
@@ -25,7 +20,7 @@ interface CreatePostFormProps {
     excerpt: string;
     imageUrl?: string;
     published: boolean;
-    categoryId?: number;
+    categoryId?: string;
     metaTitle?: string;
     metaDescription?: string;
     metaKeywords?: string;
@@ -44,7 +39,7 @@ export function CreatePostFormAdvanced({
     excerpt: "",
     imageUrl: "",
     published: false,
-    categoryId: undefined as number | undefined,
+    categoryId: undefined as string | undefined,
     metaTitle: "",
     metaDescription: "",
     metaKeywords: "",
@@ -223,7 +218,7 @@ export function CreatePostFormAdvanced({
                   onChange={(e) =>
                     handleChange(
                       "categoryId",
-                      e.target.value ? parseInt(e.target.value) : undefined,
+                      e.target.value ? e.target.value : undefined,
                     )
                   }
                   className="w-full rounded-md border border-slate-600 bg-slate-800/50 px-3 py-2 text-white focus:ring-2 focus:ring-[#C2A537] focus:outline-none"

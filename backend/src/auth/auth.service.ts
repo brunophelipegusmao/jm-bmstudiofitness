@@ -7,8 +7,9 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { and, eq, gt } from 'drizzle-orm';
+import { and, eq, gt, or } from 'drizzle-orm';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import * as schema from '../database/schema';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -30,16 +31,27 @@ import { AuthResponse, JwtPayload } from './interfaces/auth.interface';
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject('DATABASE') private db: NeonHttpDatabase<any>,
+    @Inject('DATABASE') private db: NeonHttpDatabase<typeof schema>,
     private jwtService: JwtService,
   ) {}
 
   async login(loginDto: LoginDto): Promise<AuthResponse> {
-    // Buscar usuário pelo email
+    const identifier = loginDto.email || loginDto.login;
+
+    if (!identifier) {
+      throw new BadRequestException('Email ou login obrigatório');
+    }
+
+    // Buscar usuário pelo email ou CPF
     const [personalData] = await this.db
       .select()
       .from(tbPersonalData)
-      .where(eq(tbPersonalData.email, loginDto.email))
+      .where(
+        or(
+          eq(tbPersonalData.email, identifier),
+          eq(tbPersonalData.cpf, identifier),
+        ),
+      )
       .limit(1);
 
     if (!personalData) {
@@ -137,14 +149,14 @@ export class AuthService {
       })
       .returning();
 
-    // Criar dados pessoais
+    // Criar dados pessoais (usa defaults para campos opcionais do frontend)
     await this.db.insert(tbPersonalData).values({
       userId: newUser.id,
       cpf: registerDto.cpf,
       email: registerDto.email,
-      bornDate: registerDto.bornDate,
-      address: registerDto.address,
-      telephone: registerDto.telephone,
+      bornDate: registerDto.bornDate || '1970-01-01',
+      address: registerDto.address || 'N/A',
+      telephone: registerDto.telephone || 'N/A',
     });
 
     // Gerar tokens

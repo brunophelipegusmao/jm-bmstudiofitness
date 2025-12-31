@@ -4,18 +4,26 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, desc, eq, gte, isNull,lte, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, isNull, lte, sql } from 'drizzle-orm';
+import type { SQLWrapper } from 'drizzle-orm';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import * as schema from '../database/schema';
 
-import { tbCheckIns, tbUsers, UserRole } from '../database/schema';
+import {
+  tbCheckIns,
+  tbUsers,
+  tbPersonalData,
+  UserRole,
+} from '../database/schema';
 import { CreateCheckInDto } from './dto/create-check-in.dto';
+import { EmployeeCheckInDto } from './dto/employee-check-in.dto';
 import { QueryCheckInsDto } from './dto/query-check-ins.dto';
 
 @Injectable()
 export class CheckInsService {
   constructor(
     @Inject('DATABASE')
-    private readonly db: NeonHttpDatabase<any>,
+    private readonly db: NeonHttpDatabase<typeof schema>,
   ) {}
 
   /**
@@ -75,6 +83,61 @@ export class CheckInsService {
   }
 
   /**
+   * Check-in via identificador (CPF ou email) feito por funcionário/coach
+   */
+  async employeeCheckIn(dto: EmployeeCheckInDto, requestingUserId: string) {
+    const identifier = dto.identifier.trim();
+    const method = dto.method || 'manual';
+
+    const isCpf = /^\d{11}$/.test(identifier);
+
+    const [personal] = await this.db
+      .select({
+        userId: tbPersonalData.userId,
+        email: tbPersonalData.email,
+        cpf: tbPersonalData.cpf,
+      })
+      .from(tbPersonalData)
+      .where(
+        isCpf
+          ? eq(tbPersonalData.cpf, identifier)
+          : eq(tbPersonalData.email, identifier),
+      )
+      .limit(1);
+
+    if (!personal) {
+      throw new NotFoundException('Aluno não encontrado');
+    }
+
+    const [user] = await this.db
+      .select()
+      .from(tbUsers)
+      .where(eq(tbUsers.id, personal.userId))
+      .limit(1);
+
+    if (!user) {
+      throw new NotFoundException('Aluno não encontrado ou inativo');
+    }
+
+    const checkIn = await this.create(
+      {
+        userId: personal.userId,
+        method,
+        identifier,
+        checkedInBy: requestingUserId,
+      },
+      requestingUserId,
+    );
+
+    return {
+      success: true,
+      message: 'Check-in realizado com sucesso',
+      studentName: user.name,
+      checkIn,
+    };
+  }
+
+  /**
    * Listar check-ins com filtros
    */
   async findAll(
@@ -97,7 +160,7 @@ export class CheckInsService {
       userRole === UserRole.ALUNO ? requestingUserId : userId;
 
     // Construir condições
-    const conditions: any[] = [];
+    const conditions: SQLWrapper[] = [];
     if (targetUserId) {
       conditions.push(eq(tbCheckIns.userId, targetUserId));
     }
@@ -111,8 +174,7 @@ export class CheckInsService {
       conditions.push(eq(tbCheckIns.method, method));
     }
 
-    const whereClause =
-      conditions.length > 0 ? and(...(conditions as any[])) : undefined;
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
     // Query principal com joins
     const checkIns = await this.db

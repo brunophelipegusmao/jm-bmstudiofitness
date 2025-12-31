@@ -115,6 +115,16 @@ function addPDFFooter(doc: jsPDF, pageNumber: number) {
 export function generateFinancialReportPDF(data: FinancialReportData) {
   const doc = new jsPDF();
   let currentY = 60; // AJUSTADO DE 50 PARA 60 (cabeçalho maior)
+  const overview = data.overview || {
+    totalStudents: 0,
+    activeStudents: 0,
+    totalRevenue: "R$ 0,00",
+    pendingPayments: "R$ 0,00",
+    monthlyGrowth: 0,
+    paymentRate: 0,
+  };
+  const recentPayments = data.recentPayments || [];
+  const monthlyData = data.monthlyData || [];
 
   // Adicionar cabeçalho
   addPDFHeader(doc, "RELATORIO FINANCEIRO");
@@ -132,12 +142,12 @@ export function generateFinancialReportPDF(data: FinancialReportData) {
   doc.setFont("helvetica", "normal");
   doc.setTextColor(60, 60, 60);
   doc.text(
-    `Total de ${data.overview.totalStudents} alunos • ${data.overview.activeStudents} ativos (${data.overview.paymentRate}%)`,
+    `Total de ${overview.totalStudents} alunos • ${overview.activeStudents} ativos (${overview.paymentRate}%)`,
     20,
     currentY + 14,
   );
   doc.text(
-    `Receita: ${data.overview.totalRevenue} • Pendente: ${data.overview.pendingPayments} • Crescimento: ${data.overview.monthlyGrowth}%`,
+    `Receita: ${overview.totalRevenue} • Pendente: ${overview.pendingPayments} • Crescimento: ${overview.monthlyGrowth}%`,
     20,
     currentY + 20,
   );
@@ -153,12 +163,12 @@ export function generateFinancialReportPDF(data: FinancialReportData) {
 
   // Cards de overview
   const overviewData = [
-    ["Total de Alunos", data.overview.totalStudents.toString()],
-    ["Alunos Ativos", data.overview.activeStudents.toString()],
-    ["Receita Total", data.overview.totalRevenue],
-    ["Pagamentos Pendentes", data.overview.pendingPayments],
-    ["Crescimento Mensal", `${data.overview.monthlyGrowth}%`],
-    ["Taxa de Pagamento", `${data.overview.paymentRate}%`],
+    ["Total de Alunos", overview.totalStudents.toString()],
+    ["Alunos Ativos", overview.activeStudents.toString()],
+    ["Receita Total", overview.totalRevenue],
+    ["Pagamentos Pendentes", overview.pendingPayments],
+    ["Crescimento Mensal", `${overview.monthlyGrowth}%`],
+    ["Taxa de Pagamento", `${overview.paymentRate}%`],
   ];
 
   autoTable(doc, {
@@ -191,7 +201,7 @@ export function generateFinancialReportPDF(data: FinancialReportData) {
   doc.text("ULTIMOS PAGAMENTOS", 15, currentY);
   currentY += 8;
 
-  const paymentsData = data.recentPayments.map((payment) => [
+  const paymentsData = recentPayments.map((payment) => [
     payment.studentName,
     payment.amount,
     payment.date,
@@ -239,7 +249,7 @@ export function generateFinancialReportPDF(data: FinancialReportData) {
   doc.text("EVOLUCAO MENSAL", 15, currentY);
   currentY += 8;
 
-  const monthlyData = data.monthlyData.map((month) => [
+  const monthlyDataTable = monthlyData.map((month) => [
     month.month,
     month.students.toString(),
     `R$ ${(month.revenue / 100).toFixed(2).replace(".", ",")}`,
@@ -248,7 +258,7 @@ export function generateFinancialReportPDF(data: FinancialReportData) {
   autoTable(doc, {
     startY: currentY,
     head: [["Mes", "Alunos", "Receita"]],
-    body: monthlyData,
+    body: monthlyDataTable,
     theme: "grid",
     headStyles: {
       fillColor: [194, 165, 55],
@@ -280,6 +290,16 @@ export function generateFinancialReportPDF(data: FinancialReportData) {
 export function generateFinancialReportExcel(data: FinancialReportData) {
   // Criar workbook
   const wb = XLSX.utils.book_new();
+  const overview = data.overview || {
+    totalStudents: 0,
+    activeStudents: 0,
+    totalRevenue: "R$ 0,00",
+    pendingPayments: "R$ 0,00",
+    monthlyGrowth: 0,
+    paymentRate: 0,
+  };
+  const recentPayments = data.recentPayments || [];
+  const monthlyData = data.monthlyData || [];
 
   // Sheet 1: Visão Geral
   const overviewData = [
@@ -288,12 +308,12 @@ export function generateFinancialReportExcel(data: FinancialReportData) {
     [],
     ["VISAO GERAL"],
     ["Indicador", "Valor"],
-    ["Total de Alunos", data.overview.totalStudents],
-    ["Alunos Ativos", data.overview.activeStudents],
-    ["Receita Total", data.overview.totalRevenue],
-    ["Pagamentos Pendentes", data.overview.pendingPayments],
-    ["Crescimento Mensal", `${data.overview.monthlyGrowth}%`],
-    ["Taxa de Pagamento", `${data.overview.paymentRate}%`],
+    ["Total de Alunos", overview.totalStudents],
+    ["Alunos Ativos", overview.activeStudents],
+    ["Receita Total", overview.totalRevenue],
+    ["Pagamentos Pendentes", overview.pendingPayments],
+    ["Crescimento Mensal", `${overview.monthlyGrowth}%`],
+    ["Taxa de Pagamento", `${overview.paymentRate}%`],
   ];
 
   const ws1 = XLSX.utils.aoa_to_sheet(overviewData);
@@ -308,7 +328,7 @@ export function generateFinancialReportExcel(data: FinancialReportData) {
 
   // Sheet 2: Pagamentos Recentes
   const paymentsHeader = [["Aluno", "Valor", "Data", "Status"]];
-  const paymentsData = data.recentPayments.map((payment) => [
+  const paymentsData = recentPayments.map((payment) => [
     payment.studentName,
     payment.amount,
     payment.date,
@@ -332,7 +352,7 @@ export function generateFinancialReportExcel(data: FinancialReportData) {
 
   // Sheet 3: Dados Mensais
   const monthlyHeader = [["Mes", "Alunos", "Receita"]];
-  const monthlyData = data.monthlyData.map((month) => [
+  const monthlyDataRows = monthlyData.map((month) => [
     month.month,
     month.students,
     `R$ ${(month.revenue / 100).toFixed(2).replace(".", ",")}`,
@@ -342,7 +362,7 @@ export function generateFinancialReportExcel(data: FinancialReportData) {
     ["CRESCIMENTO MENSAL"],
     [],
     ...monthlyHeader,
-    ...monthlyData,
+    ...monthlyDataRows,
   ]);
 
   ws3["!cols"] = [{ wch: 15 }, { wch: 12 }, { wch: 20 }];

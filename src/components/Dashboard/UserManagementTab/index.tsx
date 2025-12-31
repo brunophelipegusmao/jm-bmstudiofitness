@@ -82,7 +82,7 @@ export function UserManagementTab({
 
     // Log detalhado apenas quando há busca ativa
     if (searchTerm.length > 0) {
-      console.log(`🔍 Filtro para ${user.name}:`, {
+      console.log(` Filtro para ${user.name}:`, {
         searchTerm,
         matchesSearch,
         matchesRole,
@@ -95,14 +95,14 @@ export function UserManagementTab({
     return shouldShow;
   });
 
-  console.log("🔍 Debug UserManagementTab:", {
+  console.log(" Debug UserManagementTab:", {
     totalUsers: users.length,
     searchTerm,
     selectedRole,
     filteredUsers: filteredUsers.length,
     firstFiltered: filteredUsers[0]?.name,
     allUsersShowing:
-      searchTerm.length === 0 ? "SIM (sem filtro)" : "NÃO (com filtro)",
+      searchTerm.length === 0 ? "SIM (sem filtro)" : "NO (com filtro)",
   });
 
   // Estatísticas
@@ -139,7 +139,7 @@ export function UserManagementTab({
 
   const handleDeleteUser = useCallback(
     async (user: User) => {
-      console.log("🗑️ handleDeleteUser chamado para:", user.name);
+      console.log("? handleDeleteUser chamado para:", user.name);
 
       try {
         const confirmed = await confirm({
@@ -150,19 +150,23 @@ export function UserManagementTab({
           type: "danger",
         });
 
-        console.log("🤔 Confirmação do usuário:", confirmed);
+        console.log(" Confirmação do usuário:", confirmed);
 
         if (confirmed) {
           try {
             setActionLoading(true);
-            console.log("🔄 Executando delete para usuário:", user.id);
+            console.log(" Executando delete para usuário:", user.id);
 
             // If a parent provided a delete handler, prefer that (keeps container in control)
             if (typeof onDeleteUser === "function") {
               await onDeleteUser(user.id);
               // parent handler should handle state update/notifications
             } else {
-              const result = await deleteStudentAction(user.id);
+              const result: {
+                success?: boolean;
+                error?: string;
+                message?: string;
+              } = await deleteStudentAction(user.id);
 
               if (result.success) {
                 showSuccessToast(
@@ -170,18 +174,20 @@ export function UserManagementTab({
                 );
                 setIsUserModalOpen(false);
               } else {
-                showErrorToast(result.error || "Erro ao excluir usuário");
+                const errorMessage =
+                  result.error || result.message || "Erro ao excluir usurio";
+                showErrorToast(errorMessage);
               }
             }
           } catch (error) {
-            console.error("❌ Erro ao excluir usuário:", error);
+            console.error(" Erro ao excluir usuário:", error);
             showErrorToast("Erro ao excluir usuário. Tente novamente.");
           } finally {
             setActionLoading(false);
           }
         }
       } catch (error) {
-        console.error("❌ Erro no processo de confirmação:", error);
+        console.error(" Erro no processo de confirmação:", error);
       }
     },
     [confirm, onDeleteUser],
@@ -190,7 +196,7 @@ export function UserManagementTab({
   const handleEditUser = useCallback(async (user: User) => {
     try {
       console.log(
-        "🔧 handleEditUser chamado para:",
+        " handleEditUser chamado para:",
         user.name,
         "Role:",
         user.role,
@@ -198,9 +204,9 @@ export function UserManagementTab({
       setUserToEdit(user);
       setIsEditModalOpen(true);
       setIsUserModalOpen(false); // Fechar modal de visualização
-      console.log("✅ Modal de edição aberto");
+      console.log(" Modal de edição aberto");
     } catch (error) {
-      console.error("❌ Erro ao abrir modal de edição:", error);
+      console.error(" Erro ao abrir modal de edição:", error);
       showErrorToast("Erro ao abrir modal de edição");
     }
   }, []);
@@ -215,19 +221,25 @@ export function UserManagementTab({
       setActionLoading(true);
       const newStatus = !user.isActive;
 
-      const result = await toggleUserStatusAction(user.id, newStatus);
+      const result: {
+        success?: boolean;
+        error?: string;
+        message?: string;
+      } = await toggleUserStatusAction(user.id, newStatus);
 
       if (result.success) {
         showSuccessToast(
-          `Usuário ${newStatus ? "ativado" : "desativado"} com sucesso!`,
+          `Usurio ${newStatus ? "ativado" : "desativado"} com sucesso!`,
         );
-        // Atualizar estado através do callback
+        // Atualizar estado atravs do callback
         if (onToggleStatus) {
           onToggleStatus(user.id, newStatus);
         }
         setIsUserModalOpen(false);
       } else {
-        showErrorToast(result.error || "Erro ao alterar status do usuário");
+        const errorMessage =
+          result.error || result.message || "Erro ao alterar status do usurio";
+        showErrorToast(errorMessage);
       }
     } catch (error) {
       console.error("Erro ao alterar status:", error);
@@ -777,7 +789,7 @@ export function UserManagementTab({
       {/* Modal de Edição */}
       {userToEdit && (
         <>
-          {console.log("🎨 Renderizando EditUserModal com:", {
+          {console.log(" Renderizando EditUserModal com:", {
             userId: userToEdit.id,
             userName: userToEdit.name,
             userRole: userToEdit.role,
@@ -808,3 +820,5 @@ export function UserManagementTab({
     </div>
   );
 }
+
+

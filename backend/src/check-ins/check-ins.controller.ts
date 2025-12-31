@@ -13,6 +13,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../database/schema';
 import { CheckInsService } from './check-ins.service';
 import { CreateCheckInDto } from './dto/create-check-in.dto';
+import { EmployeeCheckInDto } from './dto/employee-check-in.dto';
 import { QueryCheckInsDto } from './dto/query-check-ins.dto';
 
 @Controller('check-ins')
@@ -28,6 +29,18 @@ export class CheckInsController {
     @CurrentUser('userId') userId: string,
   ) {
     return this.checkInsService.create(createCheckInDto, userId);
+  }
+
+  /**
+   * Check-in via identificador (CPF ou email) para funcionários/coaches
+   */
+  @Post('employee')
+  @Roles(UserRole.ADMIN, UserRole.MASTER, UserRole.COACH, UserRole.FUNCIONARIO)
+  employeeCheckIn(
+    @Body() dto: EmployeeCheckInDto,
+    @CurrentUser('userId') userId: string,
+  ) {
+    return this.checkInsService.employeeCheckIn(dto, userId);
   }
 
   /**

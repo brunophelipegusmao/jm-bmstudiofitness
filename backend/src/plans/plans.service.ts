@@ -5,19 +5,20 @@ import {
   Inject,
 } from '@nestjs/common';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import * as schema from '../database/schema';
 import { tbPlans } from '../database/schema';
-import { eq, desc, and, isNull, asc } from 'drizzle-orm';
+import { eq, desc, and, isNull, asc, SQLWrapper } from 'drizzle-orm';
 import { CreatePlanDto, UpdatePlanDto, QueryPlansDto } from './dto/plan.dto';
 
 @Injectable()
 export class PlansService {
   constructor(
     @Inject('DATABASE')
-    private readonly db: NeonHttpDatabase<any>,
+    private readonly db: NeonHttpDatabase<typeof schema>,
   ) {}
 
   async findAll(query: QueryPlansDto = {}) {
-    const conditions: any[] = [];
+    const conditions: SQLWrapper[] = [];
 
     // Por padrão, não retorna deletados
     if (!query.includeDeleted) {

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import {
@@ -44,8 +44,20 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
   const [studentToEdit, setStudentToEdit] = useState<StudentFullData | null>(
     null,
   );
+  const studentForModal = studentToEdit
+    ? {
+        ...studentToEdit,
+        bornDate:
+          typeof studentToEdit.bornDate === "string"
+            ? studentToEdit.bornDate
+            : studentToEdit.bornDate?.toISOString() ?? "",
+        monthlyFeeValueInCents: studentToEdit.monthlyFeeValueInCents ?? 0,
+        paymentMethod: studentToEdit.paymentMethod ?? "",
+        dueDate: studentToEdit.dueDate ?? 1,
+      }
+    : null;
 
-  // Hook para dialog de confirmação
+  // Hook para dialog de confirmaÃ§Ã£o
   const { confirm, isOpen, options, handleConfirm, handleCancel } =
     useConfirmDialog();
 
@@ -82,7 +94,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
     return matchesSearch && matchesFilter;
   });
 
-  // Calcular estatísticas
+  // Calcular estatÃ­sticas
   const stats = {
     total: students.length,
     active: students.filter((s) => s.isPaymentUpToDate).length,
@@ -133,8 +145,8 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
     try {
       setActionLoading(true);
 
-      // Como não temos um campo isActive direto, esta funcionalidade
-      // precisaria ser expandida com base na lógica de negócio
+      // Como nÃ£o temos um campo isActive direto, esta funcionalidade
+      // precisaria ser expandida com base na lÃ³gica de negÃ³cio
       showSuccessToast(
         `Status de ${student.name}: ${student.isPaymentUpToDate ? "Em dia" : "Pendente"}`,
       );
@@ -152,7 +164,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
   };
 
   const handleViewStudent = (student: StudentFullData) => {
-    // Redirecionar para página de detalhes ou abrir modal
+    // Redirecionar para pÃ¡gina de detalhes ou abrir modal
     console.log("View student:", student);
     showSuccessToast(`Visualizando ${student.name}`);
   };
@@ -161,7 +173,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
     try {
       const confirmed = await confirm({
         title: "Excluir Aluno",
-        message: `Tem certeza que deseja excluir o aluno "${student.name}"? Esta ação não pode ser desfeita.`,
+        message: `Tem certeza que deseja excluir o aluno "${student.name}"? Esta aÃ§Ã£o nÃ£o pode ser desfeita.`,
         confirmText: "Excluir",
         cancelText: "Cancelar",
         type: "danger",
@@ -169,10 +181,11 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
 
       if (confirmed) {
         setActionLoading(true);
-        const result = await deleteStudentAction(student.userId);
+        const result: { success: boolean; error?: string; message?: string } =
+          await deleteStudentAction(student.userId);
 
         if (result.success) {
-          showSuccessToast(`Aluno "${student.name}" excluído com sucesso!`);
+          showSuccessToast(`Aluno "${student.name}" excluÃ­do com sucesso!`);
           // Recarregar lista
           const data = await getAllStudentsFullDataAction();
           setStudents(data);
@@ -210,7 +223,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
           variant="outline"
           className="border-slate-600 text-slate-300 hover:bg-slate-800"
         >
-          ← Voltar
+          â† Voltar
         </Button>
       </div>
 
@@ -360,10 +373,10 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
                           <h3 className="font-semibold text-white">
                             {student.name}
                           </h3>
-                          {getStatusBadge(student.isPaymentUpToDate)}
+                          {getStatusBadge(!!student.isPaymentUpToDate)}
                           {getPaymentBadge(
-                            student.paid,
-                            student.isPaymentUpToDate,
+                            !!student.paid,
+                            !!student.isPaymentUpToDate,
                           )}
                         </div>
                         <div className="flex items-center space-x-4 text-sm text-gray-400">
@@ -441,24 +454,24 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
         </CardContent>
       </Card>
 
-      {/* Modal de Edição */}
-      {studentToEdit && (
+      {/* Modal de EdiÃ§Ã£o */}
+      {studentForModal && (
         <EditStudentModal
           isOpen={isEditModalOpen}
           onClose={() => {
             setIsEditModalOpen(false);
             setStudentToEdit(null);
           }}
-          student={studentToEdit}
+          student={studentForModal}
           onSuccess={async () => {
-            // Recarregar lista após edição
+            // Recarregar lista apÃ³s ediÃ§Ã£o
             const data = await getAllStudentsFullDataAction();
             setStudents(data);
           }}
         />
       )}
 
-      {/* Dialog de confirmação */}
+      {/* Dialog de confirmaÃ§Ã£o */}
       <ConfirmDialog
         isOpen={isOpen}
         onClose={handleCancel}
@@ -472,3 +485,4 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
     </motion.div>
   );
 }
+

@@ -51,6 +51,14 @@ export default function ExportWaitlistPdfButton() {
       });
       doc.text(`Gerado em: ${today}`, 148, 28, { align: "center" });
 
+      const formatDate = (value: Date | string | null) => {
+        if (value instanceof Date) return value.toLocaleDateString("pt-BR");
+        if (typeof value === "string" && value) {
+          return new Date(value).toLocaleDateString("pt-BR");
+        }
+        return "";
+      };
+
       // Tabela
       autoTable(doc, {
         startY: 35,
@@ -76,7 +84,7 @@ export default function ExportWaitlistPdfButton() {
           entry.goal,
           entry.healthRestrictions,
           entry.status,
-          entry.createdAt,
+          formatDate(entry.createdAt),
         ]),
         theme: "striped",
         headStyles: {

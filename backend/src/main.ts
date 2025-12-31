@@ -27,10 +27,12 @@ async function bootstrap() {
     'http://localhost:3002',
     'http://localhost:3003',
     'http://localhost:3004',
+    'http://localhost:8080',
     'http://192.168.18.2:3000',
     'http://192.168.18.2:3002',
     'http://192.168.18.2:3003',
     'http://192.168.18.2:3004',
+    'https://jmfitnessstudio.com.br',
   ];
 
   app.enableCors({

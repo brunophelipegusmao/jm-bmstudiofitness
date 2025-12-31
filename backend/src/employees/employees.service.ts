@@ -6,6 +6,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import * as schema from '../database/schema';
 import {
   tbEmployees,
   tbEmployeeSalaryHistory,
@@ -13,7 +14,7 @@ import {
   tbUsers,
   tbPersonalData,
 } from '../database/schema';
-import { eq, desc, and, gte, lte, isNull, sql } from 'drizzle-orm';
+import { eq, desc, and, gte, lte, isNull, sql, SQLWrapper } from 'drizzle-orm';
 import {
   CreateEmployeeDto,
   UpdateEmployeeDto,
@@ -29,13 +30,13 @@ import {
 export class EmployeesService {
   constructor(
     @Inject('DATABASE')
-    private readonly db: NeonHttpDatabase<any>,
+    private readonly db: NeonHttpDatabase<typeof schema>,
   ) {}
 
   // ==================== EMPLOYEE CRUD ====================
 
   async findAll(query: QueryEmployeesDto) {
-    const conditions: any[] = [];
+    const conditions: SQLWrapper[] = [];
 
     // Por padrão, não retorna deletados
     if (!query.includeDeleted) {

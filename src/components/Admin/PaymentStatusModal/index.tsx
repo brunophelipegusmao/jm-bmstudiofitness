@@ -105,8 +105,15 @@ export function PaymentStatusModal({
           </div>
 
           <div className="divide-y divide-slate-700">
-            {students.map((student) => (
-              <div key={student.userId} className="py-4">
+            {students.map((student) => {
+              const userId = student.userId ?? student.id;
+              const dueDateText =
+                student.dueDate instanceof Date
+                  ? student.dueDate.toLocaleDateString("pt-BR")
+                  : student.dueDate ?? "-";
+
+              return (
+                <div key={userId} className="py-4">
                 <div className="flex justify-between">
                   <div>
                     <p className="font-medium text-white">{student.name}</p>
@@ -120,10 +127,12 @@ export function PaymentStatusModal({
                           : "font-medium text-red-400"
                       }
                     >
-                      {formatCurrency(student.monthlyFeeValueInCents)}
+                      {student.monthlyFeeValueInCents !== undefined
+                        ? formatCurrency(student.monthlyFeeValueInCents)
+                        : "—"}
                     </p>
                     <p className="text-sm text-slate-400">
-                      Vencimento: Dia {student.dueDate}
+                      Vencimento: Dia {dueDateText}
                     </p>
                   </div>
                 </div>
@@ -140,27 +149,26 @@ export function PaymentStatusModal({
                   <div className="mt-3 flex items-center justify-end gap-2">
                     {type === "paid" ? (
                       <button
-                        onClick={() => handleUpdate(student.userId, false)}
-                        disabled={!!loadingIds[student.userId]}
+                        onClick={() => handleUpdate(userId, false)}
+                        disabled={!!loadingIds[userId]}
                         className="inline-flex items-center gap-2 rounded-md border border-red-600 bg-transparent px-3 py-1 text-sm font-medium text-red-400 hover:bg-red-600 hover:text-white disabled:opacity-50"
                       >
-                        {loadingIds[student.userId] ? "..." : "Marcar Pendente"}
+                        {loadingIds[userId] ? "..." : "Marcar Pendente"}
                       </button>
                     ) : (
                       <button
-                        onClick={() => handleUpdate(student.userId, true)}
-                        disabled={!!loadingIds[student.userId]}
+                        onClick={() => handleUpdate(userId, true)}
+                        disabled={!!loadingIds[userId]}
                         className="inline-flex items-center gap-2 rounded-md bg-green-600 px-3 py-1 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
                       >
-                        {loadingIds[student.userId]
-                          ? "..."
-                          : "Confirmar Pagamento"}
+                        {loadingIds[userId] ? "..." : "Confirmar Pagamento"}
                       </button>
                     )}
                   </div>
                 </div>
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         </div>
       </DialogContent>

@@ -197,7 +197,7 @@ export function ReportsView({ onBack }: ReportsViewProps) {
                   <div>
                     <p className="text-sm text-gray-400">Total de Alunos</p>
                     <p className="text-2xl font-bold text-white">
-                      {reportData.overview.totalStudents}
+                      {reportData?.overview?.totalStudents ?? 0}
                     </p>
                   </div>
                   <div className="rounded-lg bg-blue-500/20 p-2">
@@ -213,7 +213,7 @@ export function ReportsView({ onBack }: ReportsViewProps) {
                   <div>
                     <p className="text-sm text-gray-400">Receita Total</p>
                     <p className="text-2xl font-bold text-white">
-                      {reportData.overview.totalRevenue}
+                      {reportData?.overview?.totalRevenue ?? "R$ 0,00"}
                     </p>
                   </div>
                   <div className="rounded-lg bg-green-500/20 p-2">
@@ -229,7 +229,7 @@ export function ReportsView({ onBack }: ReportsViewProps) {
                   <div>
                     <p className="text-sm text-gray-400">Crescimento Mensal</p>
                     <p className="text-2xl font-bold text-white">
-                      {reportData.overview.monthlyGrowth}%
+                      {reportData?.overview?.monthlyGrowth ?? 0}%
                     </p>
                   </div>
                   <div className="rounded-lg bg-emerald-500/20 p-2">
@@ -245,7 +245,7 @@ export function ReportsView({ onBack }: ReportsViewProps) {
                   <div>
                     <p className="text-sm text-gray-400">Taxa de Pagamento</p>
                     <p className="text-2xl font-bold text-white">
-                      {reportData.overview.paymentRate}%
+                      {reportData?.overview?.paymentRate ?? 0}%
                     </p>
                   </div>
                   <div className="rounded-lg bg-purple-500/20 p-2">
@@ -402,9 +402,9 @@ export function ReportsView({ onBack }: ReportsViewProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {reportData.recentPayments.map((payment) => (
+                {(reportData?.recentPayments ?? []).map((payment, idx) => (
                   <div
-                    key={payment.id}
+                    key={`${payment.studentName}-${idx}`}
                     className="flex items-center justify-between rounded-lg border border-slate-600/50 bg-slate-800/30 p-3"
                   >
                     <div className="flex items-center space-x-3">
@@ -441,7 +441,7 @@ export function ReportsView({ onBack }: ReportsViewProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {reportData.monthlyData.map((data) => (
+                  {(reportData?.monthlyData ?? []).map((data) => (
                     <div
                       key={data.month}
                       className="flex items-center justify-between"
@@ -461,7 +461,16 @@ export function ReportsView({ onBack }: ReportsViewProps) {
                           <div
                             className="h-full bg-linear-to-r from-[#C2A537] to-[#D4B547] transition-all duration-500"
                             style={{
-                              width: `${(data.students / Math.max(...reportData.monthlyData.map((d) => d.students))) * 100}%`,
+                              width: `${
+                                (data.students /
+                                  Math.max(
+                                    ...(reportData?.monthlyData ?? []).map(
+                                      (d) => d.students || 0,
+                                    ),
+                                    1,
+                                  )) *
+                                100
+                              }%`,
                             }}
                           />
                         </div>

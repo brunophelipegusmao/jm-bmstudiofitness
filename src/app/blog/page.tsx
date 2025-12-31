@@ -15,28 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-interface Post {
-  id: number;
-  title: string;
-  excerpt: string;
-  imageUrl: string | null;
-  slug: string;
-  readTime: number | null;
-  views: number;
-  publishedAt: Date;
-  category: {
-    id: number;
-    name: string;
-    color: string;
-    slug: string;
-  } | null;
-  tags: {
-    id: number;
-    name: string;
-    slug: string;
-  }[];
-}
+import type { Post } from "@/types/posts";
 
 export default function BlogPage() {
   const [posts, setPosts] = useState<Post[]>([]);

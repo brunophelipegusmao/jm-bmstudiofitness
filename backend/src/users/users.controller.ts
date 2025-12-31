@@ -18,7 +18,7 @@ import {
   UpdateEmployeePermissionsDto,
   UpdateStudentPermissionsDto,
 } from './dto/update-permissions.dto';
-import { UpdatePasswordDto,UpdateUserDto } from './dto/update-user.dto';
+import { UpdatePasswordDto, UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -79,9 +79,8 @@ export class UsersController {
   update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @CurrentUser('userId') requestingUserId: string,
   ) {
-    return this.usersService.update(id, updateUserDto, requestingUserId);
+    return this.usersService.update(id, updateUserDto);
   }
 
   /**
@@ -91,13 +90,8 @@ export class UsersController {
   updatePassword(
     @Param('id') id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
-    @CurrentUser('userId') requestingUserId: string,
   ) {
-    return this.usersService.updatePassword(
-      id,
-      updatePasswordDto,
-      requestingUserId,
-    );
+    return this.usersService.updatePassword(id, updatePasswordDto);
   }
 
   /**
@@ -108,8 +102,9 @@ export class UsersController {
   remove(
     @Param('id') id: string,
     @CurrentUser('userId') requestingUserId: string,
+    @CurrentUser('role') role: UserRole,
   ) {
-    return this.usersService.remove(id, requestingUserId);
+    return this.usersService.softDelete(id, requestingUserId, role);
   }
 
   /**

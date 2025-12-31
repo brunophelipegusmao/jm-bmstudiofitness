@@ -25,6 +25,7 @@ import {
   UpdateTimeRecordDto,
   QueryTimeRecordsDto,
 } from './dto/time-record.dto';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @Controller('employees')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -53,8 +54,12 @@ export class EmployeesController {
 
   @Post()
   @Roles(UserRole.ADMIN, UserRole.MASTER)
-  async create(@Body() dto: CreateEmployeeDto, @Request() req: any) {
-    return this.employeesService.create(dto, req.user.id);
+  // Corrigir acesso ao id do usuário
+  async create(
+    @Body() dto: CreateEmployeeDto,
+    @CurrentUser() user: import('../auth/interfaces/auth.interface').JwtPayload,
+  ) {
+    return this.employeesService.create(dto, user.sub);
   }
 
   @Patch(':id')
@@ -62,9 +67,9 @@ export class EmployeesController {
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateEmployeeDto,
-    @Request() req: any,
+    @CurrentUser() user: import('../auth/interfaces/auth.interface').JwtPayload,
   ) {
-    return this.employeesService.update(id, dto, req.user.id);
+    return this.employeesService.update(id, dto, user.sub);
   }
 
   @Delete(':id')
@@ -116,8 +121,11 @@ export class EmployeesController {
 
   @Post('time-records/:id/approve')
   @Roles(UserRole.ADMIN, UserRole.MASTER)
-  async approveTimeRecord(@Param('id') id: string, @Request() req: any) {
-    return this.employeesService.approveTimeRecord(id, req.user.id);
+  async approveTimeRecord(
+    @Param('id') id: string,
+    @CurrentUser() user: import('../auth/interfaces/auth.interface').JwtPayload,
+  ) {
+    return this.employeesService.approveTimeRecord(id, user.sub);
   }
 
   @Delete('time-records/:id')

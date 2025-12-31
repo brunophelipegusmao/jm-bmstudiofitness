@@ -1,5 +1,8 @@
 "use client";
 
+/* eslint-disable simple-import-sort/imports */
+
+import { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Briefcase,
@@ -10,7 +13,6 @@ import {
   Printer,
   User,
 } from "lucide-react";
-import { useEffect, useRef,useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -52,6 +54,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { formatCurrency } from "@/lib/payment-utils";
 
 // Schema de validação
 const employeeSchema = z.object({
@@ -259,14 +262,18 @@ export function EmployeeTab() {
                 <div className="flex items-center gap-2 text-sm text-slate-300">
                   <DollarSign className="h-4 w-4 text-[#C2A537]" />
                   <span className="font-semibold">
-                    {employee.salaryFormatted}
+                    {employee.salaryInCents !== undefined
+                      ? formatCurrency(employee.salaryInCents)
+                      : "-"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-slate-300">
                   <Calendar className="h-4 w-4 text-[#C2A537]" />
                   <span>
                     Contratado em{" "}
-                    {new Date(employee.hireDate).toLocaleDateString("pt-BR")}
+                    {employee.hireDate
+                      ? new Date(employee.hireDate).toLocaleDateString("pt-BR")
+                      : "-"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-slate-300">
@@ -789,12 +796,12 @@ function EditEmployeeModal({
       shift: employee.shift,
       shiftStartTime: employee.shiftStartTime,
       shiftEndTime: employee.shiftEndTime,
-      salary: (employee.salaryInCents / 100).toFixed(2),
+      salary: ((employee.salaryInCents ?? 0) / 100).toFixed(2),
     },
   });
 
   const currentSalary = watch("salary");
-  const originalSalary = (employee.salaryInCents / 100).toFixed(2);
+  const originalSalary = ((employee.salaryInCents ?? 0) / 100).toFixed(2);
 
   useEffect(() => {
     setShowSalaryFields(currentSalary !== originalSalary);
@@ -803,7 +810,7 @@ function EditEmployeeModal({
   const onSubmit = async (data: EditEmployeeFormData) => {
     try {
       const salaryChanged =
-        parseFloat(data.salary) !== employee.salaryInCents / 100;
+        parseFloat(data.salary) !== (employee.salaryInCents ?? 0) / 100;
 
       if (
         salaryChanged &&
@@ -815,7 +822,8 @@ function EditEmployeeModal({
         return;
       }
 
-      const result = await updateEmployeeAction(employee.id, {
+      const result = await updateEmployeeAction({
+        id: employee.id,
         email: data.email,
         telephone: data.telephone,
         address: data.address,

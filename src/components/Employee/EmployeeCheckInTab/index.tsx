@@ -235,7 +235,7 @@ export function EmployeeCheckInTab() {
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-[#C2A537]" />
                         <span className="font-semibold text-zinc-200">
-                          {checkIn.studentName}
+                          {checkIn.studentName ?? checkIn.userName ?? "Aluno"}
                         </span>
                       </div>
                       <div className="mt-1 flex items-center gap-2 text-sm text-zinc-400">
@@ -251,7 +251,7 @@ export function EmployeeCheckInTab() {
                         Realizado por: {checkIn.performedByName}
                       </p>
                     </div>
-                    {checkIn.paymentDaysOverdue !== null &&
+                    {typeof checkIn.paymentDaysOverdue === "number" &&
                       checkIn.paymentDaysOverdue > 0 && (
                         <Badge
                           variant="outline"

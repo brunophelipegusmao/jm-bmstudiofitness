@@ -4,8 +4,20 @@
  * Base URL: http://localhost:3001/api
  */
 
-const API_BASE_URL =
+const DEFAULT_API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+
+function resolveBaseUrl() {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}/api`;
+  }
+
+  return DEFAULT_API_URL;
+}
 
 interface ApiError {
   message: string;
@@ -29,7 +41,7 @@ class ApiClient {
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
 
-  constructor(baseUrl: string = API_BASE_URL) {
+  constructor(baseUrl: string = resolveBaseUrl()) {
     this.baseUrl = baseUrl;
 
     // Carregar tokens do localStorage ao inicializar
@@ -49,6 +61,10 @@ class ApiClient {
     if (typeof window !== "undefined") {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
+      // Mantém cookie simples para middleware de rota (não seguro para produção, mas evita redirecionar logado)
+      document.cookie = `accessToken=${accessToken}; path=/; max-age=${
+        60 * 60 * 24 * 7
+      }`;
     }
   }
 
@@ -62,6 +78,8 @@ class ApiClient {
     if (typeof window !== "undefined") {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
+      document.cookie =
+        "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     }
   }
 

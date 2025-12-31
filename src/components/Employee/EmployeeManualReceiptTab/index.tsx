@@ -71,8 +71,15 @@ export function EmployeeManualReceiptTab() {
   const loadReceiptsLog = async () => {
     try {
       const result = await getReceiptsLogAction();
-      if (result.success && result.data) {
-        setReceiptsLog(result.data);
+      const receipts =
+        (result as { data?: ReceiptLog[] }).data ||
+        (result as { receipts?: ReceiptLog[] }).receipts ||
+        [];
+
+      if (Array.isArray(receipts)) {
+        setReceiptsLog(receipts);
+      } else {
+        setReceiptsLog([]);
       }
     } catch {
       console.error("Erro ao carregar histórico");
@@ -122,7 +129,11 @@ export function EmployeeManualReceiptTab() {
         // Recarregar histórico
         loadReceiptsLog();
       } else {
-        alert(result.error || "Erro ao gerar recibo");
+        const errorMessage =
+          (result as { error?: string; message?: string }).error ||
+          (result as { message?: string }).message ||
+          "Erro ao gerar recibo";
+        alert(errorMessage);
       }
     } catch {
       alert("Erro ao gerar recibo. Tente novamente.");

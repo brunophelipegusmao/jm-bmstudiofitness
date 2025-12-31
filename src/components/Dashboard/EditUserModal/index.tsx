@@ -158,6 +158,29 @@ type FormData = z.infer<typeof baseSchema> &
   Partial<z.infer<typeof employeeSchema>> &
   Partial<z.infer<typeof studentSchema>>;
 
+type UserData = {
+  name?: string;
+  email?: string;
+  telephone?: string;
+  address?: string;
+  cpf?: string;
+  bornDate?: string;
+  position?: string;
+  shift?: string;
+  shiftStartTime?: string;
+  shiftEndTime?: string;
+  salaryInCents?: number;
+  monthlyFeeValueInCents?: number;
+  paymentMethod?: string;
+  dueDate?: number;
+};
+
+type GetUserDataResult = {
+  success?: boolean;
+  data?: UserData | null;
+  error?: string;
+} | null;
+
 export function EditUserModal({
   userId,
   userName,
@@ -193,7 +216,7 @@ export function EditUserModal({
   const shift = watch("shift");
 
   useEffect(() => {
-    console.log("📝 EditUserModal useEffect:", {
+    console.log("Debug EditUserModal useEffect:", {
       isOpen,
       userId,
       userName,
@@ -202,17 +225,17 @@ export function EditUserModal({
     });
     if (isOpen) {
       setIsFetching(true);
-      console.log("🔍 Buscando dados do usuário:", userId);
-      getUserDataAction(userId).then((result) => {
-        console.log("📦 Resultado getUserDataAction:", result);
-        if (result.success && result.data) {
+      console.log("Debug Buscando dados do usuário:", userId);
+      getUserDataAction(userId).then((result: GetUserDataResult) => {
+        console.log("Debug Resultado getUserDataAction:", result);
+        if (result && result.success && result.data) {
           const data = result.data;
 
           // Dados básicos
-          setValue("name", data.name);
-          setValue("email", data.email);
-          setValue("telephone", data.telephone);
-          setValue("address", data.address);
+          setValue("name", data.name ?? "");
+          setValue("email", data.email ?? "");
+          setValue("telephone", data.telephone ?? "");
+          setValue("address", data.address ?? "");
           if (data.cpf) setValue("cpf", data.cpf);
           if (data.bornDate) setValue("bornDate", data.bornDate);
 
@@ -250,7 +273,7 @@ export function EditUserModal({
             if (data.dueDate !== undefined) setValue("dueDate", data.dueDate);
           }
         } else {
-          toast.error(result.error || "Erro ao carregar dados do usuário");
+          toast.error((result && result.error) || "Erro ao carregar dados do usuário");
           onClose();
         }
         setIsFetching(false);
@@ -267,8 +290,8 @@ export function EditUserModal({
     const { confirmPassword, password, ...restData } = data;
 
     // Só incluir password se foi preenchida
-    const updateData: Partial<FormData> & { userId: string } = {
-      userId,
+    const updateData: Partial<FormData> & { id: string } = {
+      id: userId,
       ...restData,
     };
 
@@ -276,10 +299,7 @@ export function EditUserModal({
       updateData.password = password;
     }
 
-    const result = await updateUserAction(
-      adminId,
-      updateData as Parameters<typeof updateUserAction>[1],
-    );
+    const result = await updateUserAction(adminId, updateData);
 
     if (result.success) {
       toast.success("Usuário atualizado com sucesso!");
@@ -670,3 +690,7 @@ export function EditUserModal({
     </Dialog>
   );
 }
+
+
+
+

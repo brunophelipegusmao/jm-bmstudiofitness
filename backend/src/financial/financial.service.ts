@@ -4,19 +4,21 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, desc,eq, gte, lte, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, lte, sql } from 'drizzle-orm';
+import type { SQLWrapper } from 'drizzle-orm';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import * as schema from '../database/schema';
 
 import { tbFinancial, tbUsers, UserRole } from '../database/schema';
 import { CreateFinancialDto } from './dto/create-financial.dto';
 import { QueryFinancialDto } from './dto/query-financial.dto';
-import { MarkAsPaidDto,UpdateFinancialDto } from './dto/update-financial.dto';
+import { MarkAsPaidDto, UpdateFinancialDto } from './dto/update-financial.dto';
 
 @Injectable()
 export class FinancialService {
   constructor(
     @Inject('DATABASE')
-    private readonly db: NeonHttpDatabase<any>,
+    private readonly db: NeonHttpDatabase<typeof schema>,
   ) {}
 
   /**
@@ -71,7 +73,7 @@ export class FinancialService {
       userRole === UserRole.ALUNO ? requestingUserId : userId;
 
     // Construir condições
-    const conditions: any[] = [];
+    const conditions: SQLWrapper[] = [];
     if (targetUserId) {
       conditions.push(eq(tbFinancial.userId, targetUserId));
     }
@@ -85,8 +87,7 @@ export class FinancialService {
       conditions.push(lte(tbFinancial.createdAt, endDate));
     }
 
-    const whereClause =
-      conditions.length > 0 ? and(...(conditions as any[])) : undefined;
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
     // Query principal
     const records = await this.db

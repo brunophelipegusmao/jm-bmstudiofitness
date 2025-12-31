@@ -12,7 +12,6 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/contexts/AuthContext";
 
 // Schema de validação
 const createAdminSchema = z
@@ -40,7 +39,7 @@ type FormData = z.infer<typeof createAdminSchema>;
 
 export default function CreateAdminPage() {
   const router = useRouter();
-  // const { apiClient } = useAuth(); // TODO: Ativar quando endpoint estiver pronto
+  // TODO: Ativar quando endpoint estiver pronto
   const [success, setSuccess] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -79,12 +78,18 @@ export default function CreateAdminPage() {
       setTimeout(() => {
         router.push("/admin/dashboard");
       }, 2000);
-    } catch (error: any) {
-      setServerError(
-        error.response?.data?.message || "Erro ao criar administrador",
-      );
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Erro ao criar administrador";
+      const apiError = error as {
+        response?: { data?: { message?: string } };
+      };
+      setServerError(apiError.response?.data?.message ?? message);
       console.error("Erro ao criar admin:", error);
     }
+
   }
 
   if (success) {

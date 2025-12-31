@@ -9,9 +9,9 @@ interface StudentCredentialsModalProps {
   isOpen: boolean;
   onClose: () => void;
   credentials: {
-    name: string;
-    email: string;
-    password: string;
+    name?: string;
+    email?: string;
+    password?: string;
   } | null;
 }
 
@@ -44,16 +44,17 @@ export function StudentCredentialsModal({
           <div className="rounded-md bg-slate-800 p-4">
             <div className="space-y-2">
               <p>
-                <span className="font-semibold">Nome:</span> {credentials.name}
+                <span className="font-semibold">Nome:</span>{" "}
+                {credentials.name ?? "-"}
               </p>
               <p>
                 <span className="font-semibold">Email:</span>{" "}
-                {credentials.email}
+                {credentials.email ?? "-"}
               </p>
               <p>
                 <span className="font-semibold">Senha:</span>{" "}
                 <code className="rounded bg-slate-700 px-1 py-0.5">
-                  {credentials.password}
+                  {credentials.password ?? "-"}
                 </code>
               </p>
             </div>

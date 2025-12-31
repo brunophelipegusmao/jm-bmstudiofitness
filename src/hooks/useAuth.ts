@@ -46,7 +46,8 @@ export function useAuth() {
       setUser(response.user);
       return { success: true };
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erro ao fazer login";
+      const message =
+        error instanceof Error ? error.message : "Erro ao fazer login";
       return { success: false, error: message };
     }
   }
@@ -62,7 +63,8 @@ export function useAuth() {
       setUser(response.user);
       return { success: true };
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erro ao registrar";
+      const message =
+        error instanceof Error ? error.message : "Erro ao registrar";
       return { success: false, error: message };
     }
   }

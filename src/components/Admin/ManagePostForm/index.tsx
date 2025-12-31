@@ -13,35 +13,7 @@ import { CreatePostFormAdvanced } from "@/components/Dashboard/CreatePostFormAdv
 import { EditPostForm } from "@/components/Dashboard/EditPostForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-interface Post {
-  id: number;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  imageUrl: string | null;
-  published: boolean;
-  authorId: number;
-  categoryId: number | null;
-  readTime: number | null;
-  views: number;
-  metaTitle: string | null;
-  metaDescription: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  category?: {
-    id: number;
-    name: string;
-    slug: string;
-    color: string;
-  } | null;
-  tags?: Array<{
-    id: number;
-    name: string;
-    slug: string;
-  }>;
-}
+import type { Post } from "@/types/posts";
 
 export function ManagePostForm() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -80,7 +52,7 @@ export function ManagePostForm() {
     excerpt: string;
     imageUrl?: string;
     published: boolean;
-    categoryId?: number;
+    categoryId?: string;
     metaTitle?: string;
     metaDescription?: string;
     metaKeywords?: string;
@@ -104,7 +76,10 @@ export function ManagePostForm() {
     }
   };
 
-  const handleTogglePublished = async (postId: number, published: boolean) => {
+  const handleTogglePublished = async (
+    postId: string,
+    published: boolean,
+  ) => {
     try {
       await updatePostAction(postId, { published });
       await loadPosts();
@@ -121,7 +96,7 @@ export function ManagePostForm() {
     }
   };
 
-  const handleDeletePost = async (postId: number) => {
+  const handleDeletePost = async (postId: string) => {
     if (!confirm("Tem certeza que deseja excluir este post?")) {
       return;
     }

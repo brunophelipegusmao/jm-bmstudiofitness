@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
   try {
     const settings = await db
       .select({
+        routeHomeEnabled: studioSettingsTable.routeHomeEnabled,
         routeUserEnabled: studioSettingsTable.routeUserEnabled,
         routeCoachEnabled: studioSettingsTable.routeCoachEnabled,
         routeEmployeeEnabled: studioSettingsTable.routeEmployeeEnabled,
@@ -28,6 +29,7 @@ export async function GET(request: NextRequest) {
     if (!settings || settings.length === 0) {
       return NextResponse.json(
         {
+          routeHomeEnabled: true,
           routeUserEnabled: false,
           routeCoachEnabled: false,
           routeEmployeeEnabled: false,
@@ -56,6 +58,7 @@ export async function GET(request: NextRequest) {
     console.error("Erro ao buscar configurações de rotas:", error);
     return NextResponse.json(
       {
+        routeHomeEnabled: true,
         routeUserEnabled: false,
         routeCoachEnabled: false,
         routeEmployeeEnabled: false,

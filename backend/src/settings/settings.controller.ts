@@ -51,10 +51,10 @@ export class SettingsController {
   }
 
   /**
-   * Atualizar modo manutenção (MASTER apenas)
+   * Atualizar modo manutenção (ADMIN, MASTER)
    */
   @Patch('maintenance')
-  @Roles(UserRole.MASTER)
+  @Roles(UserRole.ADMIN, UserRole.MASTER)
   updateMaintenanceMode(@Body() updateMaintenanceDto: UpdateMaintenanceDto) {
     return this.settingsService.updateMaintenanceMode(updateMaintenanceDto);
   }
@@ -69,10 +69,10 @@ export class SettingsController {
   }
 
   /**
-   * Atualizar status das rotas (MASTER apenas)
+   * Atualizar status das rotas (ADMIN, MASTER)
    */
   @Patch('routes')
-  @Roles(UserRole.MASTER)
+  @Roles(UserRole.ADMIN, UserRole.MASTER)
   updateRoutesStatus(@Body() updateRoutesDto: UpdateRoutesDto) {
     return this.settingsService.updateRoutesStatus(updateRoutesDto);
   }

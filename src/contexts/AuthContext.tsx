@@ -26,13 +26,13 @@ interface AuthContextType {
   login: (
     email: string,
     password: string,
-  ) => Promise<{ success: boolean; error?: string }>;
+  ) => Promise<{ success: boolean; error?: string; user?: User }>;
   register: (data: {
     email: string;
     password: string;
     name: string;
     cpf: string;
-  }) => Promise<{ success: boolean; error?: string }>;
+  }) => Promise<{ success: boolean; error?: string; user?: User }>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -73,10 +73,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       const response = await apiClient.login({ login: email, password });
       setUser(response.user);
-      router.push("/dashboard");
-      return { success: true };
+      return { success: true, user: response.user };
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erro ao fazer login";
+      const message =
+        error instanceof Error ? error.message : "Erro ao fazer login";
       return { success: false, error: message };
     } finally {
       setLoading(false);
@@ -93,10 +93,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       const response = await apiClient.register({ ...data, role: "ALUNO" });
       setUser(response.user);
-      router.push("/dashboard");
-      return { success: true };
+      return { success: true, user: response.user };
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erro ao registrar";
+      const message =
+        error instanceof Error ? error.message : "Erro ao registrar";
       return { success: false, error: message };
     } finally {
       setLoading(false);

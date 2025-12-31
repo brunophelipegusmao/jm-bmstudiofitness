@@ -1,5 +1,7 @@
 # Dockerfile otimizado para produção
 FROM node:20-alpine AS base
+ARG NEXT_PUBLIC_API_URL="http://backend:3001/api"
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
 # Instalar dependências apenas para produção
 FROM base AS deps

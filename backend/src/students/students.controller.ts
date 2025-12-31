@@ -30,6 +30,17 @@ export class StudentsController {
   }
 
   /**
+   * Buscar dados do prÇüprio aluno autenticado
+   */
+  @Get('me')
+  getMe(
+    @CurrentUser('userId') userId: string,
+    @CurrentUser('role') role: UserRole,
+  ) {
+    return this.studentsService.getDashboardData(userId, role);
+  }
+
+  /**
    * Buscar aluno por ID
    */
   @Get(':id')

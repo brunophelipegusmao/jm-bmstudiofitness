@@ -185,16 +185,14 @@ export default async function PostPage({ params }: Props) {
                 Tags
               </h3>
               <div className="flex flex-wrap gap-3">
-                {post.tags.map(
-                  (tag: { id: number; name: string; slug: string }) => (
-                    <span
-                      key={tag.id}
-                      className="cursor-pointer rounded-lg bg-slate-800 px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-700"
-                    >
-                      #{tag.name}
-                    </span>
-                  ),
-                )}
+                {post.tags.map((tag) => (
+                  <span
+                    key={tag.id}
+                    className="cursor-pointer rounded-lg bg-slate-800 px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-700"
+                  >
+                    #{tag.name}
+                  </span>
+                ))}
               </div>
             </div>
           </section>

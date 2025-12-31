@@ -18,6 +18,7 @@ import { Public } from '../common/decorators/public.decorator';
 import { UserRole } from '../database/schema';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
 import { CreatePostDto, UpdatePostDto, QueryPostsDto } from './dto/post.dto';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @Controller('blog')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -95,8 +96,11 @@ export class BlogController {
 
   @Post('posts')
   @Roles(UserRole.ADMIN, UserRole.MASTER)
-  async createPost(@Body() dto: CreatePostDto, @Request() req: any) {
-    return this.blogService.createPost(dto, req.user.id);
+  async createPost(
+    @Body() dto: CreatePostDto,
+    @CurrentUser() user: import('../auth/interfaces/auth.interface').JwtPayload,
+  ) {
+    return this.blogService.createPost(dto, user.sub);
   }
 
   @Patch('posts/:id')

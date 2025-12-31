@@ -5,10 +5,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, desc,eq, isNull, like, or, sql } from 'drizzle-orm';
+import { and, desc, eq, isNull, like, or, sql } from 'drizzle-orm';
+import type { SQLWrapper } from 'drizzle-orm';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import * as schema from '../database/schema';
 
 import {
+  tbFinancial,
   tbHealthMetrics,
   tbPersonalData,
   tbStudentPermissions,
@@ -23,7 +26,7 @@ import { UpdateHealthMetricsDto } from './dto/update-health-metrics.dto';
 export class StudentsService {
   constructor(
     @Inject('DATABASE')
-    private readonly db: NeonHttpDatabase<any>,
+    private readonly db: NeonHttpDatabase<typeof schema>,
   ) {}
 
   /**
@@ -34,19 +37,20 @@ export class StudentsService {
     const offset = (page - 1) * limit;
 
     // Construir condições
-    const conditions: any[] = [
+    const conditions: SQLWrapper[] = [
       isNull(tbUsers.deletedAt),
       eq(tbUsers.userRole, UserRole.ALUNO),
     ];
 
     if (search) {
-      conditions.push(
-        or(
-          like(tbUsers.name, `%${search}%`),
-          like(tbPersonalData.email, `%${search}%`),
-        ),
-      );
+      const searchCondition = or(
+        like(tbUsers.name, `%${search}%`),
+        like(tbPersonalData.email, `%${search}%`),
+      ) as SQLWrapper;
+      conditions.push(searchCondition);
     }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
     // Query principal
     const students = await this.db
@@ -61,7 +65,7 @@ export class StudentsService {
       })
       .from(tbUsers)
       .leftJoin(tbPersonalData, eq(tbUsers.id, tbPersonalData.userId))
-      .where(and(...(conditions as any[])))
+      .where(whereClause)
       .orderBy(desc(tbUsers.createdAt))
       .limit(limit)
       .offset(offset);
@@ -71,7 +75,7 @@ export class StudentsService {
       .select({ count: sql<number>`count(*)` })
       .from(tbUsers)
       .leftJoin(tbPersonalData, eq(tbUsers.id, tbPersonalData.userId))
-      .where(and(...(conditions as any[])));
+      .where(whereClause);
 
     return {
       data: students,
@@ -81,6 +85,92 @@ export class StudentsService {
         limit,
         totalPages: Math.ceil(Number(count) / limit),
       },
+    };
+  }
+
+  /**
+   * Dados completos para o dashboard do aluno (inclusive para roles elevadas)
+   */
+  async getDashboardData(userId: string, userRole: UserRole) {
+    // Se for aluno, garante que estÇ­ pegando prÇüprio ID
+    if (userRole === UserRole.ALUNO && !userId) {
+      throw new ForbiddenException('Acesso negado');
+    }
+
+    const [user] = await this.db
+      .select({
+        id: tbUsers.id,
+        name: tbUsers.name,
+        personalData: {
+          email: tbPersonalData.email,
+          cpf: tbPersonalData.cpf,
+          bornDate: tbPersonalData.bornDate,
+          address: tbPersonalData.address,
+          telephone: tbPersonalData.telephone,
+        },
+      })
+      .from(tbUsers)
+      .leftJoin(tbPersonalData, eq(tbUsers.id, tbPersonalData.userId))
+      .where(and(eq(tbUsers.id, userId), isNull(tbUsers.deletedAt)))
+      .limit(1);
+
+    if (!user) {
+      throw new NotFoundException('UsuÇ­rio nÇœo encontrado');
+    }
+
+    const [health] = await this.db
+      .select({
+        heightCm: tbHealthMetrics.heightCm,
+        weightKg: tbHealthMetrics.weightKg,
+        bloodType: tbHealthMetrics.bloodType,
+        updatedAt: tbHealthMetrics.updatedAt,
+      })
+      .from(tbHealthMetrics)
+      .where(eq(tbHealthMetrics.userId, userId))
+      .limit(1);
+
+    const [financial] = await this.db
+      .select({
+        paid: tbFinancial.paid,
+        monthlyFeeValueInCents: tbFinancial.monthlyFeeValue,
+        dueDate: tbFinancial.dueDate,
+        lastPaymentDate: tbFinancial.lastPaymentDate,
+      })
+      .from(tbFinancial)
+      .where(eq(tbFinancial.userId, userId))
+      .orderBy(desc(tbFinancial.createdAt))
+      .limit(1);
+
+    return {
+      success: true,
+      data: {
+        user: {
+          id: user.id,
+          name: user.name,
+        },
+        personalData: {
+          email: user.personalData.email ?? '',
+          cpf: user.personalData.cpf ?? '',
+          bornDate: user.personalData.bornDate ?? '1970-01-01',
+          address: user.personalData.address ?? '',
+          telephone: user.personalData.telephone ?? '',
+        },
+        healthMetrics: {
+          heightCm: health?.heightCm ?? 0,
+          weightKg: health?.weightKg ?? 0,
+          bloodType: health?.bloodType ?? '',
+          updatedAt:
+            (health?.updatedAt as string | null) ??
+            new Date().toISOString(),
+        },
+        financial: {
+          paid: financial?.paid ?? false,
+          monthlyFeeValueInCents: financial?.monthlyFeeValueInCents ?? 0,
+          dueDate: financial?.dueDate ?? 0,
+          lastPaymentDate: (financial?.lastPaymentDate as string | null) ?? null,
+        },
+      },
+      message: '',
     };
   }
 

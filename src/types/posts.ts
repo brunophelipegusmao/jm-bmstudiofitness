@@ -1,20 +1,20 @@
 // Tipos relacionados a posts e blog
 
 export interface PostCategory {
-  id: number;
+  id: string;
   name: string;
-  color: string;
+  color?: string;
   slug: string;
 }
 
 export interface PostTag {
-  id: number;
+  id: string;
   name: string;
   slug: string;
 }
 
 export interface Post {
-  id: number;
+  id: string;
   title: string;
   excerpt: string;
   content?: string;
@@ -25,16 +25,17 @@ export interface Post {
   publishedAt: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
+  published?: boolean;
   category: PostCategory | null;
   tags: PostTag[];
   metaTitle?: string;
   metaDescription?: string;
   status?: "draft" | "published";
-  authorId?: number;
+  authorId?: string | null;
 }
 
 export interface PostListItem {
-  id: number;
+  id: string;
   title: string;
   excerpt: string;
   imageUrl: string | null;

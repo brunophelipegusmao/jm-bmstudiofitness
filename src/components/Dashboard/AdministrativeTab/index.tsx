@@ -172,7 +172,7 @@ export function AdministrativeTab({
         toast.error("Erro ao salvar medições");
       }
     } else {
-      // Sem userId (novo cadastro) — salvará apenas quando o aluno existir
+      // Sem userId (novo cadastro)  salvará apenas quando o aluno existir
       console.debug("Skipping save: no studentId available yet");
     }
   };
@@ -201,7 +201,7 @@ export function AdministrativeTab({
 
   // Log para debug do isPending
   useEffect(() => {
-    console.log("🔵 [COMPONENT] isPending mudou:", isPending);
+    console.log(" [COMPONENT] isPending mudou:", isPending);
   }, [isPending]);
 
   const [showCredentialsModal, setShowCredentialsModal] = useState(false);
@@ -281,14 +281,14 @@ export function AdministrativeTab({
 
   // Recarregar estatísticas quando um aluno for cadastrado com sucesso
   useEffect(() => {
-    console.log("🔵 [COMPONENT] formState mudou:", {
+    console.log(" [COMPONENT] formState mudou:", {
       success: formState.success,
-      message: formState.message,
+      message: formState.message ?? "Aluno cadastrado com sucesso!",
       hasCredentials: !!formState.credentials,
     });
 
     if (formState.success) {
-      console.log("✅ [COMPONENT] Aluno cadastrado com sucesso!");
+      console.log(" [COMPONENT] Aluno cadastrado com sucesso!");
       async function reloadStats() {
         const result = await getDashboardStatsAction();
         if (result.success && result.stats) {
@@ -299,7 +299,7 @@ export function AdministrativeTab({
 
       // Recarregar lista de alunos
       if (onStudentsChange) {
-        console.log("🔄 [COMPONENT] Recarregando lista de alunos...");
+        console.log("? [COMPONENT] Recarregando lista de alunos...");
         onStudentsChange();
       }
 
@@ -307,13 +307,13 @@ export function AdministrativeTab({
       setFeedbackModalConfig({
         type: "success",
         title: "Aluno Cadastrado com Sucesso!",
-        message: formState.message,
+        message: formState.message ?? "Aluno cadastrado com sucesso!",
         details: formState.credentials
           ? [
-              `Nome: ${formState.credentials.name}`,
-              `Email: ${formState.credentials.email}`,
+              formState.credentials.name ? `Nome: ${formState.credentials.name}` : null,
+              formState.credentials.email ? `Email: ${formState.credentials.email}` : null,
               "Um e-mail de confirmação foi enviado com as credenciais de acesso.",
-            ]
+            ].filter(Boolean) as string[]
           : undefined,
       });
       setShowFeedbackModal(true);
@@ -394,7 +394,7 @@ export function AdministrativeTab({
         void saveMeasurementsForUser(newUserId);
       }
     } else if (!formState.success && formState.message) {
-      console.log("❌ [COMPONENT] Erro ao cadastrar aluno");
+      console.log(" [COMPONENT] Erro ao cadastrar aluno");
       // Mostrar modal de erro
       const errorDetails: string[] = [];
 
@@ -407,7 +407,7 @@ export function AdministrativeTab({
       setFeedbackModalConfig({
         type: "error",
         title: "Erro ao Cadastrar Aluno",
-        message: formState.message,
+        message: formState.message ?? "Aluno cadastrado com sucesso!",
         details: errorDetails.length > 0 ? errorDetails : undefined,
       });
       setShowFeedbackModal(true);
@@ -474,7 +474,7 @@ export function AdministrativeTab({
             onClick={() => setShowForm(false)}
             className="border-slate-600 text-slate-300 hover:bg-slate-800"
           >
-            ← Voltar
+             Voltar
           </Button>
         </div>
 
@@ -1389,7 +1389,7 @@ export function AdministrativeTab({
 
                 {/* Hover Arrow */}
                 <div className="absolute top-6 right-6 translate-x-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#C2A537]">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#C2A537]">
                     <span className="font-bold text-black">→</span>
                   </div>
                 </div>
@@ -1473,7 +1473,7 @@ export function AdministrativeTab({
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500">
-                <span className="font-bold text-white">⚠</span>
+                <span className="font-bold text-white">!</span>
               </div>
               <div>
                 <p className="text-sm text-slate-400">Pendências</p>
@@ -1614,3 +1614,5 @@ export function AdministrativeTab({
     </div>
   );
 }
+
+

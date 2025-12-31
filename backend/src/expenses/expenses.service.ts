@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import * as schema from '../database/schema';
 import { tbExpenses, tbUsers } from '../database/schema';
 import { eq, desc, and, isNull, gte, lte, ilike, sql } from 'drizzle-orm';
+import type { SQLWrapper } from 'drizzle-orm';
 import {
   CreateExpenseDto,
   UpdateExpenseDto,
@@ -12,11 +14,11 @@ import {
 export class ExpensesService {
   constructor(
     @Inject('DATABASE')
-    private readonly db: NeonHttpDatabase<any>,
+    private readonly db: NeonHttpDatabase<typeof schema>,
   ) {}
 
   async findAll(query: QueryExpensesDto = {}) {
-    const conditions: any[] = [isNull(tbExpenses.deletedAt)];
+    const conditions: SQLWrapper[] = [isNull(tbExpenses.deletedAt)];
 
     if (query.category) {
       conditions.push(eq(tbExpenses.category, query.category));
@@ -33,6 +35,8 @@ export class ExpensesService {
     if (query.search) {
       conditions.push(ilike(tbExpenses.description, `%${query.search}%`));
     }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
     const expenses = await this.db
       .select({
@@ -53,7 +57,7 @@ export class ExpensesService {
       })
       .from(tbExpenses)
       .innerJoin(tbUsers, eq(tbExpenses.createdBy, tbUsers.id))
-      .where(and(...conditions))
+      .where(whereClause)
       .orderBy(desc(tbExpenses.expenseDate));
 
     return expenses;

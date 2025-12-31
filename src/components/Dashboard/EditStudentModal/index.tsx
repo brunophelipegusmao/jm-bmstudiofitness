@@ -153,6 +153,7 @@ export function EditStudentModal({
   const onSubmit = async (data: EditStudentFormData) => {
     try {
       const updateData: UpdateStudentData = {
+        id: student.userId,
         name: data.name,
         cpf: data.cpf,
         email: data.email,
@@ -166,7 +167,7 @@ export function EditStudentModal({
         dueDate: parseInt(data.dueDate, 10),
       };
 
-      const result = await updateStudentAction(student.userId, updateData);
+      const result = await updateStudentAction(updateData);
 
       if (result.success) {
         showSuccessToast("Dados do aluno atualizados com sucesso!");

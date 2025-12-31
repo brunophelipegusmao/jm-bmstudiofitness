@@ -158,7 +158,7 @@ const CoachPage = () => {
       } else {
         setCheckInMessage({
           type: "error",
-          text: result.error || "Erro ao realizar check-in",
+          text: result.message || "Erro ao realizar check-in",
         });
       }
     } catch (error) {
@@ -285,7 +285,11 @@ const CoachPage = () => {
           </div>
 
           {/* Botão de Logout */}
-          <form action={logoutFormAction}>
+          <form
+            action={async () => {
+              await logoutFormAction();
+            }}
+          >
             <Button
               type="submit"
               variant="outline"

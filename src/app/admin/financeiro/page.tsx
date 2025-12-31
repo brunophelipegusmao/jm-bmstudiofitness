@@ -61,7 +61,7 @@ export default function AdminPaymentsPage() {
         const updatedData = await getStudentsPaymentsAction();
         setStudents(updatedData);
       } else {
-        alert(result.message);
+        alert(result.error ?? "Erro ao atualizar pagamento");
       }
     } catch (error) {
       console.error("Erro ao atualizar pagamento:", error);
@@ -69,6 +69,18 @@ export default function AdminPaymentsPage() {
     } finally {
       setUpdating(null);
     }
+  };
+
+  const triggerPaymentUpdate = (
+    student: StudentPaymentData,
+    paid: boolean,
+  ) => {
+    const targetUserId = student.userId ?? student.id;
+    if (!targetUserId) {
+      console.error("Usuário sem identificador para atualizar pagamento", student);
+      return;
+    }
+    return handlePaymentUpdate(targetUserId, paid);
   };
 
   // Filtrar alunos por status
@@ -95,15 +107,15 @@ export default function AdminPaymentsPage() {
 
   // Calcular totais financeiros
   const totalReceived = studentsUpToDate.reduce((sum, student) => {
-    return sum + student.monthlyFeeValueInCents / 100;
+    return sum + (student.monthlyFeeValueInCents ?? 0) / 100;
   }, 0);
 
   const totalOverdue = studentsOverdue.reduce((sum, student) => {
-    return sum + student.monthlyFeeValueInCents / 100;
+    return sum + (student.monthlyFeeValueInCents ?? 0) / 100;
   }, 0);
 
   const totalRevenue = students.reduce((sum, student) => {
-    return sum + student.monthlyFeeValueInCents / 100;
+    return sum + (student.monthlyFeeValueInCents ?? 0) / 100;
   }, 0);
 
   // Função para formatar moeda
@@ -113,6 +125,9 @@ export default function AdminPaymentsPage() {
       currency: "BRL",
     }).format(value);
   };
+
+  const formatDueDateValue = (value: number | Date) =>
+    typeof value === "number" ? value : new Date(value).getDate();
 
   if (loading) {
     return (
@@ -273,7 +288,7 @@ export default function AdminPaymentsPage() {
                                   {student.name}
                                 </div>
                                 <div className="text-sm text-slate-400">
-                                  CPF: {formatCPF(student.cpf)}
+                                  CPF: {student.cpf ? formatCPF(student.cpf) : "-"}
                                 </div>
                               </div>
                             </td>
@@ -289,7 +304,7 @@ export default function AdminPaymentsPage() {
                             </td>
                             <td className="p-3 text-center">
                               <span className="rounded-full bg-green-900/50 px-2 py-1 text-sm text-green-300">
-                                Dia {student.dueDate}
+                                Dia {formatDueDateValue(student.dueDate)}
                               </span>
                             </td>
                             <td className="p-3 text-center text-slate-300">
@@ -302,7 +317,7 @@ export default function AdminPaymentsPage() {
                             <td className="p-3 text-center">
                               <Button
                                 onClick={() =>
-                                  handlePaymentUpdate(student.userId, false)
+                                  triggerPaymentUpdate(student, false)
                                 }
                                 disabled={updating === student.userId}
                                 variant="outline"
@@ -335,7 +350,7 @@ export default function AdminPaymentsPage() {
                                 {student.name}
                               </h3>
                               <p className="text-sm text-slate-400">
-                                CPF: {formatCPF(student.cpf)}
+                                CPF: {student.cpf ? formatCPF(student.cpf) : "-"}
                               </p>
                             </div>
 
@@ -356,7 +371,7 @@ export default function AdminPaymentsPage() {
                               <div>
                                 <p className="text-slate-400">Vencimento:</p>
                                 <span className="inline-block rounded-full bg-green-900/50 px-2 py-1 text-xs text-green-300">
-                                  Dia {student.dueDate}
+                                  Dia {formatDueDateValue(student.dueDate)}
                                 </span>
                               </div>
                               <div>
@@ -377,7 +392,7 @@ export default function AdminPaymentsPage() {
                             <div className="pt-2">
                               <Button
                                 onClick={() =>
-                                  handlePaymentUpdate(student.userId, false)
+                                  triggerPaymentUpdate(student, false)
                                 }
                                 disabled={updating === student.userId}
                                 variant="outline"
@@ -543,7 +558,7 @@ export default function AdminPaymentsPage() {
                                   {student.name}
                                 </div>
                                 <div className="text-sm text-slate-400">
-                                  CPF: {formatCPF(student.cpf)}
+                                  CPF: {student.cpf ? formatCPF(student.cpf) : "-"}
                                 </div>
                               </div>
                             </td>
@@ -559,7 +574,7 @@ export default function AdminPaymentsPage() {
                             </td>
                             <td className="p-3 text-center">
                               <span className="rounded-full bg-red-900/50 px-2 py-1 text-sm text-red-300">
-                                Dia {student.dueDate}
+                                Dia {formatDueDateValue(student.dueDate)}
                               </span>
                             </td>
                             <td className="p-3 text-center text-slate-300">
@@ -572,7 +587,7 @@ export default function AdminPaymentsPage() {
                             <td className="p-3 text-center">
                               <Button
                                 onClick={() =>
-                                  handlePaymentUpdate(student.userId, true)
+                                  triggerPaymentUpdate(student, true)
                                 }
                                 disabled={updating === student.userId}
                                 variant="default"
@@ -605,7 +620,7 @@ export default function AdminPaymentsPage() {
                                 {student.name}
                               </h3>
                               <p className="text-sm text-slate-400">
-                                CPF: {formatCPF(student.cpf)}
+                                CPF: {student.cpf ? formatCPF(student.cpf) : "-"}
                               </p>
                             </div>
 
@@ -626,7 +641,7 @@ export default function AdminPaymentsPage() {
                               <div>
                                 <p className="text-slate-400">Vencimento:</p>
                                 <span className="inline-block rounded-full bg-red-900/50 px-2 py-1 text-xs text-red-300">
-                                  Dia {student.dueDate}
+                                  Dia {formatDueDateValue(student.dueDate)}
                                 </span>
                               </div>
                               <div>
@@ -647,7 +662,7 @@ export default function AdminPaymentsPage() {
                             <div className="pt-2">
                               <Button
                                 onClick={() =>
-                                  handlePaymentUpdate(student.userId, true)
+                                  triggerPaymentUpdate(student, true)
                                 }
                                 disabled={updating === student.userId}
                                 variant="default"

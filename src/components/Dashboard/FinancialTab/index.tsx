@@ -59,11 +59,17 @@ export function FinancialTab() {
       const result = await getFinancialReportsAction();
 
       if (result.success && result.data) {
+        const o = result.data.overview ?? {
+          totalRevenue: "R$ 0,00",
+          activeStudents: 0,
+          pendingPayments: "R$ 0,00",
+          paymentRate: 0,
+        };
         setOverview({
-          totalRevenue: result.data.overview.totalRevenue,
-          activeStudents: result.data.overview.activeStudents,
-          totalPending: result.data.overview.pendingPayments,
-          paymentRate: result.data.overview.paymentRate,
+          totalRevenue: o.totalRevenue ?? "R$ 0,00",
+          activeStudents: o.activeStudents ?? 0,
+          totalPending: o.pendingPayments ?? "R$ 0,00",
+          paymentRate: o.paymentRate ?? 0,
         });
       }
     } catch (error) {

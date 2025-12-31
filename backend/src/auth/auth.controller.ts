@@ -46,9 +46,11 @@ export class AuthController {
   }
 
   @Get('me')
-  async getProfile(@CurrentUser() user: any) {
+  async getProfile(
+    @CurrentUser() user: import('./interfaces/auth.interface').JwtPayload,
+  ) {
     return {
-      id: user.userId,
+      id: user.sub,
       name: user.name,
       email: user.email,
       role: user.role,
@@ -57,7 +59,9 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@CurrentUser() user: any) {
+  async logout(
+    @CurrentUser() user: import('./interfaces/auth.interface').JwtPayload,
+  ) {
     // Aqui você pode invalidar tokens, limpar refresh tokens do banco, etc.
     return { message: 'Logout realizado com sucesso' };
   }

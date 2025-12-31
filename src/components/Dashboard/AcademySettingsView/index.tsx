@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import {
@@ -23,7 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-// Função para validar se é uma URL válida de imagem
+// FunÃ§Ã£o para validar se Ã© uma URL vÃ¡lida de imagem
 const isValidImageUrl = (url: string): boolean => {
   if (!url || url.trim() === "") return false;
 
@@ -31,7 +31,7 @@ const isValidImageUrl = (url: string): boolean => {
     const urlObj = new URL(url.trim());
     const pathname = urlObj.pathname.toLowerCase();
 
-    // Verifica se termina com extensão de imagem válida
+    // Verifica se termina com extensÃ£o de imagem vÃ¡lida
     const validExtensions = [
       ".jpg",
       ".jpeg",
@@ -45,10 +45,10 @@ const isValidImageUrl = (url: string): boolean => {
       pathname.endsWith(ext),
     );
 
-    // Aceita URLs locais (começam com /) ou URLs com extensão de imagem
+    // Aceita URLs locais (comeÃ§am com /) ou URLs com extensÃ£o de imagem
     return pathname.startsWith("/") || hasValidExtension;
   } catch {
-    // Se começar com / é uma URL local válida
+    // Se comeÃ§ar com / Ã© uma URL local vÃ¡lida
     return url.trim().startsWith("/");
   }
 };
@@ -71,8 +71,12 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
 
   const loadSettings = async () => {
     try {
-      const data = await getStudioSettingsAction();
-      setSettings(data);
+      const result = await getStudioSettingsAction();
+      if (result.data) {
+        setSettings(result.data);
+      } else {
+        toast.error("Erro ao carregar configurações");
+      }
     } catch (error) {
       toast.error("Erro ao carregar configurações");
       console.error(error);
@@ -80,8 +84,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
       setLoading(false);
     }
   };
-
-  const handleSaveSettings = async () => {
+const handleSaveSettings = async () => {
     if (!settings) return;
 
     setSaving(true);
@@ -133,7 +136,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
         toast.error(result.message);
       }
     } catch (error) {
-      toast.error("Erro ao salvar configurações");
+      toast.error("Erro ao salvar configuraÃ§Ãµes");
       console.error(error);
     } finally {
       setSaving(false);
@@ -145,31 +148,31 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
       id: "general",
       label: "Geral",
       icon: Settings,
-      description: "Informações básicas do estúdio",
+      description: "InformaÃ§Ãµes bÃ¡sicas do estÃºdio",
     },
     {
       id: "hours",
-      label: "Horários",
+      label: "HorÃ¡rios",
       icon: Clock,
-      description: "Horários de funcionamento",
+      description: "HorÃ¡rios de funcionamento",
     },
     {
       id: "pricing",
       label: "Valores",
       icon: DollarSign,
-      description: "Preços e mensalidades",
+      description: "PreÃ§os e mensalidades",
     },
     {
       id: "policies",
-      label: "Políticas",
+      label: "PolÃ­ticas",
       icon: FileText,
-      description: "Regras e políticas",
+      description: "Regras e polÃ­ticas",
     },
     {
       id: "carousel",
       label: "Carrossel",
       icon: ImageIcon,
-      description: "Imagens do carrossel da página inicial",
+      description: "Imagens do carrossel da pÃ¡gina inicial",
     },
   ];
 
@@ -182,7 +185,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
     },
     {
       key: "tuesday",
-      label: "Terça-feira",
+      label: "TerÃ§a-feira",
       openKey: "tuesdayOpen" as const,
       closeKey: "tuesdayClose" as const,
     },
@@ -206,7 +209,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
     },
     {
       key: "saturday",
-      label: "Sábado",
+      label: "SÃ¡bado",
       openKey: "saturdayOpen" as const,
       closeKey: "saturdayClose" as const,
     },
@@ -229,7 +232,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
   if (!settings) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <p className="text-slate-400">Erro ao carregar configurações</p>
+        <p className="text-slate-400">Erro ao carregar configuraÃ§Ãµes</p>
       </div>
     );
   }
@@ -245,10 +248,10 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-[#C2A537]">
-            Configurações do Estúdio
+            ConfiguraÃ§Ãµes do EstÃºdio
           </h2>
           <p className="text-slate-400">
-            Configurar horários, valores e políticas
+            Configurar horÃ¡rios, valores e polÃ­ticas
           </p>
         </div>
         <Button
@@ -256,7 +259,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
           variant="outline"
           className="border-slate-600 text-slate-300 hover:bg-slate-800"
         >
-          ← Voltar
+          â† Voltar
         </Button>
       </div>
 
@@ -300,13 +303,13 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-[#C2A537]">
                 <Settings className="h-5 w-5" />
-                Informações Gerais
+                InformaÃ§Ãµes Gerais
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-[#C2A537]">Nome do Estúdio</Label>
+                  <Label className="text-[#C2A537]">Nome do EstÃºdio</Label>
                   <Input
                     value={settings.studioName}
                     onChange={(e) =>
@@ -340,7 +343,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <Label className="text-[#C2A537]">Endereço</Label>
+                  <Label className="text-[#C2A537]">EndereÃ§o</Label>
                   <Input
                     value={settings.address}
                     onChange={(e) =>
@@ -400,7 +403,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-[#C2A537]">
                 <Clock className="h-5 w-5" />
-                Horários de Funcionamento
+                HorÃ¡rios de Funcionamento
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -506,19 +509,19 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-[#C2A537]">
                 <DollarSign className="h-5 w-5" />
-                Preços e Mensalidades
+                PreÃ§os e Mensalidades
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-2">
                   <Label className="text-[#C2A537]">
-                    Mensalidade Padrão (R$)
+                    Mensalidade PadrÃ£o (R$)
                   </Label>
                   <Input
                     type="number"
                     step="0.01"
-                    value={(settings.monthlyFeeDefault / 100).toFixed(2)}
+                    value={((settings.monthlyFeeDefault ?? 0) / 100).toFixed(2)}
                     onChange={(e) =>
                       setSettings({
                         ...settings,
@@ -533,12 +536,12 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
 
                 <div className="space-y-2">
                   <Label className="text-[#C2A537]">
-                    Taxa de Matrícula (R$)
+                    Taxa de MatrÃ­cula (R$)
                   </Label>
                   <Input
                     type="number"
                     step="0.01"
-                    value={(settings.registrationFee / 100).toFixed(2)}
+                    value={((settings.registrationFee ?? 0) / 100).toFixed(2)}
                     onChange={(e) =>
                       setSettings({
                         ...settings,
@@ -558,9 +561,9 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
                   <Input
                     type="number"
                     step="0.01"
-                    value={(settings.personalTrainingHourlyRate / 100).toFixed(
-                      2,
-                    )}
+                    value={(
+                      (settings.personalTrainingHourlyRate ?? 0) / 100
+                    ).toFixed(2)}
                     onChange={(e) =>
                       setSettings({
                         ...settings,
@@ -575,13 +578,13 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
 
                 <div className="space-y-2">
                   <Label className="text-[#C2A537]">
-                    Dia de Vencimento Padrão
+                    Dia de Vencimento PadrÃ£o
                   </Label>
                   <Input
                     type="number"
                     min="1"
                     max="31"
-                    value={settings.paymentDueDateDefault}
+                    value={settings.paymentDueDateDefault ?? 1}
                     onChange={(e) =>
                       setSettings({
                         ...settings,
@@ -594,12 +597,12 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
 
                 <div className="space-y-2">
                   <Label className="text-[#C2A537]">
-                    Período de Carência (dias)
+                    PerÃ­odo de CarÃªncia (dias)
                   </Label>
                   <Input
                     type="number"
                     min="0"
-                    value={settings.gracePeriodDays}
+                    value={settings.gracePeriodDays ?? 0}
                     onChange={(e) =>
                       setSettings({
                         ...settings,
@@ -612,12 +615,12 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
 
                 <div className="space-y-2">
                   <Label className="text-[#C2A537]">
-                    Check-ins Máximos/Dia
+                    Check-ins MÃ¡ximos/Dia
                   </Label>
                   <Input
                     type="number"
                     min="1"
-                    value={settings.maxCheckInsPerDay}
+                    value={settings.maxCheckInsPerDay ?? 0}
                     onChange={(e) =>
                       setSettings({
                         ...settings,
@@ -632,7 +635,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
               <div className="flex items-center gap-2 rounded-lg border border-slate-600/50 bg-slate-800/30 p-3">
                 <input
                   type="checkbox"
-                  checked={settings.allowWeekendCheckIn}
+                  checked={settings.allowWeekendCheckIn ?? false}
                   onChange={(e) =>
                     setSettings({
                       ...settings,
@@ -661,14 +664,14 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-[#C2A537]">
                 <FileText className="h-5 w-5" />
-                Políticas e Termos
+                PolÃ­ticas e Termos
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label className="text-[#C2A537]">
-                    Política de Cancelamento
+                    PolÃ­tica de Cancelamento
                   </Label>
                   <textarea
                     value={settings.cancellationPolicy || ""}
@@ -679,13 +682,13 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
                       })
                     }
                     rows={4}
-                    placeholder="Descreva a política de cancelamento do estúdio..."
+                    placeholder="Descreva a polÃ­tica de cancelamento do estÃºdio..."
                     className="w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 text-white focus:border-[#C2A537] focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-[#C2A537]">Termos e Condições</Label>
+                  <Label className="text-[#C2A537]">Termos e CondiÃ§Ãµes</Label>
                   <textarea
                     value={settings.termsAndConditions || ""}
                     onChange={(e) =>
@@ -695,14 +698,14 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
                       })
                     }
                     rows={4}
-                    placeholder="Descreva os termos e condições gerais..."
+                    placeholder="Descreva os termos e condiÃ§Ãµes gerais..."
                     className="w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 text-white focus:border-[#C2A537] focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label className="text-[#C2A537]">
-                    Política de Privacidade
+                    PolÃ­tica de Privacidade
                   </Label>
                   <textarea
                     value={settings.privacyPolicy || ""}
@@ -713,7 +716,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
                       })
                     }
                     rows={4}
-                    placeholder="Descreva como os dados dos alunos são tratados..."
+                    placeholder="Descreva como os dados dos alunos sÃ£o tratados..."
                     className="w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 text-white focus:border-[#C2A537] focus:outline-none"
                   />
                 </div>
@@ -739,7 +742,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-slate-400">
-                Configure até 7 imagens para o carrossel da página inicial.
+                Configure atÃ© 7 imagens para o carrossel da pÃ¡gina inicial.
                 Insira as URLs das imagens.
               </p>
 
@@ -780,7 +783,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
                       ) : (
                         <div className="mt-2 rounded-md border border-red-500 bg-red-500/10 p-3">
                           <p className="text-sm text-red-400">
-                            ⚠️ URL inválida. Use uma URL direta de imagem que
+                            âš ï¸ URL invÃ¡lida. Use uma URL direta de imagem que
                             termine com .jpg, .png, .gif, etc.
                           </p>
                         </div>
@@ -825,7 +828,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
                       ) : (
                         <div className="mt-2 rounded-md border border-red-500 bg-red-500/10 p-3">
                           <p className="text-sm text-red-400">
-                            ⚠️ URL inválida. Use uma URL direta de imagem que
+                            âš ï¸ URL invÃ¡lida. Use uma URL direta de imagem que
                             termine com .jpg, .png, .gif, etc.
                           </p>
                         </div>
@@ -870,7 +873,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
                       ) : (
                         <div className="mt-2 rounded-md border border-red-500 bg-red-500/10 p-3">
                           <p className="text-sm text-red-400">
-                            ⚠️ URL inválida. Use uma URL direta de imagem que
+                            âš ï¸ URL invÃ¡lida. Use uma URL direta de imagem que
                             termine com .jpg, .png, .gif, etc.
                           </p>
                         </div>
@@ -915,7 +918,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
                       ) : (
                         <div className="mt-2 rounded-md border border-red-500 bg-red-500/10 p-3">
                           <p className="text-sm text-red-400">
-                            ⚠️ URL inválida. Use uma URL direta de imagem que
+                            âš ï¸ URL invÃ¡lida. Use uma URL direta de imagem que
                             termine com .jpg, .png, .gif, etc.
                           </p>
                         </div>
@@ -960,7 +963,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
                       ) : (
                         <div className="mt-2 rounded-md border border-red-500 bg-red-500/10 p-3">
                           <p className="text-sm text-red-400">
-                            ⚠️ URL inválida. Use uma URL direta de imagem que
+                            âš ï¸ URL invÃ¡lida. Use uma URL direta de imagem que
                             termine com .jpg, .png, .gif, etc.
                           </p>
                         </div>
@@ -1005,7 +1008,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
                       ) : (
                         <div className="mt-2 rounded-md border border-red-500 bg-red-500/10 p-3">
                           <p className="text-sm text-red-400">
-                            ⚠️ URL inválida. Use uma URL direta de imagem que
+                            âš ï¸ URL invÃ¡lida. Use uma URL direta de imagem que
                             termine com .jpg, .png, .gif, etc.
                           </p>
                         </div>
@@ -1050,7 +1053,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
                       ) : (
                         <div className="mt-2 rounded-md border border-red-500 bg-red-500/10 p-3">
                           <p className="text-sm text-red-400">
-                            ⚠️ URL inválida. Use uma URL direta de imagem que
+                            âš ï¸ URL invÃ¡lida. Use uma URL direta de imagem que
                             termine com .jpg, .png, .gif, etc.
                           </p>
                         </div>
@@ -1079,7 +1082,7 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              Salvar Configurações
+              Salvar ConfiguraÃ§Ãµes
             </>
           )}
         </Button>
@@ -1087,3 +1090,4 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
     </motion.div>
   );
 }
+

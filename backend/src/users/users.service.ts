@@ -7,8 +7,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
-import { and, asc,desc, eq, isNull, like, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, isNull, like, or, sql } from 'drizzle-orm';
+import type { SQLWrapper } from 'drizzle-orm';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import * as schema from '../database/schema';
 
 import {
   tbEmployeePermissions,
@@ -23,13 +25,13 @@ import {
   UpdateEmployeePermissionsDto,
   UpdateStudentPermissionsDto,
 } from './dto/update-permissions.dto';
-import { UpdatePasswordDto,UpdateUserDto } from './dto/update-user.dto';
+import { UpdatePasswordDto, UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @Inject('DATABASE')
-    private readonly db: NeonHttpDatabase<any>,
+    private readonly db: NeonHttpDatabase<typeof schema>,
   ) {}
 
   /**
@@ -126,26 +128,25 @@ export class UsersService {
       sortBy = 'createdAt',
       order = 'desc',
     } = queryDto;
+
     const offset = (page - 1) * limit;
 
-    // Construir condições where
-    const whereConditions: any[] = [isNull(tbUsers.deletedAt)];
-
+    const whereConditions: SQLWrapper[] = [isNull(tbUsers.deletedAt)];
     if (role) {
       whereConditions.push(eq(tbUsers.userRole, role));
     }
 
     if (search) {
-      whereConditions.push(
-        or(
-          like(tbUsers.name, `%${search}%`),
-          like(tbPersonalData.email, `%${search}%`),
-          like(tbPersonalData.cpf, `%${search}%`),
-        ),
-      );
+      const searchCondition = or(
+        like(tbUsers.name, `%${search}%`),
+        like(tbPersonalData.email, `%${search}%`),
+      ) as SQLWrapper;
+      whereConditions.push(searchCondition);
     }
 
-    // Ordenação
+    const whereClause =
+      whereConditions.length > 0 ? and(...whereConditions) : undefined;
+
     const orderDirection = order === 'asc' ? asc : desc;
     let orderByColumn;
     if (sortBy === 'name') {
@@ -156,7 +157,6 @@ export class UsersService {
       orderByColumn = orderDirection(tbUsers.createdAt);
     }
 
-    // Query principal
     const users = await this.db
       .select({
         id: tbUsers.id,
@@ -166,11 +166,10 @@ export class UsersService {
         createdAt: tbUsers.createdAt,
         email: tbPersonalData.email,
         cpf: tbPersonalData.cpf,
-        telephone: tbPersonalData.telephone,
       })
       .from(tbUsers)
       .leftJoin(tbPersonalData, eq(tbUsers.id, tbPersonalData.userId))
-      .where(and(...whereConditions))
+      .where(whereClause)
       .orderBy(orderByColumn)
       .limit(limit)
       .offset(offset);
@@ -180,19 +179,7 @@ export class UsersService {
       .select({ count: sql<number>`count(*)` })
       .from(tbUsers)
       .leftJoin(tbPersonalData, eq(tbUsers.id, tbPersonalData.userId))
-      .where(
-        and(
-          isNull(tbUsers.deletedAt),
-          role ? eq(tbUsers.userRole, role) : undefined,
-          search
-            ? or(
-                like(tbUsers.name, `%${search}%`),
-                like(tbPersonalData.email, `%${search}%`),
-                like(tbPersonalData.cpf, `%${search}%`),
-              )
-            : undefined,
-        ),
-      );
+      .where(whereClause);
 
     return {
       data: users,
@@ -227,7 +214,7 @@ export class UsersService {
       })
       .from(tbUsers)
       .leftJoin(tbPersonalData, eq(tbUsers.id, tbPersonalData.userId))
-      .where(and(eq(tbUsers.id, id), isNull(tbUsers.deletedAt)))
+      .where(eq(tbUsers.id, id))
       .limit(1);
 
     if (!user) {
@@ -241,188 +228,163 @@ export class UsersService {
    * Buscar usuário por email
    */
   async findByEmail(email: string) {
-    const [personalData] = await this.db
-      .select()
-      .from(tbPersonalData)
+    const [user] = await this.db
+      .select({
+        id: tbUsers.id,
+        name: tbUsers.name,
+        userRole: tbUsers.userRole,
+        isActive: tbUsers.isActive,
+        createdAt: tbUsers.createdAt,
+        updatedAt: tbUsers.updatedAt,
+        personalData: {
+          email: tbPersonalData.email,
+          cpf: tbPersonalData.cpf,
+          bornDate: tbPersonalData.bornDate,
+          address: tbPersonalData.address,
+          telephone: tbPersonalData.telephone,
+        },
+      })
+      .from(tbUsers)
+      .leftJoin(tbPersonalData, eq(tbUsers.id, tbPersonalData.userId))
       .where(eq(tbPersonalData.email, email))
       .limit(1);
 
-    if (!personalData) {
-      return null;
-    }
-
-    const [user] = await this.db
-      .select()
-      .from(tbUsers)
-      .where(
-        and(eq(tbUsers.id, personalData.userId), isNull(tbUsers.deletedAt)),
-      )
-      .limit(1);
-
-    return user;
+    return user || null;
   }
 
   /**
    * Buscar usuário por CPF
    */
   async findByCpf(cpf: string) {
-    const [personalData] = await this.db
-      .select()
-      .from(tbPersonalData)
+    const [user] = await this.db
+      .select({
+        id: tbUsers.id,
+        name: tbUsers.name,
+        userRole: tbUsers.userRole,
+        isActive: tbUsers.isActive,
+        createdAt: tbUsers.createdAt,
+        updatedAt: tbUsers.updatedAt,
+        personalData: {
+          email: tbPersonalData.email,
+          cpf: tbPersonalData.cpf,
+          bornDate: tbPersonalData.bornDate,
+          address: tbPersonalData.address,
+          telephone: tbPersonalData.telephone,
+        },
+      })
+      .from(tbUsers)
+      .leftJoin(tbPersonalData, eq(tbUsers.id, tbPersonalData.userId))
       .where(eq(tbPersonalData.cpf, cpf))
       .limit(1);
 
-    if (!personalData) {
-      return null;
-    }
-
-    const [user] = await this.db
-      .select()
-      .from(tbUsers)
-      .where(
-        and(eq(tbUsers.id, personalData.userId), isNull(tbUsers.deletedAt)),
-      )
-      .limit(1);
-
-    return user;
+    return user || null;
   }
 
   /**
-   * Atualizar usuário
+   * Atualizar dados do usuário
    */
-  async update(
-    id: string,
-    updateUserDto: UpdateUserDto,
-    requestingUserId?: string,
-  ) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.findOne(id);
 
-    if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
-    }
+    const updateData: any = { updatedAt: new Date() };
 
-    // Atualizar dados do usuário
-    const userUpdates: any = {};
-    if (updateUserDto.name) userUpdates.name = updateUserDto.name;
+    if (updateUserDto.name !== undefined) updateData.name = updateUserDto.name;
     if (updateUserDto.isActive !== undefined)
-      userUpdates.isActive = updateUserDto.isActive;
-    userUpdates.updatedAt = new Date();
+      updateData.isActive = updateUserDto.isActive;
+    // role não faz parte do DTO atual; manter apenas campos existentes
 
-    if (Object.keys(userUpdates).length > 0) {
-      await this.db.update(tbUsers).set(userUpdates).where(eq(tbUsers.id, id));
-    }
+    // Atualizar tabela de usuários
+    const [updatedUser] = await this.db
+      .update(tbUsers)
+      .set(updateData)
+      .where(eq(tbUsers.id, id))
+      .returning();
 
-    // Atualizar dados pessoais
-    const personalDataUpdates: any = {};
-    if (updateUserDto.email) {
-      // Verificar se email já existe em outro usuário
-      const existingEmail = await this.db
-        .select()
-        .from(tbPersonalData)
-        .where(
-          and(
-            eq(tbPersonalData.email, updateUserDto.email),
-            sql`${tbPersonalData.userId} != ${id}`,
-          ),
-        )
-        .limit(1);
+    // Atualizar dados pessoais se fornecidos
+    const personalUpdate: any = {};
+    if ((updateUserDto as any).cpf !== undefined)
+      personalUpdate.cpf = (updateUserDto as any).cpf;
+    if (updateUserDto.bornDate !== undefined)
+      personalUpdate.bornDate = updateUserDto.bornDate;
+    if (updateUserDto.address !== undefined)
+      personalUpdate.address = updateUserDto.address;
+    if (updateUserDto.telephone !== undefined)
+      personalUpdate.telephone = updateUserDto.telephone;
+    if (updateUserDto.email !== undefined) personalUpdate.email = updateUserDto.email;
 
-      if (existingEmail.length > 0) {
-        throw new ConflictException('Email já cadastrado');
-      }
-      personalDataUpdates.email = updateUserDto.email;
-    }
-    if (updateUserDto.address)
-      personalDataUpdates.address = updateUserDto.address;
-    if (updateUserDto.telephone)
-      personalDataUpdates.telephone = updateUserDto.telephone;
-    if (updateUserDto.bornDate)
-      personalDataUpdates.bornDate = updateUserDto.bornDate;
-
-    if (Object.keys(personalDataUpdates).length > 0) {
+    if (Object.keys(personalUpdate).length > 0) {
       await this.db
         .update(tbPersonalData)
-        .set(personalDataUpdates)
+        .set(personalUpdate)
         .where(eq(tbPersonalData.userId, id));
     }
 
-    return this.findOne(id);
+    return updatedUser;
   }
 
   /**
    * Atualizar senha
    */
-  async updatePassword(
-    id: string,
-    updatePasswordDto: UpdatePasswordDto,
-    requestingUserId?: string,
-  ) {
+  async updatePassword(id: string, dto: UpdatePasswordDto) {
     const [user] = await this.db
       .select()
       .from(tbUsers)
-      .where(and(eq(tbUsers.id, id), isNull(tbUsers.deletedAt)))
+      .where(eq(tbUsers.id, id))
       .limit(1);
 
     if (!user) {
       throw new NotFoundException('Usuário não encontrado');
     }
 
-    // Se houver senha atual, verificar
-    if (updatePasswordDto.currentPassword) {
+    if (dto.currentPassword) {
       if (!user.password) {
-        throw new BadRequestException('Usuário não possui senha cadastrada');
+        throw new BadRequestException('Usuário não possui senha definida');
       }
-
-      const isPasswordValid = await bcrypt.compare(
-        updatePasswordDto.currentPassword,
-        user.password,
-      );
-
-      if (!isPasswordValid) {
-        throw new BadRequestException('Senha atual incorreta');
+      const isValid = await bcrypt.compare(dto.currentPassword, user.password);
+      if (!isValid) {
+        throw new BadRequestException('Senha antiga incorreta');
       }
     }
 
-    // Hash da nova senha
-    const hashedPassword = await bcrypt.hash(updatePasswordDto.newPassword, 10);
+    const hashedPassword = await bcrypt.hash(dto.newPassword, 12);
 
     await this.db
       .update(tbUsers)
-      .set({
-        password: hashedPassword,
-        updatedAt: new Date(),
-      })
+      .set({ password: hashedPassword, updatedAt: new Date() })
       .where(eq(tbUsers.id, id));
 
     return { message: 'Senha atualizada com sucesso' };
   }
 
   /**
-   * Soft delete de usuário
+   * Atualizar permissões de funcionário
    */
-  async remove(id: string, requestingUserId?: string) {
-    const user = await this.findOne(id);
+  async updateEmployeePermissions(
+    userId: string,
+    dto: UpdateEmployeePermissionsDto,
+  ) {
+    const [employee] = await this.db
+      .select()
+      .from(tbEmployeePermissions)
+      .where(eq(tbEmployeePermissions.userId, userId))
+      .limit(1);
 
-    if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
+    if (!employee) {
+      throw new NotFoundException('Permissões de funcionário não encontradas');
     }
 
-    // Soft delete
-    await this.db
-      .update(tbUsers)
+    const [updated] = await this.db
+      .update(tbEmployeePermissions)
       .set({
-        deletedAt: new Date(),
-        isActive: false,
+        ...dto,
         updatedAt: new Date(),
       })
-      .where(eq(tbUsers.id, id));
+      .where(eq(tbEmployeePermissions.userId, userId))
+      .returning();
 
-    return { message: 'Usuário deletado com sucesso' };
+    return updated;
   }
 
-  /**
-   * Buscar permissões de funcionário
-   */
   async getEmployeePermissions(userId: string) {
     const [permissions] = await this.db
       .select()
@@ -431,60 +393,41 @@ export class UsersService {
       .limit(1);
 
     if (!permissions) {
-      throw new NotFoundException('Permissões não encontradas');
+      throw new NotFoundException('Permissões de funcionário não encontradas');
     }
 
     return permissions;
   }
 
   /**
-   * Atualizar permissões de funcionário (apenas MASTER)
+   * Atualizar permissões de aluno
    */
-  async updateEmployeePermissions(
+  async updateStudentPermissions(
     userId: string,
-    updatePermissionsDto: UpdateEmployeePermissionsDto,
+    dto: UpdateStudentPermissionsDto,
   ) {
-    // Verificar se usuário é funcionário
-    const [user] = await this.db
+    const [studentPermissions] = await this.db
       .select()
-      .from(tbUsers)
-      .where(eq(tbUsers.id, userId))
+      .from(tbStudentPermissions)
+      .where(eq(tbStudentPermissions.userId, userId))
       .limit(1);
 
-    if (!user || user.userRole !== UserRole.FUNCIONARIO) {
-      throw new BadRequestException('Usuário não é funcionário');
+    if (!studentPermissions) {
+      throw new NotFoundException('Permissões de aluno não encontradas');
     }
 
-    // Verificar se permissões já existem
-    const [existing] = await this.db
-      .select()
-      .from(tbEmployeePermissions)
-      .where(eq(tbEmployeePermissions.userId, userId))
-      .limit(1);
+    const [updated] = await this.db
+      .update(tbStudentPermissions)
+      .set({
+        ...dto,
+        updatedAt: new Date(),
+      })
+      .where(eq(tbStudentPermissions.userId, userId))
+      .returning();
 
-    if (existing) {
-      // Atualizar
-      await this.db
-        .update(tbEmployeePermissions)
-        .set({
-          ...updatePermissionsDto,
-          updatedAt: new Date(),
-        })
-        .where(eq(tbEmployeePermissions.userId, userId));
-    } else {
-      // Criar
-      await this.db.insert(tbEmployeePermissions).values({
-        userId,
-        ...updatePermissionsDto,
-      });
-    }
-
-    return this.getEmployeePermissions(userId);
+    return updated;
   }
 
-  /**
-   * Buscar permissões de aluno
-   */
   async getStudentPermissions(userId: string) {
     const [permissions] = await this.db
       .select()
@@ -493,54 +436,79 @@ export class UsersService {
       .limit(1);
 
     if (!permissions) {
-      throw new NotFoundException('Permissões não encontradas');
+      throw new NotFoundException('Permissões de aluno não encontradas');
     }
 
     return permissions;
   }
 
   /**
-   * Atualizar permissões de aluno (MASTER ou ADMIN)
+   * Desativar usuário (soft delete)
    */
-  async updateStudentPermissions(
-    userId: string,
-    updatePermissionsDto: UpdateStudentPermissionsDto,
-  ) {
-    // Verificar se usuário é aluno
+  async softDelete(id: string, requestingUserId: string, role: UserRole) {
+    if (role !== UserRole.MASTER && role !== UserRole.ADMIN) {
+      throw new ForbiddenException('Apenas ADMIN ou MASTER podem desativar usuários');
+    }
+
+    if (id === requestingUserId) {
+      throw new BadRequestException('Você não pode desativar a si mesmo');
+    }
+
     const [user] = await this.db
       .select()
       .from(tbUsers)
-      .where(eq(tbUsers.id, userId))
+      .where(eq(tbUsers.id, id))
       .limit(1);
 
-    if (!user || user.userRole !== UserRole.ALUNO) {
-      throw new BadRequestException('Usuário não é aluno');
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
     }
 
-    // Verificar se permissões já existem
-    const [existing] = await this.db
+    const [updated] = await this.db
+      .update(tbUsers)
+      .set({
+        isActive: false,
+        deletedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(tbUsers.id, id))
+      .returning();
+
+    return updated;
+  }
+
+  /**
+   * Reativar usuário
+   */
+  async restore(id: string) {
+    const [user] = await this.db
       .select()
-      .from(tbStudentPermissions)
-      .where(eq(tbStudentPermissions.userId, userId))
+      .from(tbUsers)
+      .where(eq(tbUsers.id, id))
       .limit(1);
 
-    if (existing) {
-      // Atualizar
-      await this.db
-        .update(tbStudentPermissions)
-        .set({
-          ...updatePermissionsDto,
-          updatedAt: new Date(),
-        })
-        .where(eq(tbStudentPermissions.userId, userId));
-    } else {
-      // Criar
-      await this.db.insert(tbStudentPermissions).values({
-        userId,
-        ...updatePermissionsDto,
-      });
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
     }
 
-    return this.getStudentPermissions(userId);
+    const [updated] = await this.db
+      .update(tbUsers)
+      .set({
+        isActive: true,
+        deletedAt: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(tbUsers.id, id))
+      .returning();
+
+    return updated;
+  }
+
+  /**
+   * Alias usado no controller antigo
+   */
+  async remove(id: string, requestingUserId: string) {
+    // Recuperar role do solicitante não está disponível aqui, então restringimos a ADMIN/Master no controller
+    return this.softDelete(id, requestingUserId, UserRole.ADMIN);
   }
 }

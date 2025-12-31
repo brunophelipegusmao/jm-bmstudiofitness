@@ -20,6 +20,7 @@ import {
   UpdateBodyMeasurementDto,
   QueryMeasurementsDto,
 } from './dto/body-measurement.dto';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @Controller('body-measurements')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -54,8 +55,12 @@ export class BodyMeasurementsController {
 
   @Post()
   @Roles(UserRole.ADMIN, UserRole.MASTER, UserRole.FUNCIONARIO)
-  async create(@Body() dto: CreateBodyMeasurementDto, @Request() req: any) {
-    return this.bodyMeasurementsService.create(dto, req.user.id);
+  // Corrigir acesso ao id do usuário
+  async create(
+    @Body() dto: CreateBodyMeasurementDto,
+    @CurrentUser() user: import('../auth/interfaces/auth.interface').JwtPayload,
+  ) {
+    return this.bodyMeasurementsService.create(dto, user.sub);
   }
 
   @Patch(':id')

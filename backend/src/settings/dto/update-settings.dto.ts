@@ -234,6 +234,43 @@ export class UpdateMaintenanceDto {
   @IsOptional()
   @IsString()
   maintenanceRedirectUrl?: string;
+
+  // Permitir que a UI envie os flags de rotas junto (serão ignorados no service)
+  @IsOptional()
+  @IsBoolean()
+  routeHomeEnabled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  routeUserEnabled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  routeCoachEnabled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  routeEmployeeEnabled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  routeShoppingEnabled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  routeBlogEnabled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  routeServicesEnabled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  routeContactEnabled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  routeWaitlistEnabled?: boolean;
 }
 
 export class UpdateRoutesDto {

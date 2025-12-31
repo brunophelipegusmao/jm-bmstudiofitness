@@ -184,7 +184,7 @@ export default function ServicesPage() {
                         Benefícios Inclusos:
                       </h4>
                       <ul className="space-y-2">
-                        {plan.features.map((feature, featureIndex) => (
+                        {plan.features.map((feature: string, featureIndex: number) => (
                           <motion.li
                             key={featureIndex}
                             initial={{ opacity: 0, x: -20 }}

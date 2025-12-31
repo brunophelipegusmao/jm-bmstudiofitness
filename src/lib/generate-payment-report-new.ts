@@ -27,14 +27,18 @@ export async function generatePaymentReport(
   doc.text(`Data: ${new Date().toLocaleDateString("pt-BR")}`, 15, 30);
 
   // Tabela de alunos
-  const tableData = students.map((student) => [
-    student.name,
-    formatCurrency(student.monthlyFeeValueInCents),
-    `Dia ${student.dueDate}`,
-    student.lastPaymentDate
-      ? new Date(student.lastPaymentDate).toLocaleDateString("pt-BR")
-      : "Nunca",
-  ]);
+  const tableData = students.map((student) => {
+    const monthlyFee = student.monthlyFeeValueInCents ?? 0;
+
+    return [
+      student.name,
+      formatCurrency(monthlyFee),
+      `Dia ${student.dueDate}`,
+      student.lastPaymentDate
+        ? new Date(student.lastPaymentDate).toLocaleDateString("pt-BR")
+        : "Nunca",
+    ];
+  });
 
   doc.autoTable({
     startY: 40,
@@ -53,7 +57,7 @@ export async function generatePaymentReport(
 
   // Resumo financeiro
   const totalCents = students.reduce(
-    (sum, student) => sum + student.monthlyFeeValueInCents,
+    (sum, student) => sum + (student.monthlyFeeValueInCents ?? 0),
     0,
   );
 

@@ -5,8 +5,10 @@ import {
   Inject,
 } from '@nestjs/common';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import * as schema from '../database/schema';
 import { tbBlogCategories, tbBlogPosts, tbUsers } from '../database/schema';
 import { eq, desc, and, isNull, ilike, or } from 'drizzle-orm';
+import type { SQLWrapper } from 'drizzle-orm';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
 import { CreatePostDto, UpdatePostDto, QueryPostsDto } from './dto/post.dto';
 
@@ -14,7 +16,7 @@ import { CreatePostDto, UpdatePostDto, QueryPostsDto } from './dto/post.dto';
 export class BlogService {
   constructor(
     @Inject('DATABASE')
-    private readonly db: NeonHttpDatabase<any>,
+    private readonly db: NeonHttpDatabase<typeof schema>,
   ) {}
 
   // ==================== CATEGORIES ====================
@@ -118,7 +120,7 @@ export class BlogService {
   // ==================== POSTS ====================
 
   async findAllPosts(query: QueryPostsDto = {}) {
-    const conditions: any[] = [];
+    const conditions: SQLWrapper[] = [];
 
     if (!query.includeDeleted) {
       conditions.push(isNull(tbBlogPosts.deletedAt));
@@ -133,13 +135,14 @@ export class BlogService {
     }
 
     if (query.search) {
-      conditions.push(
-        or(
-          ilike(tbBlogPosts.title, `%${query.search}%`),
-          ilike(tbBlogPosts.excerpt, `%${query.search}%`),
-        ),
-      );
+      const searchCondition = or(
+        ilike(tbBlogPosts.title, `%${query.search}%`),
+        ilike(tbBlogPosts.excerpt, `%${query.search}%`),
+      ) as SQLWrapper;
+      conditions.push(searchCondition);
     }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
     const posts = await this.db
       .select({
@@ -169,7 +172,7 @@ export class BlogService {
         eq(tbBlogPosts.categoryId, tbBlogCategories.id),
       )
       .innerJoin(tbUsers, eq(tbBlogPosts.authorId, tbUsers.id))
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .where(whereClause)
       .orderBy(desc(tbBlogPosts.createdAt));
 
     return posts;

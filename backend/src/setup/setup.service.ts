@@ -157,8 +157,8 @@ export class SetupService {
 
     // Contar registros em tabelas principais
     let usersCount = 0;
-    let checkInsCount = 0;
-    let financialCount = 0;
+    const checkInsCount = 0;
+    const financialCount = 0;
 
     if (connectionCheck.connected) {
       try {
