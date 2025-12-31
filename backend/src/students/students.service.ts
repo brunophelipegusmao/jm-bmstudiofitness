@@ -346,7 +346,7 @@ export class StudentsService {
       .set({
         requestPublic: true,
         approvalStatus: "pending",
-        updatedAt: new Date().toISOString(),
+        updatedAt: new Date(),
       })
       .where(eq(tbPersonalEvents.id, id))
       .returning();
@@ -373,13 +373,13 @@ export class StudentsService {
       .set({
         approvalStatus: status,
         isPublic,
-        updatedAt: new Date().toISOString(),
+        updatedAt: new Date(),
       })
       .where(eq(tbPersonalEvents.id, id))
       .returning();
 
     return updated;
-  
+  }
 
   /**
    * Criar metricas de saude
@@ -828,6 +828,7 @@ export class StudentsService {
     return updated;
   }
 }
+
 
 
 
