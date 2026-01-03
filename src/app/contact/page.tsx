@@ -1,6 +1,5 @@
-﻿"use client";
+"use client";
 
-import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Clock,
@@ -11,6 +10,7 @@ import {
   Phone,
   Send,
 } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import {
   getPublicSettingsAction,
@@ -138,7 +138,8 @@ export default function ContactPage() {
             Fale Conosco
           </h1>
           <p className="mx-auto max-w-2xl text-lg text-slate-300">
-            Entre em contato conosco e tire todas as suas duvidas sobre nossos servicos e planos.
+            Entre em contato conosco e tire todas as suas duvidas sobre nossos
+            servicos e planos.
           </p>
         </motion.div>
 
@@ -401,11 +402,3 @@ export default function ContactPage() {
     </motion.div>
   );
 }
-
-
-
-
-
-
-
-

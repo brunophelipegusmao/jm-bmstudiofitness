@@ -17,11 +17,11 @@ import {
 import { useEffect, useState } from "react";
 
 import { deleteStudentAction } from "@/actions/admin/delete-student-action";
+import { getStudentFullProfileAction } from "@/actions/admin/get-student-full-profile-action";
 import {
   getAllStudentsFullDataAction,
   StudentFullData,
 } from "@/actions/admin/get-students-full-data-action";
-import { getStudentFullProfileAction } from "@/actions/admin/get-student-full-profile-action";
 import { updateStudentAction } from "@/actions/admin/update-student-action";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EditStudentModal } from "@/components/Dashboard/EditStudentModal";

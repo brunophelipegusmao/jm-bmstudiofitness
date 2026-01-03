@@ -80,10 +80,10 @@ export default function QuickCheckInCard() {
                   >
                     <UserCheck className="h-6 w-6 text-[#C2A537]" />
                   </motion.div>
-                  Check-in Rápido
+                  Check-in R?pido
                 </CardTitle>
                 <CardDescription className="text-sm text-slate-300 md:text-base">
-                  Digite seu CPF ou email para registrar sua presença
+                  Digite seu CPF ou email para registrar sua presen?a
                 </CardDescription>
               </motion.div>
             </CardHeader>
@@ -141,7 +141,7 @@ export default function QuickCheckInCard() {
                   >
                     <div className="text-center">
                       <p className="text-sm text-slate-400">
-                        Acesso rápido e seguro para check-in
+                        Acesso r?pido e seguro para check-in
                       </p>
                     </div>
                   </motion.div>
@@ -177,7 +177,7 @@ export default function QuickCheckInCard() {
                     className="text-center"
                   >
                     <p className="text-sm text-slate-400">
-                      O check-in registra sua presença no estúdio hoje
+                      O check-in registra sua presen?a no est?dio hoje
                     </p>
                   </motion.div>
                 </form>

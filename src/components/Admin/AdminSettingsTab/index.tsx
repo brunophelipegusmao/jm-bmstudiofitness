@@ -252,8 +252,8 @@ export function AdminSettingsTab() {
               <div>
                 <h3 className="mb-1 font-semibold text-white">Habilitar lista de espera</h3>
                 <p className="text-sm text-zinc-400">
-                  Quando ativada, visitantes ver?o um modal direcionando para a lista de espera
-                </p>
+                <p className="text-sm text-zinc-400">
+                  Quando ativada, visitantes verão um modal direcionando para a lista de espera
               </div>
               <button
                 onClick={handleToggleWaitlist}
@@ -273,10 +273,10 @@ export function AdminSettingsTab() {
             {waitlistEnabled && (
               <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-4">
                 <p className="text-sm text-blue-400">
-                  A lista de espera est? ativa. Visitantes da home page ver?o um modal informando sobre a lista de espera.
-                </p>
-              </div>
-            )}
+              {waitlistEnabled && (
+                <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-4">
+                  <p className="text-sm text-blue-400">
+                    A lista de espera está ativa. Visitantes da home page verão um modal informando sobre a lista de espera.
           </div>
         </div>
 
@@ -362,12 +362,10 @@ export function AdminSettingsTab() {
 
                   {entry.healthRestrictions && (
                     <div className="mt-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
-                      <p className="mb-1 text-xs font-medium text-red-400">Restri??es de Sa?de:</p>
+                      <p className="mb-1 text-xs font-medium text-red-400">Restrições de Saúde:</p>
                       <p className="text-sm text-red-300">{entry.healthRestrictions}</p>
                     </div>
                   )}
-                </div>
-              ))}
             </div>
           )}
         </div>

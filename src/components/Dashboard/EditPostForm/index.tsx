@@ -87,7 +87,7 @@ export function EditPostForm({
         <div>
           <h2 className="text-2xl font-bold text-[#C2A537]">Editar Evento</h2>
           <p className="text-slate-400">
-            Ajuste as informacoes do evento "{event.title}"
+            Ajuste as informacoes do evento {event.title}
           </p>
         </div>
         <Button

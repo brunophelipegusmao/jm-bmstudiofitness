@@ -25,7 +25,7 @@ type PlanPayload = {
   displayOrder?: number;
 };
 
-const mapFromApi = (input: any): Plan => {
+const mapFromApi = (input: unknown): Plan => {
   const priceInCents = Number(input.priceInCents ?? 0);
   const durationInDays = Number(input.durationInDays ?? 0);
   return {

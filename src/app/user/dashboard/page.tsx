@@ -3,8 +3,8 @@
 import { Activity, Calendar, Heart, MapPin, User } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { getStudentDataAction } from "@/actions/user/get-student-data-action";
 import { getPersonalEventsAction } from "@/actions/user/get-personal-events-action";
+import { getStudentDataAction } from "@/actions/user/get-student-data-action";
 import {
   UserDashboardHeader,
   UserInfoCard,

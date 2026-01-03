@@ -63,17 +63,17 @@ export async function getMyPaymentStatusAction(): Promise<PaymentStatusResponse>
 }
 
 export async function payMonthlyFeeAction(params: {
+  paymentId: string;
   paymentMethod: string;
   transactionId?: string;
 }): Promise<PayMonthlyFeeResult> {
   try {
-    const { paymentId, ...rest } = params as any;
-    if (!paymentId) {
+    if (!params.paymentId) {
       throw new Error("ID do lancamento financeiro nao encontrado");
     }
     const response = await apiClient.post<PayMonthlyFeeResult>(
-      `/financial/${paymentId}/mark-paid`,
-      { paymentMethod: rest.paymentMethod ?? "manual" },
+      `/financial/${params.paymentId}/mark-paid`,
+      { paymentMethod: params.paymentMethod ?? "manual" },
     );
     return {
       success: response?.success ?? true,

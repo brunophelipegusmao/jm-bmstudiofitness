@@ -17,11 +17,16 @@ export async function quickCheckInAction(
       return { success: false, message: "Informe CPF ou email" };
     }
 
+    const isCpf = /^\d{11}$/.test(identifier.replace(/\D/g, ""));
+
     const data = await apiClient.post<{
       success?: boolean;
       message?: string;
       userName?: string;
-    }>("/check-ins", { identifier });
+    }>("/check-ins", {
+      identifier: identifier.replace(/\D/g, "") || identifier,
+      method: isCpf ? "cpf" : "email",
+    });
 
     return {
       success: data?.success ?? true,

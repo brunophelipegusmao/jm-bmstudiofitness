@@ -1,9 +1,10 @@
 "use client";
 
 import { format } from "date-fns";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
+
 import type { StudentFullProfile } from "@/actions/admin/get-student-full-profile-action";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface StudentViewModalProps {
   isOpen: boolean;

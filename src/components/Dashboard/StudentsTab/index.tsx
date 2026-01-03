@@ -1,23 +1,10 @@
 "use client";
 
-import {
-  Activity,
-  AlertTriangle,
-  Calendar,
-  Check,
-  Clock,
-  Edit,
-  Heart,
-  Loader2,
-  TrendingUp,
-  User,
-  Users,
-  X,
-} from "lucide-react";
+import { Activity, Check, Loader2, TrendingUp, Users } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-import { getAllStudentsFullDataAction } from "@/actions/admin/get-students-full-data-action";
 import { getStudentProfileAction } from "@/actions/admin/get-student-profile-action";
+import { getAllStudentsFullDataAction } from "@/actions/admin/get-students-full-data-action";
 import { markFinancialPaidAction } from "@/actions/admin/mark-financial-paid-action";
 import { reactivateStudentAction } from "@/actions/admin/reactivate-student-action";
 import { softDeleteStudentAction } from "@/actions/admin/soft-delete-student-action";
@@ -112,7 +99,10 @@ export function StudentsTab({
     if (onStudentsChange) await onStudentsChange();
   };
 
-  const handleUpdatePersonal = async (form: Record<string, any>) => {
+  const handleUpdatePersonal = async (
+    form: Partial<Profile["student"]> &
+      Partial<Profile["student"]["personalData"]>,
+  ) => {
     if (!profile) return;
     setSaving(true);
     const res = await updateStudentAction({
@@ -127,7 +117,7 @@ export function StudentsTab({
     } else showErrorToast(res.error ?? "Erro ao salvar");
   };
 
-  const handleUpdateHealth = async (form: Record<string, any>) => {
+  const handleUpdateHealth = async (form: Record<string, unknown>) => {
     if (!profile) return;
     setSaving(true);
     const res = await updateStudentHealthAction(profile.student.id, form);
@@ -302,7 +292,7 @@ export function StudentsTab({
                 </div>
 
                 <div className="flex flex-wrap gap-2 text-xs">
-                  {["personal", "health", "schedule", "checkins", "financial"].map(
+                    {["personal", "health", "schedule", "checkins", "financial"].map(
                     (tab) => (
                       <Button
                         key={tab}
@@ -440,7 +430,7 @@ function PersonalForm({
 }: {
   data: Profile;
   saving: boolean;
-  onSave: (form: Record<string, any>) => Promise<void>;
+  onSave: (form: Record<string, unknown>) => Promise<void>;
 }) {
   const pd = data.student.personalData ?? {};
   const [form, setForm] = useState({
@@ -490,7 +480,7 @@ function HealthForm({
 }: {
   data: Profile;
   saving: boolean;
-  onSave: (form: Record<string, any>) => Promise<void>;
+  onSave: (form: Record<string, unknown>) => Promise<void>;
 }) {
   const h = data.health as Record<string, unknown> | undefined;
   const [form, setForm] = useState({
@@ -569,7 +559,11 @@ function ScheduleForm({
 }: {
   data: Profile;
   saving: boolean;
-  onSave: (form: { monthlyFeeValueInCents?: number; paymentMethod?: string; dueDate?: number }) => Promise<void>;
+  onSave: (form: {
+    monthlyFeeValueInCents?: number;
+    paymentMethod?: string;
+    dueDate?: number;
+  }) => Promise<void>;
 }) {
   const latest = data.financial?.[0];
   const [form, setForm] = useState({

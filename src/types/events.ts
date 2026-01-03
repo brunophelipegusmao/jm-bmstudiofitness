@@ -18,7 +18,7 @@ export interface Event {
   authorId?: string | null;
 }
 
-export interface EventListItem extends Event {}
+export type EventListItem = Event;
 
 export interface BirthdayEntry {
   id: string;

@@ -6,7 +6,7 @@ import { useState } from "react";
 import { logoutAction } from "@/actions/auth/logout-action";
 import { Button } from "@/components/Button";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { showErrorToast,showSuccessToast } from "@/components/ToastProvider";
+import { showErrorToast, showSuccessToast } from "@/components/ToastProvider";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -34,12 +34,10 @@ export function LogoutButton() {
         const result = await logoutAction();
         if (result.success) {
           showSuccessToast("Logout realizado com sucesso! Até logo! 👋");
-          // Aguarda um momento para mostrar o toast
           setTimeout(() => {
             clientLogout();
           }, 1000);
         } else {
-          // Se o servidor falhar, faz logout do lado do cliente
           showSuccessToast("Logout realizado com sucesso! Até logo! 👋");
           setTimeout(() => {
             clientLogout();
@@ -47,8 +45,7 @@ export function LogoutButton() {
         }
       } catch (error) {
         console.error("Erro ao fazer logout:", error);
-        // Em caso de erro, ainda assim faz logout do lado do cliente
-        showSuccessToast("Logout realizado! Até logo! 👋");
+        showErrorToast("Não foi possível finalizar o logout. Tente novamente.");
         setTimeout(() => {
           clientLogout();
         }, 1000);
@@ -63,11 +60,10 @@ export function LogoutButton() {
       case "master":
         return "Master";
       case "employee":
+      case "funcionario":
         return "Funcionário";
       case "professor":
         return "Professor";
-      case "funcionario":
-        return "Funcionário";
       default:
         return role;
     }
@@ -75,7 +71,6 @@ export function LogoutButton() {
 
   return (
     <div className="flex items-center gap-3">
-      {/* Avatar e informações do usuário */}
       {!loading && user && (
         <div className="flex items-center gap-3">
           <UserAvatar name={user.name} size="sm" />
@@ -85,7 +80,6 @@ export function LogoutButton() {
         </div>
       )}
 
-      {/* Botão de logout */}
       <Button
         onClick={handleLogout}
         disabled={isLoading}
@@ -97,7 +91,6 @@ export function LogoutButton() {
         <span className="ml-2">{isLoading ? "Saindo..." : "Sair"}</span>
       </Button>
 
-      {/* Dialog de confirmação */}
       <ConfirmDialog
         isOpen={isOpen}
         onClose={handleCancel}

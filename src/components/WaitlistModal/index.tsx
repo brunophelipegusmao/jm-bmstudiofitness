@@ -5,6 +5,7 @@ import { ArrowRight, Users, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { getPublicSettingsAction } from "@/actions/get-public-settings-action";
 export default function WaitlistModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [hasChecked, setHasChecked] = useState(false);
@@ -15,9 +16,8 @@ export default function WaitlistModal() {
 
   async function checkWaitlistStatus() {
     try {
-      // TODO: Buscar da API: const { data } = await apiClient.get('/settings');
-      // Por enquanto, desabilitado por padrão
-      const waitlistEnabled = false;
+      const result = await getPublicSettingsAction();
+      const waitlistEnabled = result.data?.waitlistEnabled ?? false;
 
       if (waitlistEnabled) {
         setIsOpen(true);

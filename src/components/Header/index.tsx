@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
@@ -20,7 +20,6 @@ export function Header() {
   const pathname = usePathname();
   const { user, loading } = useCurrentUser();
 
-  // Verifica se estamos na homepage
   const isHomePage = pathname === "/";
 
   // Verifica se estamos em páginas administrativas
@@ -33,22 +32,6 @@ export function Header() {
   const isPlansPage = pathname?.startsWith("/services");
   const isContactPage = pathname?.startsWith("/contact");
   const isStudentPage = pathname?.startsWith("/user");
-
-  // Define título e descrição baseado na página
-  const getDashboardInfo = () => {
-    if (isAdminPage) {
-      return null;
-    }
-    if (isCoachPage) {
-      return {
-        title: "💪 Dashboard do Coach",
-        description: "Gerencie seus alunos e treinos",
-      };
-    }
-    return null;
-  };
-
-  const dashboardInfo = getDashboardInfo();
 
   const buttonClasses =
     "px-5 md:px-6 lg:px-7 py-2.5 md:py-3 font-medium tracking-wide transition-all duration-300 ease-out transform-gpu relative focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#C2A537]/50";
@@ -88,7 +71,7 @@ export function Header() {
         "shadow-[0_4px_24px_-6px_rgba(0,0,0,0.5),inset_0_1px_2px_rgba(255,255,255,0.1)]",
         "backdrop-blur-xl backdrop-saturate-150",
         "fixed top-0 right-0 left-0 z-50",
-        dashboardInfo ? "h-20 sm:h-24" : "h-16 sm:h-20",
+        "h-16 sm:h-20",
       )}
     >
       {/* Logo */}
@@ -143,25 +126,9 @@ export function Header() {
         </Link>
       </motion.div>
 
-      {/* Título do Dashboard - aparece entre logo e navegação */}
-      {dashboardInfo && (
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mx-8 hidden flex-1 flex-col items-center justify-center lg:flex"
-        >
-          <h1 className="mb-1 text-xl font-bold text-[#C2A537] xl:text-2xl">
-            {dashboardInfo.title}
-          </h1>
-          <p className="text-center text-sm text-gray-400">
-            {dashboardInfo.description}
-          </p>
-        </motion.div>
-      )}
-
+      {/* T├¡tulo do Dashboard - aparece entre logo e navega├º├úo */}
       <nav className="relative">
-        {/* Botão de menu mobile */}
+        {/* Bot├úo de menu mobile */}
         {/* Menu mobile */}
         <motion.button
           whileHover={{
@@ -191,7 +158,7 @@ export function Header() {
             }}
             className="relative flex h-6 w-6 flex-col items-center justify-center"
           >
-            {/* Ícone de Halter Premium */}
+            {/* ├ìcone de Halter Premium */}
             <svg
               width="26"
               height="26"
@@ -399,7 +366,7 @@ export function Header() {
           }}
           className="hidden items-center space-x-3 md:flex lg:space-x-4"
         >
-          {/* Só mostra o link Início se não estivermos na homepage */}
+          {/* S├│ mostra o link In├¡cio se n├úo estivermos na homepage */}
           {!isHomePage && (
             <motion.li
               initial={{ opacity: 0, y: -20, scale: 0.8 }}
@@ -421,12 +388,12 @@ export function Header() {
                 className={isHomePage ? primaryButton : secondaryButton}
                 aria-current={isHomePage ? "page" : undefined}
               >
-                Início
+                In├¡cio
               </Link>
             </motion.li>
           )}
 
-          {/* Links específicos para usuários não-admin ou não logados */}
+          {/* Links espec├¡ficos para usu├írios n├úo-admin ou n├úo logados */}
           {(!user || user.role !== "admin") && (
             <>
               <motion.li
@@ -451,7 +418,7 @@ export function Header() {
                 <StudentLink
                   className={isStudentPage ? primaryButton : secondaryButton}
                 >
-                  Área do Aluno
+                  ├ürea do Aluno
                 </StudentLink>
               </motion.li>
               <motion.li
@@ -472,7 +439,7 @@ export function Header() {
                 <CoachLink
                   className={isCoachPage ? primaryButton : secondaryButton}
                 >
-                  Área do Coach
+                  ├ürea do Coach
                 </CoachLink>
               </motion.li>
             </>
@@ -532,7 +499,7 @@ export function Header() {
               Planos
             </Link>
           </motion.li>
-          {/* Botão para Eventos */}
+          {/* Bot├úo para Eventos */}
           <motion.li
             initial={{ opacity: 0, y: -20, scale: 0.88 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -584,7 +551,7 @@ export function Header() {
             </Link>
           </motion.li>
 
-          {/* Avatar e Logout - apenas se usuário estiver logado */}
+          {/* Avatar e Logout - apenas se usu├írio estiver logado */}
           {!loading && user && (
             <motion.li
               initial={{ opacity: 0, y: -20, scale: 0.8 }}
@@ -656,9 +623,8 @@ export function Header() {
                 }}
                 className="space-y-4"
               >
-                {/* Título do Dashboard no mobile */}
-                {dashboardInfo && (
-                  <motion.li
+                {/* T├¡tulo do Dashboard no mobile */}
+                {                  <motion.li
                     variants={{
                       open: {
                         opacity: 1,
@@ -677,16 +643,7 @@ export function Header() {
                   >
                     <div className="text-center">
                       <h2 className="mb-1 text-lg font-bold text-[#C2A537]">
-                        {dashboardInfo.title}
-                      </h2>
-                      <p className="text-xs text-gray-400">
-                        {dashboardInfo.description}
-                      </p>
-                    </div>
-                  </motion.li>
-                )}
-
-                {/* Só mostra o link Início se não estivermos na homepage */}
+                                        {/* S├│ mostra o link In├¡cio se n├úo estivermos na homepage */}
                 {!isHomePage && (
                   <motion.li
                     variants={{
@@ -727,13 +684,13 @@ export function Header() {
                         >
                           <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
                         </svg>
-                        <span>Início</span>
+                        <span>In├¡cio</span>
                       </div>
                     </Link>
                   </motion.li>
                 )}
 
-                {/* Links específicos para usuários não-admin ou não logados */}
+                {/* Links espec├¡ficos para usu├írios n├úo-admin ou n├úo logados */}
                 {(!user || user.role !== "admin") && (
                   <>
                     <motion.li
@@ -777,7 +734,7 @@ export function Header() {
                           >
                             <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 4V2H9V4L3 7V9H5V20H19V9H21ZM7 9H17V18H7V9Z" />
                           </svg>
-                          <span>Área do Aluno</span>
+                          <span>├ürea do Aluno</span>
                         </div>
                       </StudentLink>
                     </motion.li>
@@ -818,7 +775,7 @@ export function Header() {
                           >
                             <path d="M12 12.75c1.63 0 3.07.39 4.24.9c1.08.48 1.76 1.56 1.76 2.73V18H6v-1.61c0-1.18.68-2.26 1.76-2.73c1.17-.52 2.61-.91 4.24-.91zM4 13c1.1 0 2-.9 2-2c0-1.1-.9-2-2-2s-2 .9-2 2c0 1.1.9 2 2 2zm1.13 1.1c-.37-.06-.74-.1-1.13-.1c-.99 0-1.93.21-2.78.58C.48 14.9 0 15.62 0 16.43V18h4.5v-1.61c0-.83.23-1.61.63-2.29zM20 13c1.1 0 2-.9 2-2c0-1.1-.9-2-2-2s-2 .9-2 2c0 1.1.9 2 2 2zm4 3.43c0-.81-.48-1.53-1.22-1.85C21.93 14.21 20.99 14 20 14c-.39 0-.76.04-1.13.1c.4.68.63 1.46.63 2.29V18H24v-1.57zM12 6c1.66 0 3 1.34 3 3c0 1.66-1.34 3-3 3s-3-1.34-3-3c0-1.66 1.34-3 3-3z" />
                           </svg>
-                          <span>Área do Coach</span>
+                          <span>├ürea do Coach</span>
                         </div>
                       </CoachLink>
                     </motion.li>
@@ -1002,7 +959,7 @@ export function Header() {
                   </Link>
                 </motion.li>
 
-                {/* Avatar e Logout no menu mobile - apenas se usuário estiver logado */}
+                {/* Avatar e Logout no menu mobile - apenas se usu├írio estiver logado */}
                 {!loading && user && (
                   <motion.li
                     variants={{
@@ -1037,7 +994,7 @@ export function Header() {
                               : user.role === "professor"
                                 ? "Professor"
                                 : user.role === "funcionario"
-                                  ? "Funcionário"
+                                  ? "Funcion├írio"
                                   : user.role}
                           </div>
                         </div>

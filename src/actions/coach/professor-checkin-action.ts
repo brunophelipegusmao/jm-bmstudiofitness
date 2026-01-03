@@ -7,13 +7,25 @@ export type ProfessorCheckIn = {
   notes: string | null;
 };
 
-export async function professorCheckInAction(): Promise<{
+export async function professorCheckInAction(
+  identifier?: string,
+): Promise<{
   success: boolean;
   message?: string;
   checkInData?: ProfessorCheckIn;
 }> {
   try {
-    const data = await apiClient.post<ProfessorCheckIn>("/check-ins/employee");
+    const payload: Record<string, string> = {};
+    if (identifier?.trim()) {
+      payload.identifier = identifier.trim();
+      const isCpf = /^\d{11}$/.test(payload.identifier.replace(/\D/g, ""));
+      payload.method = isCpf ? "cpf" : "email";
+    }
+
+    const data = await apiClient.post<ProfessorCheckIn>(
+      "/check-ins/employee",
+      payload,
+    );
     const normalized: ProfessorCheckIn = {
       date: data.date,
       time: data.time ?? data.checkInTime ?? "",
