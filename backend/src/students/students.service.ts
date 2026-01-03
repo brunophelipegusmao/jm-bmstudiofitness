@@ -13,6 +13,7 @@ import * as schema from '../database/schema';
 import {
   tbFinancial,
   tbHealthMetrics,
+  tbBlogPosts,
   tbPersonalData,
   tbStudentPermissions,
   tbCheckIns,
@@ -257,7 +258,7 @@ export class StudentsService {
    */
   async getHealthHistory(userId: string, userRole: UserRole) {
     if (userRole === UserRole.ALUNO && !userId) {
-      throw new ForbiddenException("Acesso negado");
+      throw new ForbiddenException('Acesso negado');
     }
 
     const [metrics] = await this.db
@@ -269,7 +270,7 @@ export class StudentsService {
     if (!metrics) {
       return {
         success: true,
-        message: "Nenhum dado de saude encontrado",
+        message: 'Nenhum dado de saude encontrado',
         history: [],
         currentHealth: null,
       };
@@ -280,19 +281,19 @@ export class StudentsService {
       heightCm: metrics.heightCm ? Number(metrics.heightCm) : null,
       weightKg: metrics.weightKg ?? null,
       notes: metrics.otherNotes ?? null,
-      updatedAt: metrics.updatedAt as string,
-      createdAt: metrics.updatedAt as string,
+      updatedAt: metrics.updatedAt,
+      createdAt: metrics.updatedAt,
     };
 
     return {
       success: true,
-      message: "",
+      message: '',
       history: [historyEntry],
       currentHealth: {
         heightCm: metrics.heightCm ? Number(metrics.heightCm) : 0,
         weightKg: metrics.weightKg ? Number(metrics.weightKg) : 0,
-        bloodType: metrics.bloodType ?? "",
-        updatedAt: metrics.updatedAt as string,
+        bloodType: metrics.bloodType ?? '',
+        updatedAt: metrics.updatedAt,
       },
     };
   }
@@ -322,7 +323,7 @@ export class StudentsService {
         location: dto.location,
         hideLocation: dto.hideLocation ?? false,
         requestPublic: dto.requestPublic ?? false,
-        approvalStatus: dto.requestPublic ? "pending" : "private",
+        approvalStatus: dto.requestPublic ? 'pending' : 'private',
         isPublic: false,
       })
       .returning();
@@ -334,18 +335,20 @@ export class StudentsService {
     const [event] = await this.db
       .select()
       .from(tbPersonalEvents)
-      .where(and(eq(tbPersonalEvents.id, id), eq(tbPersonalEvents.userId, userId)))
+      .where(
+        and(eq(tbPersonalEvents.id, id), eq(tbPersonalEvents.userId, userId)),
+      )
       .limit(1);
 
     if (!event) {
-      throw new NotFoundException("Evento pessoal nao encontrado");
+      throw new NotFoundException('Evento pessoal nao encontrado');
     }
 
     const [updated] = await this.db
       .update(tbPersonalEvents)
       .set({
         requestPublic: true,
-        approvalStatus: "pending",
+        approvalStatus: 'pending',
         updatedAt: new Date(),
       })
       .where(eq(tbPersonalEvents.id, id))
@@ -362,11 +365,48 @@ export class StudentsService {
       .limit(1);
 
     if (!event) {
-      throw new NotFoundException("Evento pessoal nao encontrado");
+      throw new NotFoundException('Evento pessoal nao encontrado');
     }
 
-    const status = approve ? "approved" : "rejected";
+    const status = approve ? 'approved' : 'rejected';
     const isPublic = approve;
+
+    // Se aprovado, garantir que exista evento publico correspondente
+    if (approve) {
+      const slug = `personal-${event.id}`;
+      const [existingPublished] = await this.db
+        .select()
+        .from(tbBlogPosts)
+        .where(eq(tbBlogPosts.slug, slug))
+        .limit(1);
+
+      if (!existingPublished) {
+        await this.db.insert(tbBlogPosts).values({
+          title: event.title,
+          slug,
+          excerpt: event.description?.slice(0, 140) ?? event.description,
+          content: event.description,
+          eventDate:
+            typeof event.eventDate === 'string'
+              ? event.eventDate
+              : ((event.eventDate as Date | null)?.toISOString().slice(0, 10) ??
+                new Date().toISOString().slice(0, 10)),
+          eventTime: event.eventTime || null,
+          location: event.location || null,
+          hideLocation: event.hideLocation ?? false,
+          requireAttendance: false,
+          authorId: event.userId,
+          isPublished: true,
+          publishedAt: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          coverImage: null,
+          metaTitle: event.title,
+          metaDescription:
+            event.description?.slice(0, 160) ?? event.description,
+        });
+      }
+    }
 
     const [updated] = await this.db
       .update(tbPersonalEvents)
@@ -379,6 +419,39 @@ export class StudentsService {
       .returning();
 
     return updated;
+  }
+
+  /**
+   * Lista todas as solicitacoes de eventos pessoais pendentes ou privados (para admins/funcionarios)
+   */
+  async listAllPendingPersonalEvents() {
+    const events = await this.db
+      .select({
+        id: tbPersonalEvents.id,
+        title: tbPersonalEvents.title,
+        description: tbPersonalEvents.description,
+        eventDate: tbPersonalEvents.eventDate,
+        eventTime: tbPersonalEvents.eventTime,
+        userId: tbPersonalEvents.userId,
+        approvalStatus: tbPersonalEvents.approvalStatus,
+        requestPublic: tbPersonalEvents.requestPublic,
+        isPublic: tbPersonalEvents.isPublic,
+        userName: tbUsers.name,
+      })
+      .from(tbPersonalEvents)
+      .leftJoin(tbUsers, eq(tbPersonalEvents.userId, tbUsers.id))
+      .where(
+        and(
+          eq(tbPersonalEvents.isPublic, false),
+          or(
+            eq(tbPersonalEvents.approvalStatus, sql`'pending'`),
+            eq(tbPersonalEvents.approvalStatus, sql`'private'`),
+          ),
+        ),
+      )
+      .orderBy(desc(tbPersonalEvents.eventDate));
+
+    return events;
   }
 
   /**
@@ -491,9 +564,7 @@ export class StudentsService {
 
       if (updateHealthMetricsDto.weightKg !== undefined) {
         if (!permissions?.canEditWeight) {
-          throw new ForbiddenException(
-            'Voc no tem permisso para editar peso',
-          );
+          throw new ForbiddenException('Voc no tem permisso para editar peso');
         }
         updates.weightKg = updateHealthMetricsDto.weightKg;
       }
@@ -527,9 +598,7 @@ export class StudentsService {
 
       if (updateHealthMetricsDto.injuries !== undefined) {
         if (!permissions?.canEditInjuries) {
-          throw new ForbiddenException(
-            'Voc no tem permisso para editar leses',
-          );
+          throw new ForbiddenException('Voc no tem permisso para editar leses');
         }
         updates.injuries = updateHealthMetricsDto.injuries;
       }
@@ -569,9 +638,7 @@ export class StudentsService {
         updateHealthMetricsDto.coachObservations ||
         updateHealthMetricsDto.coachObservationsParticular
       ) {
-        throw new ForbiddenException(
-          'Voc no pode editar anotaes de coaches',
-        );
+        throw new ForbiddenException('Voc no pode editar anotaes de coaches');
       }
 
       // Outros campos permitidos para aluno
@@ -697,11 +764,15 @@ export class StudentsService {
       throw new NotFoundException('Aluno no encontrado');
     }
 
+    const userUpdate: Record<string, unknown> = {};
     if (dto.name) {
-      await this.db
-        .update(tbUsers)
-        .set({ name: dto.name })
-        .where(eq(tbUsers.id, id));
+      userUpdate.name = dto.name;
+    }
+    if (dto.isActive !== undefined) {
+      userUpdate.isActive = dto.isActive;
+    }
+    if (Object.keys(userUpdate).length > 0) {
+      await this.db.update(tbUsers).set(userUpdate).where(eq(tbUsers.id, id));
     }
 
     const personalUpdate: Record<string, unknown> = {};
@@ -786,6 +857,112 @@ export class StudentsService {
     return { success: true, message: 'Aluno atualizado com sucesso' };
   }
 
+
+
+  async updatePersonalEvent(
+    id: string,
+    dto: Partial<CreatePersonalEventDto>,
+    requestingUserId: string,
+    userRole: UserRole,
+  ) {
+    const [event] = await this.db
+      .select()
+      .from(tbPersonalEvents)
+      .where(eq(tbPersonalEvents.id, id))
+      .limit(1);
+
+    if (!event) {
+      throw new NotFoundException('Evento pessoal nao encontrado');
+    }
+
+    const isOwner = event.userId === requestingUserId;
+    const canManage =
+      isOwner ||
+      [UserRole.ADMIN, UserRole.MASTER, UserRole.FUNCIONARIO].includes(
+        userRole,
+      );
+
+    if (!canManage) {
+      throw new ForbiddenException('Sem permissao para editar este evento');
+    }
+
+    const updateData: Record<string, unknown> = {
+      updatedAt: new Date(),
+    };
+
+    if (dto.title !== undefined) updateData.title = dto.title;
+    if (dto.description !== undefined) updateData.description = dto.description;
+    if (dto.date !== undefined) updateData.eventDate = dto.date;
+    if (dto.time !== undefined) updateData.eventTime = dto.time;
+    if (dto.location !== undefined) updateData.location = dto.location;
+    if (dto.hideLocation !== undefined)
+      updateData.hideLocation = dto.hideLocation;
+
+    const [updated] = await this.db
+      .update(tbPersonalEvents)
+      .set(updateData)
+      .where(eq(tbPersonalEvents.id, id))
+      .returning();
+
+    if (updated?.isPublic) {
+      const slug = `personal-${id}`;
+      await this.db
+        .update(tbBlogPosts)
+        .set({
+          title: updated.title,
+          content: updated.description,
+          excerpt:
+            updated.description?.slice(0, 140) ?? updated.description ?? null,
+          eventDate: updated.eventDate,
+          eventTime: updated.eventTime,
+          location: updated.location,
+          hideLocation: updated.hideLocation,
+          metaTitle: updated.title,
+          metaDescription:
+            updated.description?.slice(0, 160) ?? updated.description ?? null,
+          updatedAt: new Date(),
+        })
+        .where(eq(tbBlogPosts.slug, slug));
+    }
+
+    return updated;
+  }
+
+  async deletePersonalEvent(
+    id: string,
+    requestingUserId: string,
+    userRole: UserRole,
+  ) {
+    const [event] = await this.db
+      .select()
+      .from(tbPersonalEvents)
+      .where(eq(tbPersonalEvents.id, id))
+      .limit(1);
+
+    if (!event) {
+      throw new NotFoundException('Evento pessoal nao encontrado');
+    }
+
+    const isOwner = event.userId === requestingUserId;
+    const canManage =
+      isOwner ||
+      [UserRole.ADMIN, UserRole.MASTER, UserRole.FUNCIONARIO].includes(
+        userRole,
+      );
+
+    if (!canManage) {
+      throw new ForbiddenException('Sem permissao para excluir este evento');
+    }
+
+    if (event.isPublic) {
+      const slug = `personal-${id}`;
+      await this.db.delete(tbBlogPosts).where(eq(tbBlogPosts.slug, slug));
+    }
+
+    await this.db.delete(tbPersonalEvents).where(eq(tbPersonalEvents.id, id));
+
+    return { success: true };
+  }
   /**
    * Adicionar observao de coach (apenas COACH, ADMIN, MASTER)
    */
@@ -828,9 +1005,3 @@ export class StudentsService {
     return updated;
   }
 }
-
-
-
-
-
-

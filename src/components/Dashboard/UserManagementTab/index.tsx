@@ -107,11 +107,13 @@ export function UserManagementTab({
 
   // Estatísticas
   const stats = {
-    total: users.length,
-    active: users.filter((u) => u.isActive).length,
+    total: filteredUsers.length,
+    active: filteredUsers.filter((u) => u.isActive).length,
     byRole: Object.entries(USER_ROLES).reduce(
       (acc, [role]) => {
-        acc[role as UserRole] = users.filter((u) => u.role === role).length;
+        acc[role as UserRole] = filteredUsers.filter(
+          (u) => u.role === role,
+        ).length;
         return acc;
       },
       {} as Record<UserRole, number>,

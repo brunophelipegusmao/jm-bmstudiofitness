@@ -1,4 +1,4 @@
-﻿import {
+import {
   Body,
   Controller,
   Get,
@@ -6,6 +6,7 @@
   Param,
   Post,
   Query,
+  Delete,
 } from '@nestjs/common';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -15,7 +16,11 @@ import { CreateHealthMetricsDto } from './dto/create-health-metrics.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { QueryStudentsDto } from './dto/query-students.dto';
 import { UpdateHealthMetricsDto } from './dto/update-health-metrics.dto';
-import { CreatePersonalEventDto, UpdatePersonalEventStatusDto } from './dto/personal-event.dto';
+import {
+  CreatePersonalEventDto,
+  UpdatePersonalEventStatusDto,
+  UpdatePersonalEventDto,
+} from './dto/personal-event.dto';
 import { StudentsService } from './students.service';
 
 @Controller('students')
@@ -63,6 +68,15 @@ export class StudentsController {
   }
 
   /**
+   * Listar notificacoes de eventos pessoais pendentes (ADMIN/MASTER/FUNCIONARIO)
+   */
+  @Get('personal-events/pending')
+  @Roles(UserRole.ADMIN, UserRole.MASTER, UserRole.FUNCIONARIO)
+  getPendingPersonalEvents() {
+    return this.studentsService.listAllPendingPersonalEvents();
+  }
+
+  /**
    * Eventos pessoais do aluno autenticado
    */
   @Get('personal-events')
@@ -71,7 +85,7 @@ export class StudentsController {
   }
 
   @Post('personal-events')
-  @Roles(UserRole.ALUNO)
+  @Roles(UserRole.ALUNO, UserRole.MASTER)
   createPersonalEvent(
     @CurrentUser('userId') userId: string,
     @Body() dto: CreatePersonalEventDto,
@@ -80,7 +94,7 @@ export class StudentsController {
   }
 
   @Post('personal-events/:id/request-public')
-  @Roles(UserRole.ALUNO)
+  @Roles(UserRole.ALUNO, UserRole.MASTER)
   requestPublic(
     @Param('id') id: string,
     @CurrentUser('userId') userId: string,
@@ -89,12 +103,33 @@ export class StudentsController {
   }
 
   @Patch('personal-events/:id/approve')
-  @Roles(UserRole.ADMIN, UserRole.MASTER, UserRole.COACH)
+  @Roles(UserRole.ADMIN, UserRole.MASTER, UserRole.COACH, UserRole.FUNCIONARIO)
   approvePersonalEvent(
     @Param('id') id: string,
     @Body() dto: UpdatePersonalEventStatusDto,
   ) {
     return this.studentsService.approvePersonalEvent(id, dto.approve ?? true);
+  }
+
+  @Patch('personal-events/:id')
+  @Roles(UserRole.ALUNO, UserRole.ADMIN, UserRole.MASTER, UserRole.FUNCIONARIO)
+  updatePersonalEvent(
+    @Param('id') id: string,
+    @Body() dto: UpdatePersonalEventDto,
+    @CurrentUser('userId') userId: string,
+    @CurrentUser('role') role: UserRole,
+  ) {
+    return this.studentsService.updatePersonalEvent(id, dto, userId, role);
+  }
+
+  @Delete('personal-events/:id')
+  @Roles(UserRole.ALUNO, UserRole.ADMIN, UserRole.MASTER, UserRole.FUNCIONARIO)
+  deletePersonalEvent(
+    @Param('id') id: string,
+    @CurrentUser('userId') userId: string,
+    @CurrentUser('role') role: UserRole,
+  ) {
+    return this.studentsService.deletePersonalEvent(id, userId, role);
   }
 
   /**
@@ -182,4 +217,3 @@ export class StudentsController {
     return this.studentsService.addCoachObservation(id, observation, true);
   }
 }
-

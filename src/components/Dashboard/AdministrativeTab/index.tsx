@@ -4,7 +4,6 @@ import {
   DollarSign,
   FileText,
   Save,
-  Settings,
   TrendingUp,
   UserPlus,
   Users,
@@ -29,7 +28,6 @@ import { BodyMeasurementsHistoryView } from "@/components/Admin/BodyMeasurements
 import { FormFeedbackModal } from "@/components/Admin/FormFeedbackModal";
 import { PaymentStatusModal } from "@/components/Admin/PaymentStatusModal";
 import { StudentCredentialsModal } from "@/components/Admin/StudentCredentialsModal";
-import { AcademySettingsView } from "@/components/Dashboard/AcademySettingsView";
 import { ManageStudentsView } from "@/components/Dashboard/ManageStudentsView";
 import { ReportsView } from "@/components/Dashboard/ReportsView";
 import { Button } from "@/components/ui/button";
@@ -56,7 +54,6 @@ export function AdministrativeTab({
   const [showForm, setShowForm] = useState(false);
   const [showManageStudents, setShowManageStudents] = useState(false);
   const [showReports, setShowReports] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
   const [calculatedAge, setCalculatedAge] = useState<number | null>(null);
@@ -440,14 +437,6 @@ export function AdministrativeTab({
       color: "from-purple-600 to-violet-500",
       action: () => setShowReports(true),
     },
-    {
-      id: "settings",
-      title: "Configurações do Estúdio",
-      description: "Configurar horários, valores e políticas",
-      icon: Settings,
-      color: "from-amber-600 to-yellow-500",
-      action: () => setShowSettings(true),
-    },
   ];
 
   if (showManageStudents) {
@@ -456,10 +445,6 @@ export function AdministrativeTab({
 
   if (showReports) {
     return <ReportsView onBack={() => setShowReports(false)} />;
-  }
-
-  if (showSettings) {
-    return <AcademySettingsView onBack={() => setShowSettings(false)} />;
   }
 
   if (showForm) {
@@ -1354,7 +1339,7 @@ export function AdministrativeTab({
   return (
     <div className="space-y-8">
       {/* Grid de Ações */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {adminActions.map((action, index) => {
           const Icon = action.icon;
           return (
@@ -1614,5 +1599,8 @@ export function AdministrativeTab({
     </div>
   );
 }
+
+
+
 
 

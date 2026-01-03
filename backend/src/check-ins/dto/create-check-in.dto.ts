@@ -1,9 +1,9 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateCheckInDto {
-  @IsNotEmpty({ message: 'ID do usuário é obrigatório' })
+  @IsOptional()
   @IsString()
-  userId: string;
+  userId?: string;
 
   @IsOptional()
   @IsString()
@@ -13,13 +13,13 @@ export class CreateCheckInDto {
   @IsString()
   checkInTime?: string; // HH:mm
 
-  @IsNotEmpty({ message: 'Método de check-in é obrigatório' })
+  @IsOptional()
   @IsString()
-  method: string; // 'RFID', 'QR Code', 'Manual', 'App'
+  method?: string; // 'cpf' | 'email' | 'manual' | 'app'
 
   @IsOptional()
   @IsString()
-  identifier?: string; // ID do cartão RFID ou QR code
+  identifier?: string; // CPF ou email
 
   @IsOptional()
   @IsString()

@@ -23,7 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-// Função para validar se é uma URL válida de imagem
+// Funcao para validar se e uma URL valida de imagem
 const isValidImageUrl = (url: string): boolean => {
   if (!url || url.trim() === "") return false;
 
@@ -31,7 +31,7 @@ const isValidImageUrl = (url: string): boolean => {
     const urlObj = new URL(url.trim());
     const pathname = urlObj.pathname.toLowerCase();
 
-    // Verifica se termina com extensão de imagem válida
+    // Verifica se termina com extensao de imagem valida
     const validExtensions = [
       ".jpg",
       ".jpeg",
@@ -45,19 +45,25 @@ const isValidImageUrl = (url: string): boolean => {
       pathname.endsWith(ext),
     );
 
-    // Aceita URLs locais (começam com /) ou URLs com extensão de imagem
+    // Aceita URLs locais (comecam com /) ou URLs com extensao de imagem
     return pathname.startsWith("/") || hasValidExtension;
   } catch {
-    // Se começar com / é uma URL local válida
+    // Se comecar com /  uma URL local valida
     return url.trim().startsWith("/");
   }
 };
 
 interface AcademySettingsViewProps {
-  onBack: () => void;
+  onBack?: () => void;
+  showBackButton?: boolean;
+  showHeader?: boolean;
 }
 
-export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
+export function AcademySettingsView({
+  onBack,
+  showBackButton,
+  showHeader = false,
+}: AcademySettingsViewProps) {
   const [activeTab, setActiveTab] = useState<
     "general" | "hours" | "pricing" | "policies" | "carousel"
   >("general");
@@ -75,10 +81,10 @@ export function AcademySettingsView({ onBack }: AcademySettingsViewProps) {
       if (result.data) {
         setSettings(result.data);
       } else {
-        toast.error("Erro ao carregar configurações");
+        toast.error("Erro ao carregar configuracoes");
       }
     } catch (error) {
-      toast.error("Erro ao carregar configurações");
+      toast.error("Erro ao carregar configuracoes");
       console.error(error);
     } finally {
       setLoading(false);
@@ -136,7 +142,7 @@ const handleSaveSettings = async () => {
         toast.error(result.message);
       }
     } catch (error) {
-      toast.error("Erro ao salvar configurações");
+      toast.error("Erro ao salvar configuracoes");
       console.error(error);
     } finally {
       setSaving(false);
@@ -148,31 +154,31 @@ const handleSaveSettings = async () => {
       id: "general",
       label: "Geral",
       icon: Settings,
-      description: "Informações básicas do estúdio",
+      description: "Informacoes basicas do estudio",
     },
     {
       id: "hours",
-      label: "Horários",
+      label: "Horarios",
       icon: Clock,
-      description: "Horários de funcionamento",
+      description: "Horarios de funcionamento",
     },
     {
       id: "pricing",
       label: "Valores",
       icon: DollarSign,
-      description: "Preços e mensalidades",
+      description: "Precos e mensalidades",
     },
     {
       id: "policies",
-      label: "Políticas",
+      label: "Politicas",
       icon: FileText,
-      description: "Regras e políticas",
+      description: "Regras e politicas",
     },
     {
       id: "carousel",
       label: "Carrossel",
       icon: ImageIcon,
-      description: "Imagens do carrossel da página inicial",
+      description: "Imagens do carrossel da pagina inicial",
     },
   ];
 
@@ -185,7 +191,7 @@ const handleSaveSettings = async () => {
     },
     {
       key: "tuesday",
-      label: "Terça-feira",
+      label: "Terca-feira",
       openKey: "tuesdayOpen" as const,
       closeKey: "tuesdayClose" as const,
     },
@@ -209,7 +215,7 @@ const handleSaveSettings = async () => {
     },
     {
       key: "saturday",
-      label: "Sábado",
+      label: "Sabado",
       openKey: "saturdayOpen" as const,
       closeKey: "saturdayClose" as const,
     },
@@ -232,7 +238,7 @@ const handleSaveSettings = async () => {
   if (!settings) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <p className="text-slate-400">Erro ao carregar configurações</p>
+        <p className="text-slate-400">Erro ao carregar configuracoes</p>
       </div>
     );
   }
@@ -245,23 +251,27 @@ const handleSaveSettings = async () => {
       className="space-y-6"
     >
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-[#C2A537]">
-            Configurações do Estúdio
-          </h2>
-          <p className="text-slate-400">
-            Configurar horários, valores e políticas
-          </p>
+      {showHeader && (
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-[#C2A537]">
+              Configuracoes do Estudio
+            </h2>
+            <p className="text-slate-400">
+              Configurar horarios, valores e politicas
+            </p>
+          </div>
+          {onBack && showBackButton !== false && (
+            <Button
+              onClick={onBack}
+              variant="outline"
+              className="border-slate-600 text-slate-300 hover:bg-slate-800"
+            >
+              Voltar
+            </Button>
+          )}
         </div>
-        <Button
-          onClick={onBack}
-          variant="outline"
-          className="border-slate-600 text-slate-300 hover:bg-slate-800"
-        >
-          † Voltar
-        </Button>
-      </div>
+      )}
 
       {/* Tabs Navigation */}
       <Card className="border-[#C2A537]/30 bg-black/40 backdrop-blur-sm">
@@ -303,13 +313,13 @@ const handleSaveSettings = async () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-[#C2A537]">
                 <Settings className="h-5 w-5" />
-                Informações Gerais
+                Informacoes Gerais
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-[#C2A537]">Nome do Estúdio</Label>
+                  <Label className="text-[#C2A537]">Nome do Estudio</Label>
                   <Input
                     value={settings.studioName}
                     onChange={(e) =>
@@ -343,7 +353,7 @@ const handleSaveSettings = async () => {
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <Label className="text-[#C2A537]">Endereço</Label>
+                  <Label className="text-[#C2A537]">Endereco</Label>
                   <Input
                     value={settings.address}
                     onChange={(e) =>
@@ -403,7 +413,7 @@ const handleSaveSettings = async () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-[#C2A537]">
                 <Clock className="h-5 w-5" />
-                Horários de Funcionamento
+                Horarios de Funcionamento
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -509,14 +519,14 @@ const handleSaveSettings = async () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-[#C2A537]">
                 <DollarSign className="h-5 w-5" />
-                Preços e Mensalidades
+                Precos e Mensalidades
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-2">
                   <Label className="text-[#C2A537]">
-                    Mensalidade Padrão (R$)
+                    Mensalidade Padrao (R$)
                   </Label>
                   <Input
                     type="number"
@@ -536,7 +546,7 @@ const handleSaveSettings = async () => {
 
                 <div className="space-y-2">
                   <Label className="text-[#C2A537]">
-                    Taxa de Matrícula (R$)
+                    Taxa de Matricula (R$)
                   </Label>
                   <Input
                     type="number"
@@ -578,7 +588,7 @@ const handleSaveSettings = async () => {
 
                 <div className="space-y-2">
                   <Label className="text-[#C2A537]">
-                    Dia de Vencimento Padrão
+                    Dia de Vencimento Padrao
                   </Label>
                   <Input
                     type="number"
@@ -597,7 +607,7 @@ const handleSaveSettings = async () => {
 
                 <div className="space-y-2">
                   <Label className="text-[#C2A537]">
-                    Período de Carência (dias)
+                    Perodo de Carncia (dias)
                   </Label>
                   <Input
                     type="number"
@@ -615,7 +625,7 @@ const handleSaveSettings = async () => {
 
                 <div className="space-y-2">
                   <Label className="text-[#C2A537]">
-                    Check-ins Máximos/Dia
+                    Check-ins Mximos/Dia
                   </Label>
                   <Input
                     type="number"
@@ -664,14 +674,14 @@ const handleSaveSettings = async () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-[#C2A537]">
                 <FileText className="h-5 w-5" />
-                Políticas e Termos
+                Politicas e Termos
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label className="text-[#C2A537]">
-                    Política de Cancelamento
+                    Politica de Cancelamento
                   </Label>
                   <textarea
                     value={settings.cancellationPolicy || ""}
@@ -682,13 +692,13 @@ const handleSaveSettings = async () => {
                       })
                     }
                     rows={4}
-                    placeholder="Descreva a política de cancelamento do estúdio..."
+                    placeholder="Descreva a politica de cancelamento do estudio..."
                     className="w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 text-white focus:border-[#C2A537] focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-[#C2A537]">Termos e Condições</Label>
+                  <Label className="text-[#C2A537]">Termos e condicoes</Label>
                   <textarea
                     value={settings.termsAndConditions || ""}
                     onChange={(e) =>
@@ -698,14 +708,14 @@ const handleSaveSettings = async () => {
                       })
                     }
                     rows={4}
-                    placeholder="Descreva os termos e condições gerais..."
+                    placeholder="Descreva os termos e condicoes gerais..."
                     className="w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 text-white focus:border-[#C2A537] focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label className="text-[#C2A537]">
-                    Política de Privacidade
+                    Politica de Privacidade
                   </Label>
                   <textarea
                     value={settings.privacyPolicy || ""}
@@ -716,7 +726,7 @@ const handleSaveSettings = async () => {
                       })
                     }
                     rows={4}
-                    placeholder="Descreva como os dados dos alunos são tratados..."
+                    placeholder="Descreva como os dados dos alunos sao tratados..."
                     className="w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 text-white focus:border-[#C2A537] focus:outline-none"
                   />
                 </div>
@@ -742,7 +752,7 @@ const handleSaveSettings = async () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-slate-400">
-                Configure até 7 imagens para o carrossel da página inicial.
+                Configure ate 7 imagens para o carrossel da pagina inicial.
                 Insira as URLs das imagens.
               </p>
 
@@ -783,7 +793,7 @@ const handleSaveSettings = async () => {
                       ) : (
                         <div className="mt-2 rounded-md border border-red-500 bg-red-500/10 p-3">
                           <p className="text-sm text-red-400">
-                            š ï¸ URL inválida. Use uma URL direta de imagem que
+                            ️ URL invalida. Use uma URL direta de imagem que
                             termine com .jpg, .png, .gif, etc.
                           </p>
                         </div>
@@ -828,7 +838,7 @@ const handleSaveSettings = async () => {
                       ) : (
                         <div className="mt-2 rounded-md border border-red-500 bg-red-500/10 p-3">
                           <p className="text-sm text-red-400">
-                            š ï¸ URL inválida. Use uma URL direta de imagem que
+                            ️ URL invalida. Use uma URL direta de imagem que
                             termine com .jpg, .png, .gif, etc.
                           </p>
                         </div>
@@ -873,7 +883,7 @@ const handleSaveSettings = async () => {
                       ) : (
                         <div className="mt-2 rounded-md border border-red-500 bg-red-500/10 p-3">
                           <p className="text-sm text-red-400">
-                            š ï¸ URL inválida. Use uma URL direta de imagem que
+                            ️ URL invalida. Use uma URL direta de imagem que
                             termine com .jpg, .png, .gif, etc.
                           </p>
                         </div>
@@ -918,7 +928,7 @@ const handleSaveSettings = async () => {
                       ) : (
                         <div className="mt-2 rounded-md border border-red-500 bg-red-500/10 p-3">
                           <p className="text-sm text-red-400">
-                            š ï¸ URL inválida. Use uma URL direta de imagem que
+                            ️ URL invalida. Use uma URL direta de imagem que
                             termine com .jpg, .png, .gif, etc.
                           </p>
                         </div>
@@ -963,7 +973,7 @@ const handleSaveSettings = async () => {
                       ) : (
                         <div className="mt-2 rounded-md border border-red-500 bg-red-500/10 p-3">
                           <p className="text-sm text-red-400">
-                            š ï¸ URL inválida. Use uma URL direta de imagem que
+                            ️ URL invalida. Use uma URL direta de imagem que
                             termine com .jpg, .png, .gif, etc.
                           </p>
                         </div>
@@ -1008,7 +1018,7 @@ const handleSaveSettings = async () => {
                       ) : (
                         <div className="mt-2 rounded-md border border-red-500 bg-red-500/10 p-3">
                           <p className="text-sm text-red-400">
-                            š ï¸ URL inválida. Use uma URL direta de imagem que
+                            ️ URL invalida. Use uma URL direta de imagem que
                             termine com .jpg, .png, .gif, etc.
                           </p>
                         </div>
@@ -1053,7 +1063,7 @@ const handleSaveSettings = async () => {
                       ) : (
                         <div className="mt-2 rounded-md border border-red-500 bg-red-500/10 p-3">
                           <p className="text-sm text-red-400">
-                            š ï¸ URL inválida. Use uma URL direta de imagem que
+                            ️ URL invalida. Use uma URL direta de imagem que
                             termine com .jpg, .png, .gif, etc.
                           </p>
                         </div>
@@ -1082,7 +1092,7 @@ const handleSaveSettings = async () => {
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              Salvar Configurações
+              Salvar Configuracoes
             </>
           )}
         </Button>
@@ -1090,6 +1100,15 @@ const handleSaveSettings = async () => {
     </motion.div>
   );
 }
+
+
+
+
+
+
+
+
+
 
 
 

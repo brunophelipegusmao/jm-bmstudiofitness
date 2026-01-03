@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Clock,
@@ -10,8 +11,11 @@ import {
   Phone,
   Send,
 } from "lucide-react";
-import { useState } from "react";
 
+import {
+  getPublicSettingsAction,
+  type PublicSettings,
+} from "@/actions/get-public-settings-action";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,43 +27,75 @@ interface ContactCard {
   color: string;
 }
 
-const contactCards: ContactCard[] = [
-  {
-    icon: <Phone className="h-6 w-6" />,
-    title: "Telefone",
-    info: ["(21) 98099-5749"],
-    color: "from-[#FFD700] to-[#C2A537]",
-  },
-  {
-    icon: <Mail className="h-6 w-6" />,
-    title: "E-mail",
-    info: ["contato@jmfitnessstudio.com.br", "vendas@jmfitnessstudio.com.br"],
-    color: "from-[#C2A537] to-[#D4B547]",
-  },
-  {
-    icon: <MapPin className="h-6 w-6" />,
-    title: "Endereço",
-    info: [
-      "Rua General Câmara, 18, sala 311",
-      "25 de Agosto, Duque de Caxias - RJ",
-    ],
-    color: "from-[#D4B547] to-[#E6C658]",
-  },
-  {
-    icon: <Clock className="h-6 w-6" />,
-    title: "Horário",
-    info: ["Seg-Sex: 05:00-22:00", "Sáb-Dom: 07:00-20:00"],
-    color: "from-[#E6C658] to-[#FFD700]",
-  },
-];
-
 export default function ContactPage() {
+  const [settings, setSettings] = useState<PublicSettings>({});
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     message: "",
   });
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      const result = await getPublicSettingsAction();
+      if (result.success && result.data) {
+        setSettings(result.data);
+      }
+    };
+
+    void loadSettings();
+  }, []);
+
+  const contactCards: ContactCard[] = useMemo(() => {
+    const addressParts = [
+      settings.address,
+      settings.city,
+      settings.state,
+      settings.zipCode,
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+    const weekday =
+      settings.mondayOpen && settings.mondayClose
+        ? `Seg-Sex: ${settings.mondayOpen} - ${settings.mondayClose}`
+        : null;
+    const weekend =
+      settings.saturdayOpen && settings.saturdayClose
+        ? `Sab-Dom: ${settings.saturdayOpen} - ${settings.saturdayClose}`
+        : null;
+
+    return [
+      {
+        icon: <Phone className="h-6 w-6" />,
+        title: "Telefone",
+        info: settings.phone ? [settings.phone] : ["(21) 98099-5749"],
+        color: "from-[#FFD700] to-[#C2A537]",
+      },
+      {
+        icon: <Mail className="h-6 w-6" />,
+        title: "E-mail",
+        info: settings.email ? [settings.email] : ["contato@jmfitness.com"],
+        color: "from-[#C2A537] to-[#D4B547]",
+      },
+      {
+        icon: <MapPin className="h-6 w-6" />,
+        title: "Endereco",
+        info:
+          addressParts.length > 0
+            ? [addressParts]
+            : ["Rua das Flores, 123, Rio de Janeiro - RJ"],
+        color: "from-[#D4B547] to-[#E6C658]",
+      },
+      {
+        icon: <Clock className="h-6 w-6" />,
+        title: "Horario",
+        info: [weekday, weekend].filter(Boolean) as string[],
+        color: "from-[#E6C658] to-[#FFD700]",
+      },
+    ];
+  }, [settings]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -74,7 +110,6 @@ export default function ContactPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
-    // Reset form
     setFormData({
       name: "",
       email: "",
@@ -90,11 +125,9 @@ export default function ContactPage() {
       transition={{ duration: 0.6 }}
       className="bg-linear-to-br from-[#1b1b1a] via-black to-[#1b1b1a] py-20 text-white"
     >
-      {/* Background decorativo */}
       <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/30 via-transparent to-black/50"></div>
 
       <div className="relative z-10 container mx-auto px-4">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -105,12 +138,10 @@ export default function ContactPage() {
             Fale Conosco
           </h1>
           <p className="mx-auto max-w-2xl text-lg text-slate-300">
-            Entre em contato conosco e tire todas as suas dúvidas sobre nossos
-            serviços e planos.
+            Entre em contato conosco e tire todas as suas duvidas sobre nossos servicos e planos.
           </p>
         </motion.div>
 
-        {/* Contact Cards */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -126,7 +157,6 @@ export default function ContactPage() {
               whileHover={{ y: -5 }}
               className="relative"
             >
-              {/* Background glow */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -147,8 +177,8 @@ export default function ContactPage() {
                     {card.title}
                   </h3>
                   <div className="space-y-1">
-                    {card.info.map((info, infoIndex) => (
-                      <p key={infoIndex} className="text-sm text-slate-300">
+                    {card.info.map((info) => (
+                      <p key={info} className="text-sm text-slate-300">
                         {info}
                       </p>
                     ))}
@@ -159,9 +189,7 @@ export default function ContactPage() {
           ))}
         </motion.div>
 
-        {/* Main Content - Form and Social */}
         <div className="grid gap-12 lg:grid-cols-3 lg:items-start">
-          {/* Contact Form */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -169,8 +197,6 @@ export default function ContactPage() {
             className="lg:col-span-2"
           >
             <div className="relative h-full">
-              {/* Background glow */}
-              {/* Background glow */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -184,7 +210,7 @@ export default function ContactPage() {
                     Envie uma Mensagem
                   </CardTitle>
                   <p className="text-slate-300">
-                    Preencha o formulário abaixo e entraremos em contato em
+                    Preencha o formulario abaixo e entraremos em contato em
                     breve.
                   </p>
                 </CardHeader>
@@ -277,7 +303,6 @@ export default function ContactPage() {
                       />
                     </motion.div>
 
-                    {/* Spacer para empurrar o botão para baixo */}
                     <div className="flex-1"></div>
 
                     <motion.div
@@ -304,14 +329,12 @@ export default function ContactPage() {
             </div>
           </motion.div>
 
-          {/* Social Media & Additional Info */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 1 }}
             className="space-y-6"
           >
-            {/* Social Media */}
             <Card className="border-2 border-[#C2A537]/30 bg-black/90 backdrop-blur-lg">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg text-[#C2A537]">
@@ -332,7 +355,7 @@ export default function ContactPage() {
                 </motion.a>
 
                 <motion.a
-                  href="https://wa.me/5521980995749"
+                  href={`https://wa.me/${settings.phone?.replace(/\D/g, "") || "5521980995749"}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.05 }}
@@ -340,16 +363,15 @@ export default function ContactPage() {
                   className="flex items-center gap-3 rounded-lg border border-[#C2A537]/30 bg-black/50 p-2 text-sm text-slate-300 transition-all duration-300 hover:border-[#C2A537]/70 hover:bg-[#C2A537]/10 hover:text-[#C2A537]"
                 >
                   <MessageCircle className="h-4 w-4" />
-                  <span>(21) 98099-5749</span>
+                  <span>{settings.phone || "(21) 98099-5749"}</span>
                 </motion.a>
               </CardContent>
             </Card>
 
-            {/* Mapa Interativo */}
             <Card className="border-2 border-[#C2A537]/50 bg-black/95 shadow-2xl shadow-[#C2A537]/20 backdrop-blur-lg">
               <CardHeader className="pb-3">
                 <CardTitle className="bg-linear-to-r from-[#FFD700] via-[#C2A537] to-[#B8941F] bg-clip-text text-lg font-bold text-transparent">
-                  Nossa Localização
+                  Nossa Localizacao
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
@@ -365,11 +387,10 @@ export default function ContactPage() {
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                    title="Localização JM Fitness Studio"
+                    title="Localizacao"
                     className="rounded-b-lg"
                   ></iframe>
 
-                  {/* Overlay para melhorar o visual */}
                   <div className="pointer-events-none absolute inset-0 rounded-b-lg bg-linear-to-t from-black/20 to-transparent"></div>
                 </div>
               </CardContent>
@@ -380,3 +401,11 @@ export default function ContactPage() {
     </motion.div>
   );
 }
+
+
+
+
+
+
+
+

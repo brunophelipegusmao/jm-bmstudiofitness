@@ -1,10 +1,12 @@
 import {
   IsDateString,
   IsEmail,
+  IsBoolean,
   IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class UpdateStudentDto {
   @IsString()
@@ -47,4 +49,9 @@ export class UpdateStudentDto {
   @IsNumber()
   @IsOptional()
   dueDate?: number;
+
+  @Transform(({ value }) => value === true || value === 'true')
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
 }

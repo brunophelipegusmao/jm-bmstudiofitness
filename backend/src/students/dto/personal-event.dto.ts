@@ -36,3 +36,30 @@ export class UpdatePersonalEventStatusDto {
   @IsOptional()
   approve?: boolean;
 }
+
+export class UpdatePersonalEventDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsDateString()
+  date?: string;
+
+  @IsOptional()
+  @IsString()
+  time?: string;
+
+  @IsOptional()
+  @IsString()
+  location?: string;
+
+  @Transform(({ value }) => value === true || value === 'true')
+  @IsBoolean()
+  @IsOptional()
+  hideLocation?: boolean;
+}

@@ -39,6 +39,7 @@ export async function GET(request: NextRequest) {
 
     const userData = user[0];
     return NextResponse.json({
+      id: userData.id,
       name: userData.name,
       email: userData.email || authUser.email,
       role: userData.role,

@@ -79,6 +79,27 @@ export class WaitlistService {
     return entries;
   }
 
+  async findPublic() {
+    const entries = await this.db
+      .select({
+        id: tbWaitlist.id,
+        name: tbWaitlist.name,
+        email: tbWaitlist.email,
+        phone: tbWaitlist.phone,
+        source: tbWaitlist.source,
+        notes: tbWaitlist.notes,
+        status: tbWaitlist.status,
+        createdAt: tbWaitlist.createdAt,
+        convertedAt: tbWaitlist.convertedAt,
+        convertedToUserId: tbWaitlist.convertedToUserId,
+      })
+      .from(tbWaitlist)
+      .where(eq(tbWaitlist.status, WaitlistStatus.PENDING))
+      .orderBy(tbWaitlist.createdAt);
+
+    return entries;
+  }
+
   async findOne(id: string) {
     const [entry] = await this.db
       .select({

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -27,30 +28,78 @@ export class CheckInsService {
   ) {}
 
   /**
-   * Realizar check-in
+   * Realizar check-in (publico ou autenticado)
    */
-  async create(createCheckInDto: CreateCheckInDto, requestingUserId: string) {
-    // Verificar se usuário existe e está ativo
-    const [user] = await this.db
-      .select()
-      .from(tbUsers)
-      .where(
-        and(
-          eq(tbUsers.id, createCheckInDto.userId),
-          isNull(tbUsers.deletedAt),
-          eq(tbUsers.isActive, true),
-        ),
-      )
-      .limit(1);
+  async create(
+    createCheckInDto: CreateCheckInDto,
+    requestingUserId?: string,
+  ) {
+    let targetUserId = createCheckInDto.userId;
+    let resolvedMethod = createCheckInDto.method;
+    let resolvedIdentifier = createCheckInDto.identifier?.trim();
 
-    if (!user) {
-      throw new NotFoundException('Usuário não encontrado ou inativo');
+    // Resolver usuario via CPF/email quando userId nao vier
+    if (!targetUserId) {
+      if (!resolvedIdentifier) {
+        throw new BadRequestException(
+          'Informe o CPF ou email do aluno para check-in',
+        );
+      }
+
+      const isCpf = /^\d{11}$/.test(resolvedIdentifier);
+      const [personal] = await this.db
+        .select({
+          userId: tbPersonalData.userId,
+          email: tbPersonalData.email,
+          cpf: tbPersonalData.cpf,
+        })
+        .from(tbPersonalData)
+        .where(
+          isCpf
+            ? eq(tbPersonalData.cpf, resolvedIdentifier)
+            : eq(tbPersonalData.email, resolvedIdentifier),
+        )
+        .limit(1);
+
+      if (!personal) {
+        throw new NotFoundException('Aluno nao encontrado');
+      }
+
+      targetUserId = personal.userId;
+      resolvedMethod = resolvedMethod ?? (isCpf ? 'cpf' : 'email');
     }
 
-    // Definir quem fez o check-in
+    // Buscar dados do usuario
+    const [user] = await this.db
+      .select({
+        id: tbUsers.id,
+        name: tbUsers.name,
+        isActive: tbUsers.isActive,
+        deletedAt: tbUsers.deletedAt,
+      })
+      .from(tbUsers)
+      .where(eq(tbUsers.id, targetUserId!))
+      .limit(1);
+
+    if (!user || user.deletedAt || !user.isActive) {
+      throw new NotFoundException('Usuario nao encontrado ou inativo');
+    }
+
+    // Pegar dados pessoais para fallback de identificador
+    if (!resolvedIdentifier) {
+      const [personal] = await this.db
+        .select({
+          email: tbPersonalData.email,
+          cpf: tbPersonalData.cpf,
+        })
+        .from(tbPersonalData)
+        .where(eq(tbPersonalData.userId, targetUserId!))
+        .limit(1);
+      resolvedIdentifier = personal?.cpf ?? personal?.email ?? 'manual';
+    }
+
     let checkedInBy: string | undefined = undefined;
-    if (createCheckInDto.userId !== requestingUserId) {
-      // Check-in feito por funcionário/coach
+    if (requestingUserId && requestingUserId !== targetUserId) {
       checkedInBy = requestingUserId;
     }
 
@@ -61,69 +110,88 @@ export class CheckInsService {
       createCheckInDto.checkInTime ||
       now.toTimeString().split(' ')[0].substring(0, 5);
 
-    const insertData = {
-      userId: createCheckInDto.userId,
-      checkInDate,
-      checkInTime,
-      method: createCheckInDto.method,
-      ...(createCheckInDto.identifier && {
-        identifier: createCheckInDto.identifier,
-      }),
-      ...(checkedInBy || createCheckInDto.checkedInBy
-        ? { checkedInBy: checkedInBy || createCheckInDto.checkedInBy }
-        : {}),
-    } as typeof tbCheckIns.$inferInsert;
-
     const [checkIn] = await this.db
       .insert(tbCheckIns)
-      .values(insertData)
+      .values({
+        userId: targetUserId!,
+        checkInDate,
+        checkInTime,
+        method: resolvedMethod ?? 'manual',
+        identifier: resolvedIdentifier,
+        ...(checkedInBy ? { checkedInBy } : {}),
+      })
       .returning();
 
-    return checkIn;
+    return {
+      success: true,
+      message: 'Check-in registrado com sucesso',
+      userName: user.name,
+      checkIn,
+    };
   }
 
   /**
-   * Check-in via identificador (CPF ou email) feito por funcionário/coach
+   * Check-in via identificador (CPF ou email) feito por funcionario/coach
    */
   async employeeCheckIn(dto: EmployeeCheckInDto, requestingUserId: string) {
-    const identifier = dto.identifier.trim();
-    const method = dto.method || 'manual';
+    let targetUserId: string | undefined;
+    let resolvedIdentifier = dto.identifier?.trim();
+    let resolvedMethod = dto.method || 'manual';
 
-    const isCpf = /^\d{11}$/.test(identifier);
+    if (resolvedIdentifier) {
+      const isCpf = /^\d{11}$/.test(resolvedIdentifier);
 
-    const [personal] = await this.db
-      .select({
-        userId: tbPersonalData.userId,
-        email: tbPersonalData.email,
-        cpf: tbPersonalData.cpf,
-      })
-      .from(tbPersonalData)
-      .where(
-        isCpf
-          ? eq(tbPersonalData.cpf, identifier)
-          : eq(tbPersonalData.email, identifier),
-      )
-      .limit(1);
+      const [personal] = await this.db
+        .select({
+          userId: tbPersonalData.userId,
+          email: tbPersonalData.email,
+          cpf: tbPersonalData.cpf,
+        })
+        .from(tbPersonalData)
+        .where(
+          isCpf
+            ? eq(tbPersonalData.cpf, resolvedIdentifier)
+            : eq(tbPersonalData.email, resolvedIdentifier),
+        )
+        .limit(1);
 
-    if (!personal) {
-      throw new NotFoundException('Aluno não encontrado');
+      if (!personal) {
+        throw new NotFoundException('Aluno nao encontrado');
+      }
+
+      targetUserId = personal.userId;
+      resolvedMethod = dto.method ?? (isCpf ? 'cpf' : 'email');
+    } else {
+      // Sem identificador: assume check-in do proprio funcionario/coach
+      targetUserId = requestingUserId;
+      const [personal] = await this.db
+        .select({ email: tbPersonalData.email, cpf: tbPersonalData.cpf })
+        .from(tbPersonalData)
+        .where(eq(tbPersonalData.userId, targetUserId))
+        .limit(1);
+      resolvedIdentifier = personal?.cpf ?? personal?.email ?? 'manual';
+      resolvedMethod = dto.method ?? 'manual';
+    }
+
+    if (!targetUserId) {
+      throw new BadRequestException('Nenhum usuario alvo encontrado');
     }
 
     const [user] = await this.db
       .select()
       .from(tbUsers)
-      .where(eq(tbUsers.id, personal.userId))
+      .where(eq(tbUsers.id, targetUserId))
       .limit(1);
 
     if (!user) {
-      throw new NotFoundException('Aluno não encontrado ou inativo');
+      throw new NotFoundException('Aluno nao encontrado ou inativo');
     }
 
-    const checkIn = await this.create(
+    const created = await this.create(
       {
-        userId: personal.userId,
-        method,
-        identifier,
+        userId: targetUserId,
+        method: resolvedMethod,
+        identifier: resolvedIdentifier,
         checkedInBy: requestingUserId,
       },
       requestingUserId,
@@ -133,7 +201,7 @@ export class CheckInsService {
       success: true,
       message: 'Check-in realizado com sucesso',
       studentName: user.name,
-      checkIn,
+      checkIn: created.checkIn,
     };
   }
 
@@ -155,11 +223,9 @@ export class CheckInsService {
     } = queryDto;
     const offset = (page - 1) * limit;
 
-    // Se for aluno, só pode ver próprios check-ins
     const targetUserId =
       userRole === UserRole.ALUNO ? requestingUserId : userId;
 
-    // Construir condições
     const conditions: SQLWrapper[] = [];
     if (targetUserId) {
       conditions.push(eq(tbCheckIns.userId, targetUserId));
@@ -176,7 +242,6 @@ export class CheckInsService {
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-    // Query principal com joins
     const checkIns = await this.db
       .select({
         id: tbCheckIns.id,
@@ -196,7 +261,6 @@ export class CheckInsService {
       .limit(limit)
       .offset(offset);
 
-    // Contar total
     const [{ count }] = await this.db
       .select({ count: sql<number>`count(*)` })
       .from(tbCheckIns)
@@ -238,10 +302,9 @@ export class CheckInsService {
   }
 
   /**
-   * Check-ins do prÇüprio usuÇ­rio (para dashboard do aluno)
+   * Check-ins do proprio usuario (para dashboard do aluno)
    */
   async getStudentCheckIns(userId: string, userRole: UserRole) {
-    // Aluno sÇü pode ver prÇüprio histÇürico; outros roles podem ver qualquer aluno (usando o prÇüprio ID aqui)
     const targetUserId = userId;
     if (userRole === UserRole.ALUNO && !targetUserId) {
       throw new ForbiddenException('Acesso negado');
@@ -316,10 +379,9 @@ export class CheckInsService {
       .limit(1);
 
     if (!checkIn) {
-      throw new NotFoundException('Check-in não encontrado');
+      throw new NotFoundException('Check-in nao encontrado');
     }
 
-    // Aluno só pode ver próprios check-ins
     if (userRole === UserRole.ALUNO && checkIn.userId !== requestingUserId) {
       throw new ForbiddenException('Acesso negado');
     }
@@ -328,14 +390,13 @@ export class CheckInsService {
   }
 
   /**
-   * Histórico de check-ins de um usuário
+   * Historico de check-ins de um usuario
    */
   async getUserHistory(
     userId: string,
     requestingUserId: string,
     userRole: UserRole,
   ) {
-    // Aluno só pode ver próprio histórico
     if (userRole === UserRole.ALUNO && userId !== requestingUserId) {
       throw new ForbiddenException('Acesso negado');
     }
@@ -350,14 +411,13 @@ export class CheckInsService {
   }
 
   /**
-   * Estatísticas de check-ins de um usuário
+   * Estatisticas de check-ins de um usuario
    */
   async getUserStats(
     userId: string,
     requestingUserId: string,
     userRole: UserRole,
   ) {
-    // Aluno só pode ver próprias estatísticas
     if (userRole === UserRole.ALUNO && userId !== requestingUserId) {
       throw new ForbiddenException('Acesso negado');
     }
@@ -389,7 +449,7 @@ export class CheckInsService {
       .limit(1);
 
     if (!existing) {
-      throw new NotFoundException('Check-in não encontrado');
+      throw new NotFoundException('Check-in nao encontrado');
     }
 
     await this.db.delete(tbCheckIns).where(eq(tbCheckIns.id, id));

@@ -51,7 +51,7 @@ export async function getWaitlistPublicAction(): Promise<{
   error?: string;
 }> {
   try {
-    const entries = await apiClient.get<WaitlistApi[]>("/waitlist");
+    const entries = await apiClient.get<WaitlistApi[]>("/waitlist/public");
     const mapped = mapWaitlist(entries);
     return { success: true, data: mapped };
   } catch (error) {

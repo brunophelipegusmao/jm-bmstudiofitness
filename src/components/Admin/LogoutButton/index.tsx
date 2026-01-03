@@ -60,6 +60,10 @@ export function LogoutButton() {
     switch (role) {
       case "admin":
         return "Administrador";
+      case "master":
+        return "Master";
+      case "employee":
+        return "Funcionário";
       case "professor":
         return "Professor";
       case "funcionario":
@@ -75,11 +79,8 @@ export function LogoutButton() {
       {!loading && user && (
         <div className="flex items-center gap-3">
           <UserAvatar name={user.name} size="sm" />
-          <div className="hidden text-right text-sm text-[#C2A537] sm:block">
-            <div className="font-medium">{user.name}</div>
-            <div className="text-xs text-[#C2A537]/70">
-              {getRoleLabel(user.role)}
-            </div>
+          <div className="text-sm text-[#C2A537]">
+            <div className="font-medium">{getRoleLabel(user.role)}</div>
           </div>
         </div>
       )}
@@ -93,9 +94,7 @@ export function LogoutButton() {
         className="border-[#C2A537] text-[#C2A537] hover:bg-[#C2A537] hover:text-black"
       >
         <LogOut className="h-4 w-4" />
-        <span className="hidden sm:inline">
-          {isLoading ? "Saindo..." : "Sair"}
-        </span>
+        <span className="ml-2">{isLoading ? "Saindo..." : "Sair"}</span>
       </Button>
 
       {/* Dialog de confirmação */}

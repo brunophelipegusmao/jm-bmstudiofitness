@@ -13,6 +13,7 @@ export interface UpdateStudentData {
   paymentMethod?: string;
   dueDate?: number;
   planId?: string;
+  isActive?: boolean;
   // allows arbitrary extra fields without breaking callers
   [key: string]: unknown;
 }

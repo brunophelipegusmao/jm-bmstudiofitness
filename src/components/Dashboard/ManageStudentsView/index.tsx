@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import clsx from "clsx";
 import { motion } from "framer-motion";
 import {
   Edit,
@@ -20,8 +21,11 @@ import {
   getAllStudentsFullDataAction,
   StudentFullData,
 } from "@/actions/admin/get-students-full-data-action";
+import { getStudentFullProfileAction } from "@/actions/admin/get-student-full-profile-action";
+import { updateStudentAction } from "@/actions/admin/update-student-action";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EditStudentModal } from "@/components/Dashboard/EditStudentModal";
+import { StudentViewModal } from "@/components/Dashboard/StudentViewModal";
 import { showErrorToast, showSuccessToast } from "@/components/ToastProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,6 +48,10 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
   const [studentToEdit, setStudentToEdit] = useState<StudentFullData | null>(
     null,
   );
+  const [studentViewData, setStudentViewData] = useState<{
+    profile: Awaited<ReturnType<typeof getStudentFullProfileAction>> | null;
+    open: boolean;
+  }>({ profile: null, open: false });
   const studentForModal = studentToEdit
     ? {
         ...studentToEdit,
@@ -57,7 +65,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
       }
     : null;
 
-  // Hook para dialog de confirmação
+  // Hook para dialog de confirmacao
   const { confirm, isOpen, options, handleConfirm, handleCancel } =
     useConfirmDialog();
 
@@ -79,8 +87,14 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
     loadStudents();
   }, []);
 
+  // Remover perfis que não são alunos (admin/master/employee/coach)
+  const studentPool = students.filter((student) => {
+    const role = (student.userRole || student.role || "").toLowerCase();
+    return !["admin", "master", "employee", "funcionario", "funcionário", "coach"].includes(role);
+  });
+
   // Filtrar estudantes
-  const filteredStudents = students.filter((student) => {
+  const filteredStudents = studentPool.filter((student) => {
     const matchesSearch =
       student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -88,68 +102,88 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
 
     const matchesFilter =
       filterStatus === "all" ||
-      (filterStatus === "active" && student.isPaymentUpToDate) ||
-      (filterStatus === "inactive" && !student.isPaymentUpToDate);
+      (filterStatus === "active" && student.active) ||
+      (filterStatus === "inactive" && !student.active);
 
     return matchesSearch && matchesFilter;
   });
 
-  // Calcular estatísticas
+  // Calcular estatísticas (somente alunos)
   const stats = {
-    total: students.length,
-    active: students.filter((s) => s.isPaymentUpToDate).length,
-    inactive: students.filter((s) => !s.isPaymentUpToDate).length,
-    pending: students.filter((s) => !s.paid).length,
+    total: studentPool.length,
+    active: studentPool.filter((s) => s.active).length,
+    inactive: studentPool.filter((s) => !s.active).length,
+    pending: studentPool.filter((s) => s.paid === false).length,
   };
 
-  const getStatusBadge = (isPaymentUpToDate: boolean) => {
-    if (isPaymentUpToDate) {
+
+  const getStatusBadge = (active: boolean) => {
+    if (active) {
       return (
-        <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+        <span className="inline-flex items-center rounded-full bg-green-500/15 px-2.5 py-0.5 text-xs font-semibold text-green-200 ring-1 ring-green-500/40">
           <UserCheck className="mr-1 h-3 w-3" />
           Ativo
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+      <span className="inline-flex items-center rounded-full bg-red-500/15 px-2.5 py-0.5 text-xs font-semibold text-red-200 ring-1 ring-red-500/40">
         <UserX className="mr-1 h-3 w-3" />
         Inativo
       </span>
     );
   };
 
-  const getPaymentBadge = (paid: boolean, isPaymentUpToDate: boolean) => {
-    if (paid && isPaymentUpToDate) {
+  const getPaymentBadge = (paid?: boolean, isPaymentUpToDate?: boolean) => {
+    if (paid === false || isPaymentUpToDate === false) {
       return (
-        <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-          Em dia
-        </span>
-      );
-    }
-    if (!paid) {
-      return (
-        <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+        <span className="inline-flex items-center rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-200 ring-1 ring-amber-500/40">
           Pendente
         </span>
       );
     }
+
+    if (paid === true || isPaymentUpToDate === true) {
+      return (
+        <span className="inline-flex items-center rounded-full bg-green-500/15 px-2.5 py-0.5 text-xs font-semibold text-green-200 ring-1 ring-green-500/40">
+          Em dia
+        </span>
+      );
+    }
+
     return (
-      <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
-        Vencido
+      <span className="inline-flex items-center rounded-full bg-slate-500/15 px-2.5 py-0.5 text-xs font-semibold text-slate-200 ring-1 ring-slate-500/40">
+        Sem registro
       </span>
     );
   };
 
   const handleToggleStatus = async (student: StudentFullData) => {
     try {
-      setActionLoading(true);
+      const confirmed = await confirm({
+        title: student.active ? "Desativar aluno" : "Ativar aluno",
+        message: student.active
+          ? `Deseja desativar o aluno "${student.name}"?`
+          : `Deseja ativar o aluno "${student.name}"?`,
+        confirmText: student.active ? "Desativar" : "Ativar",
+        cancelText: "Cancelar",
+        type: "warning",
+      });
+      if (!confirmed) return;
 
-      // Como não temos um campo isActive direto, esta funcionalidade
-      // precisaria ser expandida com base na lógica de negócio
-      showSuccessToast(
-        `Status de ${student.name}: ${student.isPaymentUpToDate ? "Em dia" : "Pendente"}`,
-      );
+      setActionLoading(true);
+      const result = await updateStudentAction({
+        id: student.userId,
+        isActive: !student.active,
+      });
+
+      if (!result.success) {
+        showErrorToast(result.error || "Erro ao alterar status do aluno");
+        return;
+      }
+
+      const data = await getAllStudentsFullDataAction();
+      setStudents(data);
     } catch (error) {
       console.error("Erro ao alterar status:", error);
       showErrorToast("Erro ao alterar status do aluno");
@@ -164,16 +198,25 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
   };
 
   const handleViewStudent = (student: StudentFullData) => {
-    // Redirecionar para página de detalhes ou abrir modal
-    console.log("View student:", student);
-    showSuccessToast(`Visualizando ${student.name}`);
+    void (async () => {
+      try {
+        setActionLoading(true);
+        const profile = await getStudentFullProfileAction(student.userId);
+        setStudentViewData({ profile, open: true });
+      } catch (error) {
+        console.error("Erro ao carregar detalhes do aluno:", error);
+        showErrorToast("Erro ao carregar detalhes do aluno");
+      } finally {
+        setActionLoading(false);
+      }
+    })();
   };
 
   const handleDeleteStudent = async (student: StudentFullData) => {
     try {
       const confirmed = await confirm({
         title: "Excluir Aluno",
-        message: `Tem certeza que deseja excluir o aluno "${student.name}"? Esta ação não pode ser desfeita.`,
+        message: `Tem certeza que deseja excluir o aluno "${student.name}"? Esta acao nao pode ser desfeita.`,
         confirmText: "Excluir",
         cancelText: "Cancelar",
         type: "danger",
@@ -185,7 +228,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
           await deleteStudentAction(student.userId);
 
         if (result.success) {
-          showSuccessToast(`Aluno "${student.name}" excluído com sucesso!`);
+          showSuccessToast(`Aluno "${student.name}" excluido com sucesso!`);
           // Recarregar lista
           const data = await getAllStudentsFullDataAction();
           setStudents(data);
@@ -223,7 +266,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
           variant="outline"
           className="border-slate-600 text-slate-300 hover:bg-slate-800"
         >
-          † Voltar
+          Voltar
         </Button>
       </div>
 
@@ -373,11 +416,8 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
                           <h3 className="font-semibold text-white">
                             {student.name}
                           </h3>
-                          {getStatusBadge(!!student.isPaymentUpToDate)}
-                          {getPaymentBadge(
-                            !!student.paid,
-                            !!student.isPaymentUpToDate,
-                          )}
+                          {getStatusBadge(!!student.active)}
+                          {getPaymentBadge(student.paid, student.isPaymentUpToDate)}
                         </div>
                         <div className="flex items-center space-x-4 text-sm text-gray-400">
                           <span>{student.email}</span>
@@ -390,32 +430,34 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
 
                     {/* Actions */}
                     <div className="flex items-center space-x-2">
-                      {/* Toggle Status Button */}
-                      <Button
-                        variant="ghost"
-                        size="sm"
+                      {/* Toggle Status Button (switch compacto, preto/dourado) */}
+                      <button
                         onClick={() => handleToggleStatus(student)}
-                        className="text-gray-400 hover:text-white"
                         disabled={actionLoading}
-                        title={
-                          student.isPaymentUpToDate
-                            ? "Desativar aluno"
-                            : "Ativar aluno"
-                        }
-                      >
-                        {student.isPaymentUpToDate ? (
-                          <ToggleRight className="h-5 w-5 text-green-400" />
-                        ) : (
-                          <ToggleLeft className="h-5 w-5 text-red-400" />
+                        title={student.active ? "Desativar aluno" : "Ativar aluno"}
+                        className={clsx(
+                          "relative h-5 w-10 rounded-full border transition-all duration-200 ease-out",
+                          student.active
+                            ? "border-[#C2A537]/80 bg-[#C2A537]/60 shadow-[0_0_8px_rgba(194,165,55,0.35)]"
+                            : "border-[#C2A537]/40 bg-black/85",
+                          actionLoading && "opacity-60 cursor-not-allowed",
                         )}
-                      </Button>
+                        type="button"
+                      >
+                        <span
+                          className={clsx(
+                            "absolute top-0.5 h-4 w-4 rounded-full bg-gradient-to-br from-[#FFE17D] via-[#C2A537] to-[#9c7c1f] shadow transition-all duration-200 ease-out",
+                            student.active ? "right-0.5" : "left-0.5",
+                          )}
+                        />
+                      </button>
 
                       {/* View Button */}
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleViewStudent(student)}
-                        className="text-gray-400 hover:text-white"
+                        className="text-gray-300 hover:text-[#C2A537]"
                         disabled={actionLoading}
                         title="Ver detalhes"
                       >
@@ -427,7 +469,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleEditStudent(student)}
-                        className="text-gray-400 hover:text-white"
+                        className="text-gray-300 hover:text-[#C2A537]"
                         disabled={actionLoading}
                         title="Editar aluno"
                       >
@@ -439,7 +481,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteStudent(student)}
-                        className="text-gray-400 hover:text-red-400"
+                        className="text-gray-300 hover:text-red-400"
                         disabled={actionLoading}
                         title="Excluir aluno"
                       >
@@ -454,7 +496,7 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
         </CardContent>
       </Card>
 
-      {/* Modal de Edição */}
+      {/* Modal de edicao */}
       {studentForModal && (
         <EditStudentModal
           isOpen={isEditModalOpen}
@@ -464,14 +506,23 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
           }}
           student={studentForModal}
           onSuccess={async () => {
-            // Recarregar lista após edição
+            // Recarregar lista apos edicao
             const data = await getAllStudentsFullDataAction();
             setStudents(data);
           }}
         />
       )}
 
-      {/* Dialog de confirmação */}
+      {/* Modal de visualizacao */}
+      {studentViewData.profile && (
+        <StudentViewModal
+          isOpen={studentViewData.open}
+          data={studentViewData.profile}
+          onClose={() => setStudentViewData({ profile: null, open: false })}
+        />
+      )}
+
+      {/* Dialog de confirmacao */}
       <ConfirmDialog
         isOpen={isOpen}
         onClose={handleCancel}
@@ -485,5 +536,13 @@ export function ManageStudentsView({ onBack }: ManageStudentsViewProps) {
     </motion.div>
   );
 }
+
+
+
+
+
+
+
+
 
 

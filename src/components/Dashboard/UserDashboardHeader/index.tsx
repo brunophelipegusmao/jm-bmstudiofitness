@@ -1,7 +1,5 @@
-import { Dumbbell, LogOut } from "lucide-react";
+import { Dumbbell } from "lucide-react";
 
-import { logoutFormAction } from "@/actions/auth/logout-action";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardDescription,
@@ -78,24 +76,6 @@ export function UserDashboardHeader({ userName }: UserDashboardHeaderProps) {
                 </CardDescription>
               </div>
             </div>
-
-            {/* Botão de logout estilizado */}
-            <form
-              action={logoutFormAction}
-              className="transition-transform duration-300 hover:scale-105"
-            >
-              <Button
-                type="submit"
-                variant="outline"
-                className="group relative overflow-hidden border-[#C2A537]/50 bg-black/70 text-[#C2A537] backdrop-blur-sm transition-all duration-500 hover:border-[#C2A537] hover:bg-[#C2A537]/15 hover:text-[#D4B547] hover:shadow-lg hover:shadow-[#C2A537]/40"
-              >
-                {/* Efeito de onda no hover */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#C2A537]/30 to-transparent opacity-0 transition-all duration-500 group-hover:translate-x-full group-hover:opacity-100" />
-
-                <LogOut className="relative mr-2 h-4 w-4 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
-                <span className="relative font-medium">Sair</span>
-              </Button>
-            </form>
           </div>
         </CardHeader>
       </Card>

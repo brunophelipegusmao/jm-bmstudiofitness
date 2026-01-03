@@ -1,15 +1,17 @@
-"use client";
+﻿"use client";
 
-import { Activity, Calendar, Heart, User } from "lucide-react";
+import { Activity, Calendar, Heart, MapPin, User } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { getStudentDataAction } from "@/actions/user/get-student-data-action";
+import { getPersonalEventsAction } from "@/actions/user/get-personal-events-action";
 import {
   UserDashboardHeader,
   UserInfoCard,
   UserNavigationCard,
 } from "@/components/Dashboard";
-import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface StudentData {
   user: {
@@ -41,6 +43,9 @@ export default function StudentDashboard() {
   const [studentData, setStudentData] = useState<StudentData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pendingEvents, setPendingEvents] = useState<
+    { id: string; title: string; date: Date; description: string }[]
+  >([]);
 
   useEffect(() => {
     const loadStudentData = async () => {
@@ -61,6 +66,27 @@ export default function StudentDashboard() {
     loadStudentData();
   }, []);
 
+  useEffect(() => {
+    const loadPendingEvents = async () => {
+      try {
+        const events = await getPersonalEventsAction();
+        const relevant = events
+          .filter((e) => !e.isPublic && e.approvalStatus !== "approved")
+          .map((e) => ({
+            id: e.id,
+            title: e.title,
+            date: e.date,
+            description: e.description,
+          }));
+        setPendingEvents(relevant);
+      } catch {
+        /* ignore errors on notifications */
+      }
+    };
+
+    loadPendingEvents();
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen text-white">
@@ -77,7 +103,7 @@ export default function StudentDashboard() {
         <div className="flex min-h-screen items-center justify-center">
           <Card className="w-full max-w-md border-red-600 bg-red-900/30">
             <CardContent className="p-6 text-center">
-              <p className="text-red-400">{error || "Dados não encontrados"}</p>
+              <p className="text-red-400">{error || "Dados nao encontrados"}</p>
             </CardContent>
           </Card>
         </div>
@@ -98,22 +124,69 @@ export default function StudentDashboard() {
   return (
     <div className="min-h-screen text-white">
       <div className="container mx-auto p-4 lg:p-8">
-        {/* Cabeçalho */}
+        {/* Cabecalho */}
         <UserDashboardHeader userName={studentData.user.name} />
 
-        {/* Cards de Navegação */}
-        <div className="mb-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {/* Notificacoes de eventos pendentes */}
+        <Card className="mb-6 border-yellow-600/40 bg-yellow-900/10 text-white">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div>
+              <CardTitle className="text-lg text-yellow-300">
+                Eventos aguardando aprovacao
+              </CardTitle>
+              <p className="text-sm text-white/70">
+                Solicitações que voce enviou para se tornar publicas.
+              </p>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {pendingEvents.length === 0 ? (
+              <p className="text-sm text-white/70">
+                Nenhuma solicitacao pendente no momento.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {pendingEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    className="flex flex-col rounded-lg border border-yellow-700/50 bg-yellow-900/10 p-3 md:flex-row md:items-center md:justify-between"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-white">
+                        {event.title}
+                      </p>
+                      <p className="text-xs text-white/70 line-clamp-2">
+                        {event.description}
+                      </p>
+                    </div>
+                    <div className="mt-2 flex items-center gap-2 md:mt-0">
+                      <Badge variant="outline" className="border-yellow-500 text-yellow-300">
+                        {event.date.toLocaleDateString("pt-BR")}
+                      </Badge>
+                      <Badge className="bg-yellow-600 text-black">
+                        Pendencia
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Navegacao rapida */}
+        <div className="mb-8 grid gap-6 md:grid-cols-2 lg:grid-cols-5">
           <UserNavigationCard
             icon={User}
             title="Meus Dados"
-            description="Informações pessoais"
+            description="Informacoes pessoais"
             colorClass="border-blue-600 bg-blue-900/30"
           />
 
           <UserNavigationCard
             icon={Heart}
-            title="Histórico de Saúde"
-            description="Métricas e evolução"
+            title="Historico de Saude"
+            description="Metricas e evolucao"
             href="/user/health"
             colorClass="border-green-600 bg-green-900/30"
           />
@@ -121,7 +194,7 @@ export default function StudentDashboard() {
           <UserNavigationCard
             icon={Activity}
             title="Check-ins"
-            description="Histórico de presenças"
+            description="Historico de presencas"
             href="/user/check-ins"
             colorClass="border-orange-600 bg-orange-900/30"
           />
@@ -133,13 +206,20 @@ export default function StudentDashboard() {
             href="/user/payment"
             colorClass="border-purple-600 bg-purple-900/30"
           />
+
+          <UserNavigationCard
+            icon={MapPin}
+            title="Eventos"
+            description="Agenda publica e pessoal"
+            href="/user/events"
+            colorClass="border-yellow-500 bg-yellow-900/30"
+          />
         </div>
 
-        {/* Resumo Rápido */}
+        {/* Resumo rapido */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {/* Dados Pessoais */}
           <UserInfoCard
-            title="Informações Pessoais"
+            title="Informacoes Pessoais"
             data={[
               { label: "E-mail", value: studentData.personalData.email },
               { label: "Idade", value: `${age} anos` },
@@ -147,9 +227,8 @@ export default function StudentDashboard() {
             ]}
           />
 
-          {/* Dados de Saúde */}
           <UserInfoCard
-            title="Dados de Saúde"
+            title="Dados de Saude"
             data={[
               {
                 label: "Altura",
@@ -160,13 +239,12 @@ export default function StudentDashboard() {
                 value: `${studentData.healthMetrics.weightKg} kg`,
               },
               {
-                label: "Tipo Sanguíneo",
+                label: "Tipo Sanguineo",
                 value: studentData.healthMetrics.bloodType,
               },
             ]}
           />
 
-          {/* Status Financeiro */}
           <UserInfoCard
             title="Status Financeiro"
             data={[
@@ -177,7 +255,7 @@ export default function StudentDashboard() {
               },
               {
                 label: "Status",
-                value: studentData.financial.paid ? "✅ Em dia" : "❌ Pendente",
+                value: studentData.financial.paid ? "Em dia" : "Pendente",
                 className: `font-semibold ${
                   studentData.financial.paid ? "text-green-400" : "text-red-400"
                 }`,
@@ -189,5 +267,4 @@ export default function StudentDashboard() {
     </div>
   );
 }
-
 

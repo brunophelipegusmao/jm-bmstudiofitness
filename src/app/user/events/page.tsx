@@ -247,12 +247,12 @@ export default function UserEventsPage() {
                       onClick={() => setSelectedDate(startOfDay(day))}
                       className={`rounded-lg border p-3 text-left text-sm transition ${
                         isSelected
-                          ? "border-[#C2A537] bg-[#C2A537]/10"
-                          : "border-slate-800 bg-slate-900/40 hover:border-slate-700"
-                      } ${!isCurrentMonth ? "opacity-50" : ""}`}
+                          ? "border-[#C2A537] bg-[#C2A537]/10 text-white"
+                          : "border-slate-700 bg-slate-800/80 hover:border-slate-600 text-slate-100"
+                      } ${!isCurrentMonth ? "opacity-40" : ""}`}
                     >
                       <div className="flex items-center justify-between">
-                        <span>{format(day, "d")}</span>
+                        <span className="font-semibold">{format(day, "d")}</span>
                         <div className="flex gap-1">
                           {hasEvent && <span className="h-2 w-2 rounded-full bg-[#C2A537]"></span>}
                           {hasBirthday && <span className="h-2 w-2 rounded-full bg-pink-400"></span>}
@@ -442,11 +442,11 @@ export default function UserEventsPage() {
             <CardContent className="space-y-3 text-sm text-slate-300">
               <div className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-full bg-[#C2A537]"></span>
-                <span>Eventos publicos / aprovados</span>
+                <span>Eventos</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-full bg-pink-400"></span>
-                <span>Aniversarios de usuarios</span>
+                <span>Aniversários</span>
               </div>
               <div className="rounded-lg border border-slate-800 bg-slate-900/60 p-3">
                 <p className="font-semibold text-white">Status dos meus eventos</p>
@@ -463,4 +463,3 @@ export default function UserEventsPage() {
     </div>
   );
 }
-

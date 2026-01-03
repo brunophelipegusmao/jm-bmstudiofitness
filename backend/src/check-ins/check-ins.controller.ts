@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../database/schema';
 import { CheckInsService } from './check-ins.service';
@@ -23,12 +24,18 @@ export class CheckInsController {
   /**
    * Realizar check-in
    */
+  @Public()
   @Post()
   create(
     @Body() createCheckInDto: CreateCheckInDto,
-    @CurrentUser('userId') userId: string,
+    @CurrentUser('userId') userId?: string,
   ) {
-    return this.checkInsService.create(createCheckInDto, userId);
+    return this.checkInsService.create(createCheckInDto, userId).then((res) => ({
+      success: true,
+      message: res.message,
+      userName: res.userName,
+      checkIn: res.checkIn,
+    }));
   }
 
   /**
@@ -41,6 +48,23 @@ export class CheckInsController {
     @CurrentUser('userId') userId: string,
   ) {
     return this.checkInsService.employeeCheckIn(dto, userId);
+  }
+
+  /**
+   * Listar check-ins do proprio funcionario/coach
+   */
+  @Get('employee')
+  @Roles(UserRole.ADMIN, UserRole.MASTER, UserRole.COACH, UserRole.FUNCIONARIO)
+  listEmployeeCheckIns(
+    @Query() queryDto: QueryCheckInsDto,
+    @CurrentUser('userId') userId: string,
+    @CurrentUser('role') role: UserRole,
+  ) {
+    return this.checkInsService.findAll(
+      { ...queryDto, userId },
+      userId,
+      role,
+    );
   }
 
   /**

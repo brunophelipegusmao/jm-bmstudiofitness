@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { getStudentCheckinsAction } from "@/actions/admin/get-student-checkins-action";
+import { searchStudentsAction } from "@/actions/admin/search-students-action";
 import { AdminLayout } from "@/components/Admin/AdminLayout";
 import { Button } from "@/components/Button";
 import CheckInCalendar from "@/components/CheckInCalendar";
@@ -16,7 +18,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatCPF } from "@/lib/utils";
 
-// Tipos
 interface StudentData {
   id: string;
   name: string;
@@ -30,8 +31,8 @@ interface CheckInData {
   checkInDate: string;
   checkInTime: string;
   method: string;
-  identifier: string;
-  userName: string;
+  identifier: string | null;
+  userName?: string;
 }
 
 export default function CheckInsAdminPage() {
@@ -44,7 +45,6 @@ export default function CheckInsAdminPage() {
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
 
-  // Buscar alunos baseado no termo de pesquisa
   const searchStudents = async (term: string) => {
     if (term.length < 2) {
       setStudents([]);
@@ -53,31 +53,24 @@ export default function CheckInsAdminPage() {
 
     setSearchLoading(true);
     try {
-      const response = await fetch(
-        `/api/students/search?q=${encodeURIComponent(term)}`,
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setStudents(data);
-      }
+      const res = await searchStudentsAction(term);
+      setStudents(res.success && res.data ? res.data : []);
     } catch (error) {
       console.error("Erro ao buscar alunos:", error);
+      setStudents([]);
     } finally {
       setSearchLoading(false);
     }
   };
 
-  // Carregar check-ins do aluno selecionado
   const loadStudentCheckIns = async (studentId: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/checkins/student/${studentId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setCheckIns(data);
-      }
+      const res = await getStudentCheckinsAction(studentId);
+      setCheckIns(res.success && res.data ? res.data : []);
     } catch (error) {
       console.error("Erro ao carregar check-ins:", error);
+      setCheckIns([]);
     } finally {
       setLoading(false);
     }
@@ -85,9 +78,8 @@ export default function CheckInsAdminPage() {
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      searchStudents(searchTerm);
+      void searchStudents(searchTerm);
     }, 300);
-
     return () => clearTimeout(timeoutId);
   }, [searchTerm]);
 
@@ -95,7 +87,7 @@ export default function CheckInsAdminPage() {
     setSelectedStudent(student);
     setStudents([]);
     setSearchTerm("");
-    loadStudentCheckIns(student.id);
+    void loadStudentCheckIns(student.id);
   };
 
   const clearSelection = () => {
@@ -114,7 +106,7 @@ export default function CheckInsAdminPage() {
                 Check-ins por Aluno
               </CardTitle>
               <CardDescription className="text-slate-300">
-                Pesquise um aluno e visualize seu histórico de check-ins
+                Pesquise um aluno e visualize seu historico de check-ins
               </CardDescription>
             </CardHeader>
 
@@ -141,7 +133,6 @@ export default function CheckInsAdminPage() {
                   )}
                 </div>
 
-                {/* Lista de resultados da pesquisa */}
                 {students.length > 0 && (
                   <div className="mt-2 max-h-60 overflow-y-auto rounded-lg border border-[#867536] bg-[#d7ceac]">
                     {students.map((student) => (
@@ -160,7 +151,6 @@ export default function CheckInsAdminPage() {
                 )}
               </div>
 
-              {/* Aluno selecionado */}
               {selectedStudent && (
                 <div className="mb-6">
                   <div className="flex items-center justify-between rounded-lg border border-[#C2A537] bg-[#C2A537]/10 p-4">
@@ -184,7 +174,6 @@ export default function CheckInsAdminPage() {
                 </div>
               )}
 
-              {/* Calendário */}
               {selectedStudent && (
                 <div className="space-y-6">
                   {loading ? (
@@ -195,7 +184,6 @@ export default function CheckInsAdminPage() {
                     </div>
                   ) : (
                     <>
-                      {/* Calendário de Check-ins */}
                       <CheckInCalendar
                         checkIns={checkIns.map((checkIn) => ({
                           date: new Date(checkIn.checkInDate),
@@ -214,7 +202,6 @@ export default function CheckInsAdminPage() {
                         showLegend={true}
                       />
 
-                      {/* Estatísticas */}
                       <div className="grid gap-4 md:grid-cols-3">
                         <div className="rounded-lg border border-[#C2A537]/30 bg-[#C2A537]/10 p-4">
                           <div className="text-center">
@@ -260,12 +247,11 @@ export default function CheckInsAdminPage() {
                 </div>
               )}
 
-              {/* Estado inicial */}
               {!selectedStudent && (
                 <div className="py-12 text-center">
-                  <div className="mb-4 text-6xl">👤</div>
+                  <div className="mb-4 text-4xl">🙂</div>
                   <div className="text-lg text-slate-400">
-                    Pesquise um aluno para visualizar seu histórico de check-ins
+                    Pesquise um aluno para visualizar seu historico de check-ins
                   </div>
                 </div>
               )}

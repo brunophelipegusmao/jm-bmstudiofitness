@@ -37,10 +37,7 @@ export function Header() {
   // Define título e descrição baseado na página
   const getDashboardInfo = () => {
     if (isAdminPage) {
-      return {
-        title: "🏋️ Dashboard Administrativo",
-        description: "Sistema completo de gestão do estúdio",
-      };
+      return null;
     }
     if (isCoachPage) {
       return {

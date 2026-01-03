@@ -1,9 +1,9 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class EmployeeCheckInDto {
   @IsString()
-  @IsNotEmpty()
-  identifier: string; // CPF ou email
+  @IsOptional()
+  identifier?: string; // CPF ou email
 
   @IsString()
   @IsOptional()

@@ -12,6 +12,7 @@ import * as schema from '../database/schema';
 import {
   tbBlogPosts,
   tbEventAttendance,
+  tbPersonalEvents,
   tbPersonalData,
   tbUsers,
 } from '../database/schema';
@@ -178,6 +179,61 @@ export class EventsService {
       );
 
     if (!event) {
+      // Fallback: eventos pessoais aprovados (slug: personal-<id>)
+      if (slug.startsWith('personal-')) {
+        const personalId = slug.replace('personal-', '');
+        const [personal] = await this.db
+          .select({
+            id: tbPersonalEvents.id,
+            title: tbPersonalEvents.title,
+            description: tbPersonalEvents.description,
+            eventDate: tbPersonalEvents.eventDate,
+            eventTime: tbPersonalEvents.eventTime,
+            location: tbPersonalEvents.location,
+            hideLocation: tbPersonalEvents.hideLocation,
+            createdAt: tbPersonalEvents.createdAt,
+            updatedAt: tbPersonalEvents.updatedAt,
+            userId: tbPersonalEvents.userId,
+            authorName: tbUsers.name,
+          })
+          .from(tbPersonalEvents)
+          .leftJoin(tbUsers, eq(tbPersonalEvents.userId, tbUsers.id))
+          .where(
+            and(
+              eq(tbPersonalEvents.id, personalId),
+              eq(tbPersonalEvents.isPublic, true),
+            ),
+          );
+
+        if (personal) {
+          return {
+            id: personal.id,
+            title: personal.title,
+            slug,
+            description: personal.description ?? '',
+            summary:
+              personal.description && personal.description.length > 240
+                ? `${personal.description.slice(0, 237)}...`
+                : personal.description ?? null,
+            imageUrl: null,
+            eventDate: this.normalizeDate(personal.eventDate),
+            eventTime: personal.eventTime ? String(personal.eventTime) : null,
+            location: personal.location,
+            hideLocation: personal.hideLocation,
+            requireAttendance: false,
+            isPublished: true,
+            publishedAt: this.normalizeDate(personal.createdAt),
+            viewCount: 0,
+            createdAt: this.normalizeDate(personal.createdAt),
+            updatedAt: this.normalizeDate(personal.updatedAt),
+            author: {
+              id: personal.userId,
+              name: personal.authorName ?? 'Aluno',
+            },
+          };
+        }
+      }
+
       throw new NotFoundException('Evento nao encontrado');
     }
 
@@ -493,6 +549,65 @@ export class EventsService {
   async getCalendarData() {
     const events = await this.findAllEvents({ publishedOnly: true });
 
+    type EventItem = Awaited<
+      ReturnType<EventsService['findAllEvents']>
+    >[number];
+
+    // Incluir eventos pessoais aprovados/publicos como fallback
+    const personalEvents = await this.db
+      .select({
+        id: tbPersonalEvents.id,
+        title: tbPersonalEvents.title,
+        description: tbPersonalEvents.description,
+        eventDate: tbPersonalEvents.eventDate,
+        eventTime: tbPersonalEvents.eventTime,
+        location: tbPersonalEvents.location,
+        hideLocation: tbPersonalEvents.hideLocation,
+        createdAt: tbPersonalEvents.createdAt,
+        updatedAt: tbPersonalEvents.updatedAt,
+        userId: tbPersonalEvents.userId,
+        userName: tbUsers.name,
+      })
+      .from(tbPersonalEvents)
+      .leftJoin(tbUsers, eq(tbPersonalEvents.userId, tbUsers.id))
+      .where(eq(tbPersonalEvents.isPublic, true));
+
+    const existingSlugs = new Set(events.map((e) => e.slug));
+    const mappedPersonal = personalEvents
+      .map<EventItem | null>((e) => {
+        const slug = `personal-${e.id}`;
+        if (existingSlugs.has(slug)) return null;
+        return {
+          id: e.id,
+          title: e.title,
+          slug,
+          description: e.description,
+          summary: e.description
+            ? e.description.length > 240
+              ? `${e.description.slice(0, 237)}...`
+              : e.description
+            : null,
+          imageUrl: null,
+          eventDate: this.normalizeDate(e.eventDate),
+          eventTime: e.eventTime ? String(e.eventTime) : null,
+          location: e.location,
+          hideLocation: e.hideLocation,
+          requireAttendance: false,
+          isPublished: true,
+          publishedAt: this.normalizeDate(e.createdAt),
+          viewCount: 0,
+          createdAt: this.normalizeDate(e.createdAt),
+          updatedAt: this.normalizeDate(e.updatedAt),
+          author: {
+            id: e.userId,
+            name: e.userName ?? 'Aluno',
+          },
+        };
+      })
+      .filter((item): item is EventItem => Boolean(item));
+
+    const combinedEvents = [...events, ...mappedPersonal];
+
     const birthdays = await this.db
       .select({
         id: tbUsers.id,
@@ -503,7 +618,7 @@ export class EventsService {
       .innerJoin(tbPersonalData, eq(tbUsers.id, tbPersonalData.userId))
       .where(and(eq(tbUsers.isActive, true), isNull(tbUsers.deletedAt)));
 
-    return { events, birthdays };
+    return { events: combinedEvents, birthdays };
   }
 
   private generateSlug(text: string): string {

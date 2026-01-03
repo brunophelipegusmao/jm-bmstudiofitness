@@ -34,6 +34,12 @@ export class WaitlistController {
     return this.waitlistService.create(dto);
   }
 
+  @Public()
+  @Get('public')
+  async findPublic() {
+    return this.waitlistService.findPublic();
+  }
+
   @Get()
   @Roles(UserRole.ADMIN, UserRole.MASTER)
   async findAll(@Query() query: QueryWaitlistDto) {
