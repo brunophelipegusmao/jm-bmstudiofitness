@@ -20,6 +20,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+declare global {
+  interface Window {
+    grecaptcha: {
+      ready: () => Promise<void>;
+      execute: (siteKey: string, options: { action: string }) => Promise<string>;
+    };
+  }
+}
+
 interface ContactCard {
   icon: React.ReactNode;
   title: string;
@@ -35,6 +44,8 @@ export default function ContactPage() {
     phone: "",
     message: "",
   });
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [statusMessage, setStatusMessage] = useState<string>("");
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -45,6 +56,20 @@ export default function ContactPage() {
     };
 
     void loadSettings();
+  }, []);
+
+  useEffect(() => {
+    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+    if (!siteKey) return;
+    const existing = document.querySelector<HTMLScriptElement>("script[data-recaptcha]");
+    if (existing) return;
+
+    const script = document.createElement("script");
+    script.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
+    script.async = true;
+    script.defer = true;
+    script.setAttribute("data-recaptcha", "true");
+    document.body.appendChild(script);
   }, []);
 
   const contactCards: ContactCard[] = useMemo(() => {
@@ -76,7 +101,9 @@ export default function ContactPage() {
       {
         icon: <Mail className="h-6 w-6" />,
         title: "E-mail",
-        info: settings.email ? [settings.email] : ["contato@jmfitness.com"],
+        info: settings.email
+          ? [settings.email]
+          : ["contato@jmfitnessstudio.com.br"],
         color: "from-[#C2A537] to-[#D4B547]",
       },
       {
@@ -107,15 +134,50 @@ export default function ContactPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      message: "",
-    });
+    setStatus("loading");
+    setStatusMessage("");
+
+    try {
+      const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+      if (!siteKey || !window.grecaptcha) {
+        throw new Error("reCAPTCHA nao configurado");
+      }
+
+      await window.grecaptcha.ready();
+      const token = await window.grecaptcha.execute(siteKey, { action: "contact" });
+
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+          phone: formData.phone,
+          token,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Nao foi possivel enviar sua mensagem.");
+      }
+
+      setStatus("success");
+      setStatusMessage("Mensagem enviada com sucesso! Em breve entraremos em contato.");
+      setFormData({ name: "", email: "", phone: "", message: "" });
+      setStatus("idle");
+    } catch (error) {
+      console.error(error);
+      setStatus("error");
+      setStatusMessage(
+        error instanceof Error
+          ? error.message
+          : "Erro ao enviar mensagem. Tente novamente.",
+      );
+    }
   };
 
   return (
@@ -306,6 +368,18 @@ export default function ContactPage() {
 
                     <div className="flex-1"></div>
 
+                    {statusMessage && (
+                      <div
+                        className={`rounded-lg border px-3 py-2 text-sm ${
+                          status === "error"
+                            ? "border-red-500/40 bg-red-500/10 text-red-300"
+                            : "border-green-500/40 bg-green-500/10 text-green-300"
+                        }`}
+                      >
+                        {statusMessage}
+                      </div>
+                    )}
+
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -314,13 +388,14 @@ export default function ContactPage() {
                     >
                       <motion.button
                         type="submit"
+                        disabled={status === "loading"}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="w-full transform rounded-lg bg-linear-to-r from-[#C2A537] to-[#D4B547] py-3 font-semibold text-black transition-all duration-300 hover:from-[#D4B547] hover:to-[#E6C658] hover:shadow-xl hover:shadow-[#C2A537]/30"
+                        className="w-full transform rounded-lg bg-linear-to-r from-[#C2A537] to-[#D4B547] py-3 font-semibold text-black transition-all duration-300 hover:from-[#D4B547] hover:to-[#E6C658] hover:shadow-xl hover:shadow-[#C2A537]/30 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         <span className="flex items-center justify-center gap-2">
                           <Send className="h-4 w-4" />
-                          Enviar Mensagem
+                          {status === "loading" ? "Enviando..." : "Enviar Mensagem"}
                         </span>
                       </motion.button>
                     </motion.div>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   Clock,
@@ -68,7 +68,7 @@ export function AdminSettingsTab() {
         setWaitlistEnabled(result.data.waitlistEnabled || false);
       }
     } catch (error) {
-      console.error("Erro ao carregar configurações:", error);
+      console.error("Erro ao carregar configuracoes:", error);
     }
   }
 
@@ -95,21 +95,22 @@ export function AdminSettingsTab() {
       });
 
       if (result.success) {
-        setWaitlistEnabled(!waitlistEnabled);
+        const enabled = !waitlistEnabled;
+        setWaitlistEnabled(enabled);
         setMessage({
           type: "success",
-          text: `Lista de espera ${!waitlistEnabled ? "ativada" : "desativada"} com sucesso!`,
+          text: `Lista de espera ${enabled ? "ativada" : "desativada"} com sucesso!`,
         });
       } else {
         setMessage({
           type: "error",
-          text: result.error || "Erro ao atualizar configuração",
+          text: result.error || "Erro ao atualizar configuracao",
         });
       }
     } catch {
       setMessage({
         type: "error",
-        text: "Erro ao atualizar configuração",
+        text: "Erro ao atualizar configuracao",
       });
     } finally {
       setUpdating(false);
@@ -135,8 +136,7 @@ export function AdminSettingsTab() {
     }
   }
 
-  async function handleEnroll(entry: WaitlistEntry) {
-    // Abrir modal com os dados pré-preenchidos
+  function handleEnroll(entry: WaitlistEntry) {
     setEnrollmentModal({
       isOpen: true,
       waitlistData: entry,
@@ -193,7 +193,7 @@ export function AdminSettingsTab() {
 
   function getShiftLabel(shift: string) {
     const shifts: Record<string, string> = {
-      manha: "Manhã",
+      manha: "Manha",
       tarde: "Tarde",
       noite: "Noite",
     };
@@ -250,10 +250,12 @@ export function AdminSettingsTab() {
           <div className="space-y-4">
             <div className="flex items-center justify-between rounded-lg border border-zinc-700 bg-zinc-800/50 p-4">
               <div>
-                <h3 className="mb-1 font-semibold text-white">Habilitar lista de espera</h3>
+                <h3 className="mb-1 font-semibold text-white">
+                  Habilitar lista de espera
+                </h3>
                 <p className="text-sm text-zinc-400">
-                <p className="text-sm text-zinc-400">
-                  Quando ativada, visitantes verão um modal direcionando para a lista de espera
+                  Quando ativada, visitantes verao um modal direcionando para a lista de espera.
+                </p>
               </div>
               <button
                 onClick={handleToggleWaitlist}
@@ -273,10 +275,10 @@ export function AdminSettingsTab() {
             {waitlistEnabled && (
               <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-4">
                 <p className="text-sm text-blue-400">
-              {waitlistEnabled && (
-                <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-4">
-                  <p className="text-sm text-blue-400">
-                    A lista de espera está ativa. Visitantes da home page verão um modal informando sobre a lista de espera.
+                  A lista de espera esta ativa. Visitantes da home page verao um modal informando sobre a lista de espera.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -362,10 +364,12 @@ export function AdminSettingsTab() {
 
                   {entry.healthRestrictions && (
                     <div className="mt-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
-                      <p className="mb-1 text-xs font-medium text-red-400">Restrições de Saúde:</p>
+                      <p className="mb-1 text-xs font-medium text-red-400">Restricoes de Saude:</p>
                       <p className="text-sm text-red-300">{entry.healthRestrictions}</p>
                     </div>
                   )}
+                </div>
+              ))}
             </div>
           )}
         </div>
