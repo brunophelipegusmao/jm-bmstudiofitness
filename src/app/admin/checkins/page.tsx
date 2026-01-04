@@ -30,7 +30,7 @@ interface CheckInData {
   userId: string;
   checkInDate: string;
   checkInTime: string;
-  method: string;
+  method: string | null;
   identifier: string | null;
   userName?: string;
 }
@@ -67,7 +67,11 @@ export default function CheckInsAdminPage() {
     setLoading(true);
     try {
       const res = await getStudentCheckinsAction(studentId);
-      setCheckIns(res.success && res.data ? res.data : []);
+      setCheckIns(
+        res.success && Array.isArray(res.data)
+          ? res.data.map((item) => ({ ...item, method: item.method ?? "" }))
+          : [],
+      );
     } catch (error) {
       console.error("Erro ao carregar check-ins:", error);
       setCheckIns([]);

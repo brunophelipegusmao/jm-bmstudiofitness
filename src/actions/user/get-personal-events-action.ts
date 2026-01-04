@@ -11,6 +11,7 @@ export interface PersonalEventResponse {
   requestPublic?: boolean;
   approvalStatus?: string;
   isPublic?: boolean;
+  imageUrl?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -26,6 +27,7 @@ export interface PersonalEvent {
   requestPublic?: boolean;
   approvalStatus?: string;
   isPublic?: boolean;
+  imageUrl: string | null;
   slug: string;
 }
 
@@ -44,6 +46,7 @@ export async function getPersonalEventsAction(): Promise<PersonalEvent[]> {
         requestPublic: item.requestPublic,
         approvalStatus: item.approvalStatus,
         isPublic: item.isPublic,
+        imageUrl: item.imageUrl ?? null,
         slug: `personal-${item.id}`,
       })) ?? []
     );

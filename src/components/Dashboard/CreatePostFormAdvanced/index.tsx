@@ -18,6 +18,7 @@ interface CreateEventFormProps {
     hideLocation?: boolean;
     imageUrl?: string;
     published: boolean;
+    requireAttendance?: boolean;
   }) => Promise<void>;
   onCancel: () => void;
 }

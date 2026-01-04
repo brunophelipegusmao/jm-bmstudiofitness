@@ -26,22 +26,27 @@ type PlanPayload = {
 };
 
 const mapFromApi = (input: unknown): Plan => {
-  const priceInCents = Number(input.priceInCents ?? 0);
-  const durationInDays = Number(input.durationInDays ?? 0);
+  const data =
+    typeof input === "object" && input !== null
+      ? (input as Record<string, unknown>)
+      : {};
+
+  const priceInCents = Number(data.priceInCents ?? 0);
+  const durationInDays = Number(data.durationInDays ?? 0);
   return {
-    id: String(input.id ?? ""),
-    title: String(input.name ?? input.title ?? ""),
-    description: String(input.description ?? ""),
-    features: Array.isArray(input.features) ? input.features : [],
+    id: String(data.id ?? ""),
+    title: String(data.name ?? data.title ?? ""),
+    description: String(data.description ?? ""),
+    features: Array.isArray(data.features) ? data.features : [],
     price: priceInCents
       ? `R$ ${(priceInCents / 100).toFixed(2).replace(".", ",")}`
       : "R$ 0,00",
     priceValue: priceInCents,
     durationDays: durationInDays,
     durationLabel: durationInDays ? `${durationInDays} dias` : "",
-    popular: Boolean(input.isPopular),
-    active: input.isActive !== false,
-    displayOrder: Number(input.sortOrder ?? 0),
+    popular: Boolean(data.isPopular),
+    active: data.isActive !== false,
+    displayOrder: Number(data.sortOrder ?? 0),
   };
 };
 

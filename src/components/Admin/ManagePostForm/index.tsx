@@ -77,6 +77,7 @@ export function ManagePostForm() {
     hideLocation?: boolean;
     imageUrl?: string;
     published: boolean;
+    requireAttendance?: boolean;
   }) => {
     try {
       await createEventAction(eventData);

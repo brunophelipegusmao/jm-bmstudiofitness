@@ -131,6 +131,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="h-full">
       <body
+        suppressHydrationWarning
         className={clsx(
           `${geistSans.variable} ${geistMono.variable} ${oswald.variable} ${anton.variable} antialiased`,
           "bg-[#1b1b1a] text-slate-200",
