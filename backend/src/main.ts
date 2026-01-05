@@ -1,5 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -58,6 +59,22 @@ async function bootstrap() {
 
   // Prefixo global para rotas
   app.setGlobalPrefix('api');
+
+  // Swagger (OpenAPI) em /api/docs
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('JM Fitness API')
+    .setDescription('Documentação da API NestJS')
+    .setVersion('1.0')
+    .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' })
+    .build();
+
+  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, swaggerDocument, {
+    swaggerOptions: { persistAuthorization: true },
+  });
+  app.getHttpAdapter().getInstance().get('/api/docs-json', (_req, res) => {
+    res.json(swaggerDocument);
+  });
 
   const port = process.env.PORT || 3001;
   await app.listen(port);
