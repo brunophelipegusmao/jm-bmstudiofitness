@@ -64,7 +64,9 @@ export function AcademySettingsView({
   showBackButton,
   showHeader = false,
 }: AcademySettingsViewProps) {
-  const [activeTab, setActiveTab] = useState<"general" | "hours">("general");
+  const [activeTab, setActiveTab] = useState<
+    "general" | "hours" | "pricing" | "policies" | "carousel"
+  >("general");
   const [settings, setSettings] = useState<StudioSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -159,6 +161,24 @@ const handleSaveSettings = async () => {
       label: "Horarios",
       icon: Clock,
       description: "Horarios de funcionamento",
+    },
+    {
+      id: "pricing",
+      label: "Precos",
+      icon: DollarSign,
+      description: "Mensalidades e taxas",
+    },
+    {
+      id: "policies",
+      label: "Politicas",
+      icon: FileText,
+      description: "Politicas internas e termos",
+    },
+    {
+      id: "carousel",
+      label: "Carrossel",
+      icon: ImageIcon,
+      description: "Imagens do site/app",
     },
   ];
 
