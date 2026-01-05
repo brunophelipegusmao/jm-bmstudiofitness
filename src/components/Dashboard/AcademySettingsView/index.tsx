@@ -90,7 +90,7 @@ export function AcademySettingsView({
       setLoading(false);
     }
   };
-const handleSaveSettings = async () => {
+  const handleSaveSettings = async () => {
     if (!settings) return;
 
     setSaving(true);
@@ -624,9 +624,7 @@ const handleSaveSettings = async () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-[#C2A537]">
-                    Check-ins Mximos/Dia
-                  </Label>
+                  <Label className="text-[#C2A537]">Check-ins Mximos/Dia</Label>
                   <Input
                     type="number"
                     min="1"
@@ -1100,17 +1098,3 @@ const handleSaveSettings = async () => {
     </motion.div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
