@@ -27,10 +27,7 @@ import { getStudentsPaymentsAction } from "@/actions/admin/get-students-payments
 import { sendFinancialReminderAction } from "@/actions/admin/send-financial-reminder-action";
 import { markFinancialPaidAction } from "@/actions/admin/mark-financial-paid-action";
 import { updateFinancialRecordAction } from "@/actions/admin/update-financial-record-action";
-import {
-  getPlansAdminAction,
-  type Plan,
-} from "@/actions/admin/plans-actions";
+import { getPlansAdminAction, type Plan } from "@/actions/admin/plans-actions";
 import { searchStudentsAction } from "@/actions/admin/search-students-action";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -79,9 +76,8 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
   const [selectedFields, setSelectedFields] = useState<string[]>(
     exportableFields.map((f) => f.key),
   );
-  const [editingPayment, setEditingPayment] = useState<StudentPaymentData | null>(
-    null,
-  );
+  const [editingPayment, setEditingPayment] =
+    useState<StudentPaymentData | null>(null);
   const [editForm, setEditForm] = useState({
     amount: "",
     dueDate: "",
@@ -98,9 +94,7 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
       setPayments(data);
     } catch (error) {
       const message =
-        error instanceof Error
-          ? error.message
-          : "Erro ao carregar pagamentos";
+        error instanceof Error ? error.message : "Erro ao carregar pagamentos";
       toast.error(message);
     } finally {
       setLoading(false);
@@ -223,8 +217,10 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
               case "paid":
                 return p.paid ? "Pago" : "Pendente";
               case "paymentMethod":
-                return (p as StudentPaymentData & { paymentMethod?: string })
-                  .paymentMethod ?? "";
+                return (
+                  (p as StudentPaymentData & { paymentMethod?: string })
+                    .paymentMethod ?? ""
+                );
               case "lastPaymentDate":
                 return p.lastPaymentDate
                   ? format(p.lastPaymentDate, "dd/MM/yyyy")
@@ -268,8 +264,10 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
             case "paid":
               return p.paid ? "Pago" : "Pendente";
             case "paymentMethod":
-              return (p as StudentPaymentData & { paymentMethod?: string })
-                .paymentMethod ?? "";
+              return (
+                (p as StudentPaymentData & { paymentMethod?: string })
+                  .paymentMethod ?? ""
+              );
             case "lastPaymentDate":
               return p.lastPaymentDate
                 ? format(p.lastPaymentDate, "dd/MM/yyyy")
@@ -290,7 +288,8 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
 
   const formatDueDate = (due: StudentPaymentData["dueDate"]) => {
     if (due instanceof Date) return format(due, "dd/MM");
-    if (typeof due === "number") return `Dia ${due.toString().padStart(2, "0")}`;
+    if (typeof due === "number")
+      return `Dia ${due.toString().padStart(2, "0")}`;
     return String(due ?? "");
   };
 
@@ -321,8 +320,8 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
         : statusFilter === "paid"
           ? p.paid
           : !p.paid;
-    const paymentMethod =
-      (p as StudentPaymentData & { paymentMethod?: string }).paymentMethod;
+    const paymentMethod = (p as StudentPaymentData & { paymentMethod?: string })
+      .paymentMethod;
     const matchesMethod =
       methodFilter === "all"
         ? true
@@ -942,19 +941,21 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
       </div>
 
       <Card className="border-slate-700/50 bg-slate-800/30">
-          <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-            <CardTitle className="text-[#C2A537]">Cobranças em tempo real</CardTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => void loadPayments()}
-              className="border-slate-600 text-slate-300 hover:bg-slate-800"
-            >
-              Atualizar
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3 md:grid-cols-3">
+        <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <CardTitle className="text-[#C2A537]">
+            Cobranças em tempo real
+          </CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void loadPayments()}
+            className="border-slate-600 text-slate-300 hover:bg-slate-800"
+          >
+            Atualizar
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 md:grid-cols-3">
             <Card className="border-red-500/50 bg-red-900/20">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-red-400">
@@ -997,9 +998,7 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-blue-300">
-                  {loading
-                    ? "..."
-                    : formatCurrency(sumAmount(payments) || 0)}
+                  {loading ? "..." : formatCurrency(sumAmount(payments) || 0)}
                 </div>
                 <p className="text-xs text-blue-400">
                   {payments.length} registros
@@ -1102,7 +1101,8 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
                 ))}
               </div>
               <p className="mt-2 text-xs text-slate-400">
-                Será usado o filtro atual e todos os alunos carregados (pagos e pendentes).
+                Será usado o filtro atual e todos os alunos carregados (pagos e
+                pendentes).
               </p>
             </div>
           )}
@@ -1211,7 +1211,7 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
                     </option>
                   ))}
                 </select>
-                <div className="md:col-span-5 flex justify-end">
+                <div className="flex justify-end md:col-span-5">
                   <Button
                     size="sm"
                     onClick={() => void handleCreateCharge()}
@@ -1268,7 +1268,7 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
                   />
                   <span>Pago</span>
                 </div>
-                <div className="md:col-span-5 flex justify-end gap-2">
+                <div className="flex justify-end gap-2 md:col-span-5">
                   <Button
                     size="sm"
                     onClick={() => void handleSaveEdit()}
@@ -1291,7 +1291,7 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
 
           <div className="mt-6 overflow-x-auto rounded-lg border border-slate-700">
             <table className="min-w-full divide-y divide-slate-700 text-sm text-slate-200">
-              <thead className="bg-slate-800/60 text-xs uppercase text-slate-400">
+              <thead className="bg-slate-800/60 text-xs text-slate-400 uppercase">
                 <tr>
                   <th className="px-4 py-3 text-left">Aluno</th>
                   <th className="px-4 py-3 text-left">Email</th>
@@ -1304,13 +1304,19 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
               <tbody className="divide-y divide-slate-800">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-6 text-center text-slate-400">
+                    <td
+                      colSpan={6}
+                      className="px-4 py-6 text-center text-slate-400"
+                    >
                       Carregando pagamentos...
                     </td>
                   </tr>
                 ) : filteredPayments.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-6 text-center text-slate-400">
+                    <td
+                      colSpan={6}
+                      className="px-4 py-6 text-center text-slate-400"
+                    >
                       Nenhum pagamento encontrado.
                     </td>
                   </tr>
@@ -1328,7 +1334,9 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
                           payment.monthlyFeeValueInCents ?? payment.planValue,
                         )}
                       </td>
-                      <td className="px-4 py-3">{formatDueDate(payment.dueDate)}</td>
+                      <td className="px-4 py-3">
+                        {formatDueDate(payment.dueDate)}
+                      </td>
                       <td className="px-4 py-3">
                         <span
                           className={`rounded-full px-2 py-1 text-xs ${
@@ -1340,7 +1348,7 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
                           {payment.paid ? "Pago" : "Pendente"}
                         </span>
                       </td>
-                      <td className="px-4 py-3 space-y-2">
+                      <td className="space-y-2 px-4 py-3">
                         <div className="flex flex-wrap gap-2">
                           {!payment.paid ? (
                             <Button
@@ -1349,7 +1357,9 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
                               onClick={() => void handleMarkPaid(payment.id)}
                               className="bg-[#C2A537]/20 text-[#C2A537] hover:bg-[#C2A537]/30"
                             >
-                              {markingId === payment.id ? "Marcando..." : "Marcar pago"}
+                              {markingId === payment.id
+                                ? "Marcando..."
+                                : "Marcar pago"}
                             </Button>
                           ) : (
                             <span className="text-xs text-slate-400">
@@ -1366,7 +1376,9 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
                               setEditingPayment(payment);
                               setEditForm({
                                 amount: payment.monthlyFeeValueInCents
-                                  ? (payment.monthlyFeeValueInCents / 100).toString()
+                                  ? (
+                                      payment.monthlyFeeValueInCents / 100
+                                    ).toString()
                                   : "",
                                 dueDate:
                                   typeof payment.dueDate === "number"
@@ -1394,11 +1406,15 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
                             size="sm"
                             variant="outline"
                             onClick={() =>
-                              void sendFinancialReminderAction(payment.id, "email").then(
-                                (res) =>
-                                  res.success
-                                    ? toast.success("Lembrete por email enviado")
-                                    : toast.error(res.error ?? "Erro ao enviar lembrete"),
+                              void sendFinancialReminderAction(
+                                payment.id,
+                                "email",
+                              ).then((res) =>
+                                res.success
+                                  ? toast.success("Lembrete por email enviado")
+                                  : toast.error(
+                                      res.error ?? "Erro ao enviar lembrete",
+                                    ),
                               )
                             }
                             className="border-slate-600 text-slate-200 hover:bg-slate-800"
@@ -1409,11 +1425,15 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
                             size="sm"
                             variant="outline"
                             onClick={() =>
-                              void sendFinancialReminderAction(payment.id, "whatsapp").then(
-                                (res) =>
-                                  res.success
-                                    ? toast.success("Lembrete WhatsApp enviado")
-                                    : toast.error(res.error ?? "Erro ao enviar lembrete"),
+                              void sendFinancialReminderAction(
+                                payment.id,
+                                "whatsapp",
+                              ).then((res) =>
+                                res.success
+                                  ? toast.success("Lembrete WhatsApp enviado")
+                                  : toast.error(
+                                      res.error ?? "Erro ao enviar lembrete",
+                                    ),
                               )
                             }
                             className="border-slate-600 text-slate-200 hover:bg-slate-800"
