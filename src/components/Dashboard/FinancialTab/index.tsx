@@ -579,8 +579,11 @@ export function FinancialTab() {
               return p.lastPaymentDate
                 ? p.lastPaymentDate.toLocaleDateString("pt-BR")
                 : "";
-            default:
-              return (p as Record<string, unknown>)[field] ?? "";
+            default: {
+              // fallback for optional/rare fields
+              const fallback = (p as unknown as Record<string, unknown>)[field];
+              return fallback ?? "";
+            }
           }
         }),
       );
@@ -601,8 +604,10 @@ export function FinancialTab() {
                 : "";
             case "paid":
               return e.paid ? "Pago" : "Pendente";
-            default:
-              return (e as Record<string, unknown>)[field] ?? "";
+            default: {
+              const fallback = (e as unknown as Record<string, unknown>)[field];
+              return fallback ?? "";
+            }
           }
         }),
       );
