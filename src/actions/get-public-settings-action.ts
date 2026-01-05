@@ -32,6 +32,13 @@ export interface PublicSettings {
   carouselImage5?: string | null;
   carouselImage6?: string | null;
   carouselImage7?: string | null;
+  carouselCaption1?: string | null;
+  carouselCaption2?: string | null;
+  carouselCaption3?: string | null;
+  carouselCaption4?: string | null;
+  carouselCaption5?: string | null;
+  carouselCaption6?: string | null;
+  carouselCaption7?: string | null;
   carouselEnabled?: boolean;
   homeHistoryMarkdown?: string | null;
   homeHistoryImage?: string | null;

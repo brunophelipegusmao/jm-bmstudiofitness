@@ -67,6 +67,7 @@ export class StudentsService {
         email: tbPersonalData.email,
         telephone: tbPersonalData.telephone,
         cpf: tbPersonalData.cpf,
+        sex: tbPersonalData.sex,
       })
       .from(tbUsers)
       .leftJoin(tbPersonalData, eq(tbUsers.id, tbPersonalData.userId))
@@ -111,6 +112,7 @@ export class StudentsService {
           cpf: tbPersonalData.cpf,
           bornDate: tbPersonalData.bornDate,
           address: tbPersonalData.address,
+          sex: tbPersonalData.sex,
           telephone: tbPersonalData.telephone,
         },
       })
@@ -160,6 +162,7 @@ export class StudentsService {
           cpf: user.personalData?.cpf ?? '',
           bornDate: user.personalData?.bornDate ?? '1970-01-01',
           address: user.personalData?.address ?? '',
+          sex: user.personalData?.sex ?? 'masculino',
           telephone: user.personalData?.telephone ?? '',
         },
         healthMetrics: {
@@ -202,6 +205,7 @@ export class StudentsService {
           cpf: tbPersonalData.cpf,
           bornDate: tbPersonalData.bornDate,
           address: tbPersonalData.address,
+          sex: tbPersonalData.sex,
           telephone: tbPersonalData.telephone,
         },
       })
@@ -697,6 +701,7 @@ export class StudentsService {
           cpf: tbPersonalData.cpf,
           bornDate: tbPersonalData.bornDate,
           address: tbPersonalData.address,
+          sex: tbPersonalData.sex,
           telephone: tbPersonalData.telephone,
         },
       })

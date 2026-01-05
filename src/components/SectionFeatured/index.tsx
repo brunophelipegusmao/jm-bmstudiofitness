@@ -120,13 +120,27 @@ export default function SectionFeatured({ settings }: SectionFeaturedProps) {
     ]
       .filter((img) => img && img.trim() !== "")
       .filter((img) => isValidImageUrl(img!))
-      .map((src, index) => ({
-        src: src!.trim(),
-        alt: `Imagem ${index + 1} - ${settings.studioName || "JM Fitness Studio"}`,
-        href: "/",
-        loading: (index < 2 ? "eager" : "lazy") as "eager" | "lazy",
-        priority: index === 0,
-      }));
+      .map((src, index) => {
+        const captions = [
+          settings.carouselCaption1,
+          settings.carouselCaption2,
+          settings.carouselCaption3,
+          settings.carouselCaption4,
+          settings.carouselCaption5,
+          settings.carouselCaption6,
+          settings.carouselCaption7,
+        ];
+        const caption = captions[index];
+        return {
+          src: src!.trim(),
+          alt:
+            caption?.trim() ||
+            `Imagem ${index + 1} - ${settings.studioName || "JM Fitness Studio"}`,
+          href: "/",
+          loading: (index < 2 ? "eager" : "lazy") as "eager" | "lazy",
+          priority: index === 0,
+        };
+      });
 
     if (images.length >= 3) {
       setCarouselImages(images);

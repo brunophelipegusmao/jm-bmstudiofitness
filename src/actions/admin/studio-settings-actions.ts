@@ -39,6 +39,13 @@ export interface StudioSettings {
   carouselImage5?: string | null;
   carouselImage6?: string | null;
   carouselImage7?: string | null;
+  carouselCaption1?: string | null;
+  carouselCaption2?: string | null;
+  carouselCaption3?: string | null;
+  carouselCaption4?: string | null;
+  carouselCaption5?: string | null;
+  carouselCaption6?: string | null;
+  carouselCaption7?: string | null;
   waitlistEnabled?: boolean;
   contactEmail?: string;
   contactPhone?: string;
@@ -80,6 +87,13 @@ const defaultSettings: StudioSettings = {
   promoBannerTitle: null,
   promoBannerDescription: null,
   promoBannerLink: null,
+  carouselCaption1: null,
+  carouselCaption2: null,
+  carouselCaption3: null,
+  carouselCaption4: null,
+  carouselCaption5: null,
+  carouselCaption6: null,
+  carouselCaption7: null,
 };
 
 export async function getStudioSettingsAction(): Promise<{

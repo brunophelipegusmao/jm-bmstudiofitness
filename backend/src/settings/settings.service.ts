@@ -53,6 +53,23 @@ export class SettingsService {
         updateSettingsDto.carouselImage7 ?? currentSettings.carouselImage7,
     };
 
+    const mergedCaptions = {
+      carouselCaption1:
+        updateSettingsDto.carouselCaption1 ?? currentSettings.carouselCaption1,
+      carouselCaption2:
+        updateSettingsDto.carouselCaption2 ?? currentSettings.carouselCaption2,
+      carouselCaption3:
+        updateSettingsDto.carouselCaption3 ?? currentSettings.carouselCaption3,
+      carouselCaption4:
+        updateSettingsDto.carouselCaption4 ?? currentSettings.carouselCaption4,
+      carouselCaption5:
+        updateSettingsDto.carouselCaption5 ?? currentSettings.carouselCaption5,
+      carouselCaption6:
+        updateSettingsDto.carouselCaption6 ?? currentSettings.carouselCaption6,
+      carouselCaption7:
+        updateSettingsDto.carouselCaption7 ?? currentSettings.carouselCaption7,
+    };
+
     const carouselEnabled =
       updateSettingsDto.carouselEnabled ?? currentSettings.carouselEnabled;
 
@@ -70,6 +87,8 @@ export class SettingsService {
       .update(tbStudioSettings)
       .set({
         ...updateSettingsDto,
+        ...mergedImages,
+        ...mergedCaptions,
         updatedAt: new Date(),
       })
       .where(eq(tbStudioSettings.id, currentSettings.id))
@@ -221,6 +240,13 @@ export class SettingsService {
       carouselImage5: settings.carouselImage5,
       carouselImage6: settings.carouselImage6,
       carouselImage7: settings.carouselImage7,
+      carouselCaption1: settings.carouselCaption1,
+      carouselCaption2: settings.carouselCaption2,
+      carouselCaption3: settings.carouselCaption3,
+      carouselCaption4: settings.carouselCaption4,
+      carouselCaption5: settings.carouselCaption5,
+      carouselCaption6: settings.carouselCaption6,
+      carouselCaption7: settings.carouselCaption7,
       carouselEnabled: settings.carouselEnabled,
       // Conteúdo customizado da home
       homeHistoryMarkdown: settings.homeHistoryMarkdown,

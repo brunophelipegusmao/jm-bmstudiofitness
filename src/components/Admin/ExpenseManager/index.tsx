@@ -73,7 +73,7 @@ const formSchema = z.object({
   attachment: z.string().optional(),
 });
 
-export function ExpenseForm() {
+export function ExpenseForm({ onCreated }: { onCreated?: () => void }) {
   const [loading, setLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -108,6 +108,7 @@ export function ExpenseForm() {
 
       toast.success("Despesa criada com sucesso!");
       form.reset();
+      onCreated?.();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Erro ao criar despesa";

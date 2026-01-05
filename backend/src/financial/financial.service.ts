@@ -241,6 +241,40 @@ export class FinancialService {
   }
 
   /**
+   * Enviar lembrete (placeholder para futura integração)
+   */
+  async remind(
+    id: string,
+    remindDto: { channel: 'email' | 'whatsapp'; message?: string },
+    userId: string,
+  ) {
+    const [existing] = await this.db
+      .select({
+        id: tbFinancial.id,
+        userId: tbFinancial.userId,
+        userName: tbUsers.name,
+      })
+      .from(tbFinancial)
+      .leftJoin(tbUsers, eq(tbFinancial.userId, tbUsers.id))
+      .where(eq(tbFinancial.id, id))
+      .limit(1);
+
+    if (!existing) {
+      throw new NotFoundException('Registro financeiro não encontrado');
+    }
+
+    const channel = remindDto.channel ?? 'email';
+    return {
+      success: true,
+      channel,
+      message:
+        remindDto.message ??
+        `Lembrete via ${channel} registrado para ${existing.userName ?? 'aluno'}`,
+      requestedBy: userId,
+    };
+  }
+
+  /**
    * Soft delete de registro (apenas MASTER)
    */
   async remove(id: string) {

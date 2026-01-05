@@ -192,6 +192,7 @@ export function EditUserModal({
 }: EditUserModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
+  const [isSendingReset, setIsSendingReset] = useState(false);
 
   const isEmployee = userRole === "funcionario" || userRole === "professor";
   const isStudent = userRole === "aluno";
@@ -209,6 +210,7 @@ export function EditUserModal({
     reset,
     setValue,
     watch,
+    getValues,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
@@ -312,6 +314,33 @@ export function EditUserModal({
     }
 
     setIsLoading(false);
+  };
+
+  const handleSendResetEmail = async () => {
+    const email = getValues("email");
+    if (!email) {
+      toast.error("Email não encontrado para este usuário.");
+      return;
+    }
+    setIsSendingReset(true);
+    try {
+      const resp = await fetch("/api/user/request-reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (resp.ok && data?.success !== false) {
+        toast.success("E-mail de redefinição enviado para " + email);
+      } else {
+        toast.error(data?.message || "Não foi possível enviar o e-mail.");
+      }
+    } catch (err) {
+      console.error("Erro ao enviar e-mail de redefinição:", err);
+      toast.error("Erro ao enviar e-mail de redefinição.");
+    } finally {
+      setIsSendingReset(false);
+    }
   };
 
   return (
@@ -674,6 +703,14 @@ export function EditUserModal({
             </Tabs>
 
             <DialogFooter className="mt-6">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleSendResetEmail}
+                disabled={isLoading || isSendingReset}
+              >
+                {isSendingReset ? "Enviando..." : "Enviar link de senha"}
+              </Button>
               <Button
                 type="button"
                 variant="outline"

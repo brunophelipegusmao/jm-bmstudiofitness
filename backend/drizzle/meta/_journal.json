@@ -29,6 +29,13 @@
       "when": 1767553007150,
       "tag": "0003_fixed_brood",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1767621877926,
+      "tag": "0004_add_carousel_captions",
+      "breakpoints": true
     }
   ]
 }

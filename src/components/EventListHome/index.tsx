@@ -14,6 +14,7 @@ import {
 import { ptBR } from "date-fns/locale";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 import { getEventsCalendarAction } from "@/actions/public/event-action";
@@ -246,7 +247,28 @@ export default function EventListHome() {
                   className="group"
                 >
                   <Link href={`/events/event/${event.slug}`}>
-                    <Card className="cursor-pointer border-gray-700 bg-black/50 backdrop-blur-sm transition-all duration-700 hover:border-[#C2A537] hover:shadow-xl hover:shadow-[#C2A537]/20">
+                    <Card className="cursor-pointer overflow-hidden border-gray-700 bg-black/50 backdrop-blur-sm transition-all duration-700 hover:border-[#C2A537] hover:shadow-xl hover:shadow-[#C2A537]/20">
+                      <div className="relative w-full">
+                        <div className="relative aspect-[16/9] w-full overflow-hidden bg-gradient-to-br from-slate-900 via-black to-slate-800">
+                          {event.imageUrl ? (
+                            <Image
+                              src={event.imageUrl}
+                              alt={event.title}
+                              fill
+                              className="object-contain bg-black transition-transform duration-500 group-hover:scale-105"
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                              priority={false}
+                            />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-sm text-slate-400">
+                              Imagem do evento
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                        </div>
+                        <div className="pointer-events-none absolute inset-0 border-b border-[#C2A537]/20" />
+                      </div>
+
                       <CardHeader className="pb-3 sm:pb-4">
                         <div className="mb-2 text-xs uppercase tracking-wide text-gray-400">
                           {format(event.date, "dd/MM/yyyy", { locale: ptBR })}

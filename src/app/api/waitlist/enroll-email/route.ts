@@ -1,4 +1,4 @@
-import crypto from "crypto";
+ï»¿import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import * as z from "zod";
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     const studioAddress =
       process.env.STUDIO_ADDRESS ||
-      "JM Fitness Studio - Consulte nosso site para o endereço";
+      "JM Fitness Studio - Consulte nosso site para o endereco";
 
     const sent = await sendEnrollmentEmail(
       data.email,
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: "Não foi possível enviar o e-mail de matrícula",
+          message: "Nao foi possivel enviar o e-mail de matricula",
         },
         { status: 500 },
       );
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     console.error("Erro em /api/waitlist/enroll-email:", error);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, message: "Dados inválidos" },
+        { success: false, message: "Dados invalidos" },
         { status: 400 },
       );
     }

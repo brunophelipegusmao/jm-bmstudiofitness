@@ -16,11 +16,15 @@ type FinancialRecord = {
   lastPaymentDate?: string | null;
 };
 
-export async function getStudentsPaymentsAction(): Promise<StudentPaymentData[]> {
+export async function getStudentsPaymentsAction(options?: {
+  includePaid?: boolean;
+}): Promise<StudentPaymentData[]> {
   try {
+    const includePaid = options?.includePaid ?? false;
+    const query = includePaid ? "" : "?limit=500&page=1&paid=false";
     const records = await apiClient.get<
       { data?: FinancialRecord[] } | FinancialRecord[]
-    >("/financial?limit=500&page=1&paid=false");
+    >(`/financial${query}`);
 
     if (Array.isArray(records)) {
       // Caso o backend retorne array direto

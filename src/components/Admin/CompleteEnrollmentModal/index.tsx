@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2, Save, X } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -109,6 +109,7 @@ export default function CompleteEnrollmentModal({
     return (
       <AnimatePresence>
         <motion.div
+          key="password-overlay"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -118,6 +119,7 @@ export default function CompleteEnrollmentModal({
 
         <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
           <motion.div
+            key="password-card"
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -179,6 +181,7 @@ export default function CompleteEnrollmentModal({
       {isOpen && (
         <>
           <motion.div
+            key="enroll-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -188,6 +191,7 @@ export default function CompleteEnrollmentModal({
 
           <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
+              key="enroll-card"
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -468,3 +472,6 @@ export default function CompleteEnrollmentModal({
     </AnimatePresence>
   );
 }
+
+
+

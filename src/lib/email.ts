@@ -23,7 +23,8 @@ export interface EmailData {
 function getEmailConfig(): EmailConfig {
   return {
     provider: (process.env.EMAIL_PROVIDER as EmailConfig["provider"]) || "development",
-    from: process.env.EMAIL_FROM || "contato@jmfitnessstudio.com.br",
+    // Forçar remetente fixo
+    from: "contato@jmfitnessstudio.com.br",
     fromName: process.env.EMAIL_FROM_NAME || "JM Fitness Studio",
     smtpHost: process.env.SMTP_HOST,
     smtpPort: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : undefined,
@@ -439,7 +440,7 @@ export async function sendContactEmail(
   phone?: string,
 ): Promise<boolean> {
   const config = getEmailConfig();
-  const to = process.env.CONTACT_EMAIL || config.from;
+  const to = process.env.CONTACT_EMAIL || "contato@jmfitnessstudio.com.br";
 
   const html = `
     <h2>Novo contato do site</h2>

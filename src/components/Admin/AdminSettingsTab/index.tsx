@@ -72,6 +72,9 @@ export function AdminSettingsTab() {
   const [carouselImages, setCarouselImages] = useState<string[]>(
     Array(7).fill(""),
   );
+  const [carouselCaptions, setCarouselCaptions] = useState<string[]>(
+    Array(7).fill(""),
+  );
   const [historyMarkdown, setHistoryMarkdown] = useState("");
   const [historyImage, setHistoryImage] = useState("");
   const [foundationDate, setFoundationDate] = useState("");
@@ -107,6 +110,15 @@ export function AdminSettingsTab() {
           result.data.carouselImage5 || "",
           result.data.carouselImage6 || "",
           result.data.carouselImage7 || "",
+        ]);
+        setCarouselCaptions([
+          result.data.carouselCaption1 || "",
+          result.data.carouselCaption2 || "",
+          result.data.carouselCaption3 || "",
+          result.data.carouselCaption4 || "",
+          result.data.carouselCaption5 || "",
+          result.data.carouselCaption6 || "",
+          result.data.carouselCaption7 || "",
         ]);
         setHistoryMarkdown(result.data.homeHistoryMarkdown || "");
         setHistoryImage(result.data.homeHistoryImage || "");
@@ -235,6 +247,13 @@ export function AdminSettingsTab() {
         carouselImage5: carouselImages[4] || null,
         carouselImage6: carouselImages[5] || null,
         carouselImage7: carouselImages[6] || null,
+        carouselCaption1: carouselCaptions[0] || null,
+        carouselCaption2: carouselCaptions[1] || null,
+        carouselCaption3: carouselCaptions[2] || null,
+        carouselCaption4: carouselCaptions[3] || null,
+        carouselCaption5: carouselCaptions[4] || null,
+        carouselCaption6: carouselCaptions[5] || null,
+        carouselCaption7: carouselCaptions[6] || null,
         homeHistoryMarkdown: historyMarkdown || null,
         homeHistoryImage: historyImage || null,
         foundationDate: foundationDate || null,
@@ -497,22 +516,38 @@ export function AdminSettingsTab() {
 
             <div className="grid gap-4 md:grid-cols-2">
               {carouselImages.map((img, index) => (
-                <div key={index} className="space-y-1">
-                  <label className="text-sm text-zinc-300">
-                    Imagem {index + 1}
-                    {index < 3 && <span className="text-[#C2A537]"> *</span>}
-                  </label>
-                  <input
-                    type="url"
-                    value={img}
-                    onChange={(e) => {
-                      const next = [...carouselImages];
-                      next[index] = e.target.value;
-                      setCarouselImages(next);
-                    }}
-                    placeholder="https://..."
-                    className="w-full rounded-lg border border-zinc-700 bg-zinc-800/60 p-3 text-white placeholder:text-zinc-500"
-                  />
+                <div key={index} className="space-y-2">
+                  <div className="space-y-1">
+                    <label className="text-sm text-zinc-300">
+                      Imagem {index + 1}
+                      {index < 3 && <span className="text-[#C2A537]"> *</span>}
+                    </label>
+                    <input
+                      type="url"
+                      value={img}
+                      onChange={(e) => {
+                        const next = [...carouselImages];
+                        next[index] = e.target.value;
+                        setCarouselImages(next);
+                      }}
+                      placeholder="https://..."
+                      className="w-full rounded-lg border border-zinc-700 bg-zinc-800/60 p-3 text-white placeholder:text-zinc-500"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-sm text-zinc-300">Legenda {index + 1}</label>
+                    <input
+                      type="text"
+                      value={carouselCaptions[index] || ""}
+                      onChange={(e) => {
+                        const next = [...carouselCaptions];
+                        next[index] = e.target.value;
+                        setCarouselCaptions(next);
+                      }}
+                      placeholder="Legenda exibida sobre a imagem"
+                      className="w-full rounded-lg border border-zinc-700 bg-zinc-800/60 p-3 text-white placeholder:text-zinc-500"
+                    />
+                  </div>
                 </div>
               ))}
             </div>

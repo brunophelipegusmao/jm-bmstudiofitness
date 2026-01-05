@@ -71,6 +71,12 @@ export class WaitlistController {
     return this.waitlistService.update(id, dto);
   }
 
+  @Delete('all')
+  @Roles(UserRole.ADMIN, UserRole.MASTER)
+  async deleteAll() {
+    return this.waitlistService.deleteAll();
+  }
+
   @Delete(':id')
   @Roles(UserRole.ADMIN, UserRole.MASTER)
   async delete(@Param('id') id: string) {

@@ -244,13 +244,13 @@ export default function EventDetailPage() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {event.imageUrl ? (
-                    <div className="overflow-hidden rounded-xl border border-[#C2A537]/20">
+                    <div className="overflow-hidden rounded-xl border border-[#C2A537]/20 bg-black">
                       <Image
                         src={event.imageUrl}
                         alt={event.title}
                         width={1200}
                         height={480}
-                        className="h-64 w-full object-cover transition duration-700 hover:scale-[1.02]"
+                        className="h-64 w-full object-contain bg-black transition duration-700 hover:scale-[1.02]"
                       />
                     </div>
                   ) : null}

@@ -60,121 +60,61 @@ export function AdministrativeTab({
   const [bodyFatPercentage, setBodyFatPercentage] = useState<number | null>(
     null,
   );
+  const [bodyFatResult, setBodyFatResult] = useState<string>("");
+  const [skinfoldForm, setSkinfoldForm] = useState({
+    measurementDate: new Date().toISOString().split("T")[0],
+    weight: "",
+    height: "",
+    chest: "",
+    abdominal: "",
+    suprailiac: "",
+    thigh: "",
+    triceps: "",
+    axillary: "",
+    subscapular: "",
+    method: "3-dobras",
+    bodyFatPercentage: "",
+  });
   const [selectedGender, setSelectedGender] = useState<string>("");
 
-  const calculateBodyFat = async (
-    gender: string,
-    age: number,
-    fold1: number,
-    fold2: number,
-    fold3: number,
-  ) => {
-    const sumFolds = fold1 + fold2 + fold3;
-    let dc;
+  const calculateBodyFat = () => {
+    const gender = selectedGender || "masculino";
+    const age = calculatedAge ?? 0;
+    const toNum = (v: string) => (v ? Number(v) : 0);
+    const method = skinfoldForm.method;
 
-    if (gender === "feminino") {
-      // Fórmula para mulheres (tríceps, suprailíaca e coxa)
-      dc =
-        1.099421 -
-        0.0009928 * sumFolds +
-        0.0000023 * Math.pow(sumFolds, 2) -
-        0.0001392 * age;
-    } else {
-      // Fórmula para homens (peitoral, abdominal e coxa)
-      dc =
-        1.10938 -
-        0.0008267 * sumFolds +
-        0.0000016 * Math.pow(sumFolds, 2) -
-        0.0002574 * age;
-    }
-
-    // Fórmula de Siri para percentual de gordura
-    const fatPercentage = 495 / dc - 450;
-    const bodyFatValue = Number(fatPercentage.toFixed(2));
-    setBodyFatPercentage(bodyFatValue);
-
-    // Salva os dados via API somente se tivermos um userId (edição de aluno)
-    const studentIdElement =
-      typeof document !== "undefined"
-        ? (document.getElementById("studentId") as HTMLInputElement | null)
-        : null;
-    const studentId = studentIdElement?.value || null;
-
-    const weightValue = parseFloat(
-      (document.getElementById("weightKg") as HTMLInputElement)?.value || "0",
-    );
-    const heightValue = parseFloat(
-      (document.getElementById("heightCm") as HTMLInputElement)?.value || "0",
-    );
-
-    const measurementData: Record<string, unknown> = {
-      userId: studentId,
-      weightKg: isNaN(weightValue) ? null : weightValue,
-      heightCm: isNaN(heightValue) ? null : heightValue,
-      bodyFatPercentage: bodyFatValue,
-      measuredBy: user?.id || null,
-      notes: "Medição realizada durante cadastro/atualização",
-    };
-
-    if (gender === "feminino") {
-      const tricepsValue = parseFloat(
-        (document.getElementById("tricepsFold") as HTMLInputElement)?.value ||
-          "0",
-      );
-      const suprailiacValue = parseFloat(
-        (document.getElementById("suprailiacFold") as HTMLInputElement)
-          ?.value || "0",
-      );
-      const thighValue = parseFloat(
-        (document.getElementById("thighFold") as HTMLInputElement)?.value ||
-          "0",
-      );
-
-      Object.assign(measurementData, {
-        tricepsSkinfoldMm: isNaN(tricepsValue) ? null : tricepsValue,
-        suprailiacSkinfoldMm: isNaN(suprailiacValue) ? null : suprailiacValue,
-        thighSkinfoldMm: isNaN(thighValue) ? null : thighValue,
-      });
-    } else {
-      const chestValue = parseFloat(
-        (document.getElementById("chestFold") as HTMLInputElement)?.value ||
-          "0",
-      );
-      const abdominalValue = parseFloat(
-        (document.getElementById("abdominalFold") as HTMLInputElement)?.value ||
-          "0",
-      );
-      const thighValue = parseFloat(
-        (document.getElementById("thighFold") as HTMLInputElement)?.value ||
-          "0",
-      );
-
-      Object.assign(measurementData, {
-        chestSkinfoldMm: isNaN(chestValue) ? null : chestValue,
-        abdominalSkinfoldMm: isNaN(abdominalValue) ? null : abdominalValue,
-        thighSkinfoldMm: isNaN(thighValue) ? null : thighValue,
-      });
-    }
-
-    if (studentId) {
-      try {
-        await fetch("/api/admin/body-measurements", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(measurementData),
-        });
-        toast.success("Medições salvas com sucesso");
-      } catch (error) {
-        console.error("Error saving body measurements via API:", error);
-        toast.error("Erro ao salvar medições");
+    let density: number | null = null;
+    if (method === "3-dobras") {
+      if (gender === "feminino") {
+        const sum = toNum(skinfoldForm.triceps) + toNum(skinfoldForm.suprailiac) + toNum(skinfoldForm.thigh);
+        density = 1.0994921 - 0.0009929 * sum + 0.0000023 * Math.pow(sum, 2) - 0.0001392 * age;
+      } else {
+        const sum = toNum(skinfoldForm.chest) + toNum(skinfoldForm.abdominal) + toNum(skinfoldForm.thigh);
+        density = 1.10938 - 0.0008267 * sum + 0.0000016 * Math.pow(sum, 2) - 0.0002574 * age;
       }
     } else {
-      // Sem userId (novo cadastro)  salvará apenas quando o aluno existir
-      console.debug("Skipping save: no studentId available yet");
+      const sum = toNum(skinfoldForm.chest) + toNum(skinfoldForm.axillary) + toNum(skinfoldForm.triceps) + toNum(skinfoldForm.subscapular) + toNum(skinfoldForm.abdominal) + toNum(skinfoldForm.suprailiac) + toNum(skinfoldForm.thigh);
+      if (gender === "feminino") {
+        density = 1.097 - 0.00046971 * sum + 0.00000056 * Math.pow(sum, 2) - 0.00012828 * age;
+      } else {
+        density = 1.112 - 0.00043499 * sum + 0.00000055 * Math.pow(sum, 2) - 0.00028826 * age;
+      }
     }
+
+    if (!density || density <= 0) {
+      toast.error("Não foi possível calcular a densidade corporal");
+      return null;
+    }
+
+    const fat = (4.95 / density - 4.5) * 100;
+    const rounded = Number(fat.toFixed(2));
+    setBodyFatPercentage(rounded);
+    setBodyFatResult(`${rounded}% (${method})`);
+    setSkinfoldForm((prev) => ({ ...prev, bodyFatPercentage: String(rounded) }));
+    return rounded;
   };
 
-  const calculateAge = (bornDate: string) => {
+const calculateAge = (bornDate: string) => {
     const today = new Date();
     const birthDate = new Date(bornDate);
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -323,60 +263,44 @@ export function AdministrativeTab({
         // Salvar medições que o treinador já tenha preenchido no formulário
         const saveMeasurementsForUser = async (userId: string) => {
           try {
-            const weightValue = parseFloat(
-              (document.getElementById("weightKg") as HTMLInputElement)
-                ?.value || "0",
-            );
-            const heightValue = parseFloat(
-              (document.getElementById("heightCm") as HTMLInputElement)
-                ?.value || "0",
-            );
-
+            const computed = calculateBodyFat();
+            const manualBodyFat = skinfoldForm.bodyFatPercentage
+              ? Number(skinfoldForm.bodyFatPercentage)
+              : null;
             const payload: Record<string, unknown> = {
               userId,
-              weightKg: isNaN(weightValue) ? null : weightValue,
-              heightCm: isNaN(heightValue) ? null : heightValue,
-              bodyFatPercentage: bodyFatPercentage,
+              measurementDate: skinfoldForm.measurementDate,
+              weight: skinfoldForm.weight ? Number(skinfoldForm.weight) : null,
+              height: skinfoldForm.height ? Number(skinfoldForm.height) : null,
+              chestSkinfoldMm: skinfoldForm.chest
+                ? Number(skinfoldForm.chest)
+                : null,
+              abdominalSkinfoldMm: skinfoldForm.abdominal
+                ? Number(skinfoldForm.abdominal)
+                : null,
+              suprailiacSkinfoldMm: skinfoldForm.suprailiac
+                ? Number(skinfoldForm.suprailiac)
+                : null,
+              thighSkinfoldMm: skinfoldForm.thigh
+                ? Number(skinfoldForm.thigh)
+                : null,
+              tricepsSkinfoldMm: skinfoldForm.triceps
+                ? Number(skinfoldForm.triceps)
+                : null,
+              axillarySkinfoldMm: skinfoldForm.axillary
+                ? Number(skinfoldForm.axillary)
+                : null,
+              subscapularSkinfoldMm: skinfoldForm.subscapular
+                ? Number(skinfoldForm.subscapular)
+                : null,
+              bodyFatMethod: skinfoldForm.method,
+              bodyFatPercentage:
+                computed ??
+                manualBodyFat ??
+                (bodyFatPercentage !== null ? bodyFatPercentage : null),
               measuredBy: user?.id || null,
               notes: "Medição inicial no cadastro",
             };
-
-            if (selectedGender === "feminino") {
-              payload.tricepsSkinfoldMm =
-                parseFloat(
-                  (document.getElementById("tricepsFold") as HTMLInputElement)
-                    ?.value || "0",
-                ) || null;
-              payload.suprailiacSkinfoldMm =
-                parseFloat(
-                  (
-                    document.getElementById(
-                      "suprailiacFold",
-                    ) as HTMLInputElement
-                  )?.value || "0",
-                ) || null;
-              payload.thighSkinfoldMm =
-                parseFloat(
-                  (document.getElementById("thighFold") as HTMLInputElement)
-                    ?.value || "0",
-                ) || null;
-            } else {
-              payload.chestSkinfoldMm =
-                parseFloat(
-                  (document.getElementById("chestFold") as HTMLInputElement)
-                    ?.value || "0",
-                ) || null;
-              payload.abdominalSkinfoldMm =
-                parseFloat(
-                  (document.getElementById("abdominalFold") as HTMLInputElement)
-                    ?.value || "0",
-                ) || null;
-              payload.thighSkinfoldMm =
-                parseFloat(
-                  (document.getElementById("thighFold") as HTMLInputElement)
-                    ?.value || "0",
-                ) || null;
-            }
 
             await fetch("/api/admin/body-measurements", {
               method: "POST",
@@ -739,264 +663,174 @@ export function AdministrativeTab({
                     </div>
                   </div>
 
-                  <div>
-                    <h4 className="mb-3 font-semibold text-[#C2A537]">
-                      Medidas de Dobras Cutâneas (mm)
-                    </h4>
-                    <div className="grid gap-4 md:grid-cols-3">
-                      {selectedGender === "masculino" ? (
-                        <>
-                          <div className="space-y-2">
-                            <Label htmlFor="chestFold">Peitoral</Label>
-                            <Input
-                              id="chestFold"
-                              name="chestFold"
-                              type="number"
-                              step="0.1"
-                              className="border-slate-600 bg-slate-800 text-white"
-                              onChange={(e) => {
-                                const chest = parseFloat(e.target.value);
-                                const abdominal = parseFloat(
-                                  (
-                                    document.getElementById(
-                                      "abdominalFold",
-                                    ) as HTMLInputElement
-                                  )?.value || "0",
-                                );
-                                const thigh = parseFloat(
-                                  (
-                                    document.getElementById(
-                                      "thighFold",
-                                    ) as HTMLInputElement
-                                  )?.value || "0",
-                                );
-                                if (
-                                  chest &&
-                                  abdominal &&
-                                  thigh &&
-                                  calculatedAge
-                                ) {
-                                  calculateBodyFat(
-                                    selectedGender,
-                                    calculatedAge,
-                                    chest,
-                                    abdominal,
-                                    thigh,
-                                  );
-                                }
-                              }}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="abdominalFold">Abdominal</Label>
-                            <Input
-                              id="abdominalFold"
-                              name="abdominalFold"
-                              type="number"
-                              step="0.1"
-                              className="border-slate-600 bg-slate-800 text-white"
-                              onChange={(e) => {
-                                const abdominal = parseFloat(e.target.value);
-                                const chest = parseFloat(
-                                  (
-                                    document.getElementById(
-                                      "chestFold",
-                                    ) as HTMLInputElement
-                                  )?.value || "0",
-                                );
-                                const thigh = parseFloat(
-                                  (
-                                    document.getElementById(
-                                      "thighFold",
-                                    ) as HTMLInputElement
-                                  )?.value || "0",
-                                );
-                                if (
-                                  chest &&
-                                  abdominal &&
-                                  thigh &&
-                                  calculatedAge
-                                ) {
-                                  calculateBodyFat(
-                                    selectedGender,
-                                    calculatedAge,
-                                    chest,
-                                    abdominal,
-                                    thigh,
-                                  );
-                                }
-                              }}
-                            />
-                          </div>
-                        </>
-                      ) : selectedGender === "feminino" ? (
-                        <>
-                          <div className="space-y-2">
-                            <Label htmlFor="tricepsFold">Tríceps</Label>
-                            <Input
-                              id="tricepsFold"
-                              name="tricepsFold"
-                              type="number"
-                              step="0.1"
-                              className="border-slate-600 bg-slate-800 text-white"
-                              onChange={(e) => {
-                                const triceps = parseFloat(e.target.value);
-                                const suprailiac = parseFloat(
-                                  (
-                                    document.getElementById(
-                                      "suprailiacFold",
-                                    ) as HTMLInputElement
-                                  )?.value || "0",
-                                );
-                                const thigh = parseFloat(
-                                  (
-                                    document.getElementById(
-                                      "thighFold",
-                                    ) as HTMLInputElement
-                                  )?.value || "0",
-                                );
-                                if (
-                                  triceps &&
-                                  suprailiac &&
-                                  thigh &&
-                                  calculatedAge
-                                ) {
-                                  calculateBodyFat(
-                                    selectedGender,
-                                    calculatedAge,
-                                    triceps,
-                                    suprailiac,
-                                    thigh,
-                                  );
-                                }
-                              }}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="suprailiacFold">Suprailíaca</Label>
-                            <Input
-                              id="suprailiacFold"
-                              name="suprailiacFold"
-                              type="number"
-                              step="0.1"
-                              className="border-slate-600 bg-slate-800 text-white"
-                              onChange={(e) => {
-                                const suprailiac = parseFloat(e.target.value);
-                                const triceps = parseFloat(
-                                  (
-                                    document.getElementById(
-                                      "tricepsFold",
-                                    ) as HTMLInputElement
-                                  )?.value || "0",
-                                );
-                                const thigh = parseFloat(
-                                  (
-                                    document.getElementById(
-                                      "thighFold",
-                                    ) as HTMLInputElement
-                                  )?.value || "0",
-                                );
-                                if (
-                                  triceps &&
-                                  suprailiac &&
-                                  thigh &&
-                                  calculatedAge
-                                ) {
-                                  calculateBodyFat(
-                                    selectedGender,
-                                    calculatedAge,
-                                    triceps,
-                                    suprailiac,
-                                    thigh,
-                                  );
-                                }
-                              }}
-                            />
-                          </div>
-                        </>
-                      ) : null}
-                      {selectedGender && (
-                        <div className="space-y-2">
-                          <Label htmlFor="thighFold">Coxa</Label>
-                          <Input
-                            id="thighFold"
-                            name="thighFold"
-                            type="number"
-                            step="0.1"
-                            className="border-slate-600 bg-slate-800 text-white"
-                            onChange={(e) => {
-                              const thigh = parseFloat(e.target.value);
-                              if (selectedGender === "masculino") {
-                                const chest = parseFloat(
-                                  (
-                                    document.getElementById(
-                                      "chestFold",
-                                    ) as HTMLInputElement
-                                  )?.value || "0",
-                                );
-                                const abdominal = parseFloat(
-                                  (
-                                    document.getElementById(
-                                      "abdominalFold",
-                                    ) as HTMLInputElement
-                                  )?.value || "0",
-                                );
-                                if (
-                                  chest &&
-                                  abdominal &&
-                                  thigh &&
-                                  calculatedAge
-                                ) {
-                                  calculateBodyFat(
-                                    selectedGender,
-                                    calculatedAge,
-                                    chest,
-                                    abdominal,
-                                    thigh,
-                                  );
-                                }
-                              } else {
-                                const triceps = parseFloat(
-                                  (
-                                    document.getElementById(
-                                      "tricepsFold",
-                                    ) as HTMLInputElement
-                                  )?.value || "0",
-                                );
-                                const suprailiac = parseFloat(
-                                  (
-                                    document.getElementById(
-                                      "suprailiacFold",
-                                    ) as HTMLInputElement
-                                  )?.value || "0",
-                                );
-                                if (
-                                  triceps &&
-                                  suprailiac &&
-                                  thigh &&
-                                  calculatedAge
-                                ) {
-                                  calculateBodyFat(
-                                    selectedGender,
-                                    calculatedAge,
-                                    triceps,
-                                    suprailiac,
-                                    thigh,
-                                  );
-                                }
-                              }
-                            }}
-                          />
+                  <div className="space-y-3 rounded-lg border border-slate-700 bg-slate-800/50 p-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="mb-1 font-semibold text-[#C2A537]">
+                        Dobras cutâneas / composição corporal
+                      </h4>
+                      <div className="flex items-center gap-2 text-sm text-slate-300">
+                        <span>Data</span>
+                        <Input
+                          type="date"
+                          value={skinfoldForm.measurementDate}
+                          onChange={(e) =>
+                            setSkinfoldForm({
+                              ...skinfoldForm,
+                              measurementDate: e.target.value,
+                            })
+                          }
+                          className="w-auto border-slate-600 bg-slate-800 text-white"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid gap-3 md:grid-cols-3">
+                      <Input
+                        placeholder="Peitoral (mm)"
+                        type="number"
+                        value={skinfoldForm.chest}
+                        onChange={(e) =>
+                          setSkinfoldForm({
+                            ...skinfoldForm,
+                            chest: e.target.value,
+                          })
+                        }
+                        className="border-slate-600 bg-slate-800 text-white"
+                      />
+                      <Input
+                        placeholder="Abdominal/Cintura (mm)"
+                        type="number"
+                        value={skinfoldForm.abdominal}
+                        onChange={(e) =>
+                          setSkinfoldForm({
+                            ...skinfoldForm,
+                            abdominal: e.target.value,
+                          })
+                        }
+                        className="border-slate-600 bg-slate-800 text-white"
+                      />
+                      <Input
+                        placeholder="Supra-ilíaca/Quadril (mm)"
+                        type="number"
+                        value={skinfoldForm.suprailiac}
+                        onChange={(e) =>
+                          setSkinfoldForm({
+                            ...skinfoldForm,
+                            suprailiac: e.target.value,
+                          })
+                        }
+                        className="border-slate-600 bg-slate-800 text-white"
+                      />
+                      <Input
+                        placeholder="Tríceps (mm)"
+                        type="number"
+                        value={skinfoldForm.triceps}
+                        onChange={(e) =>
+                          setSkinfoldForm({
+                            ...skinfoldForm,
+                            triceps: e.target.value,
+                          })
+                        }
+                        className="border-slate-600 bg-slate-800 text-white"
+                      />
+                      <Input
+                        placeholder="Axilar média (mm)"
+                        type="number"
+                        value={skinfoldForm.axillary}
+                        onChange={(e) =>
+                          setSkinfoldForm({
+                            ...skinfoldForm,
+                            axillary: e.target.value,
+                          })
+                        }
+                        className="border-slate-600 bg-slate-800 text-white"
+                      />
+                      <Input
+                        placeholder="Subescapular (mm)"
+                        type="number"
+                        value={skinfoldForm.subscapular}
+                        onChange={(e) =>
+                          setSkinfoldForm({
+                            ...skinfoldForm,
+                            subscapular: e.target.value,
+                          })
+                        }
+                        className="border-slate-600 bg-slate-800 text-white"
+                      />
+                      <Input
+                        placeholder="Coxa (mm)"
+                        type="number"
+                        value={skinfoldForm.thigh}
+                        onChange={(e) =>
+                          setSkinfoldForm({
+                            ...skinfoldForm,
+                            thigh: e.target.value,
+                          })
+                        }
+                        className="border-slate-600 bg-slate-800 text-white"
+                      />
+                      <Input
+                        placeholder="Peso na medição (kg)"
+                        type="number"
+                        value={skinfoldForm.weight}
+                        onChange={(e) =>
+                          setSkinfoldForm({
+                            ...skinfoldForm,
+                            weight: e.target.value,
+                          })
+                        }
+                        className="border-slate-600 bg-slate-800 text-white"
+                      />
+                      <Input
+                        placeholder="% Gordura (opcional)"
+                        type="number"
+                        value={skinfoldForm.bodyFatPercentage ?? ""}
+                        onChange={(e) =>
+                          setSkinfoldForm({
+                            ...skinfoldForm,
+                            bodyFatPercentage: e.target.value,
+                          })
+                        }
+                        className="border-slate-600 bg-slate-800 text-white"
+                      />
+                    </div>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 text-sm text-slate-300">
+                        <span>Método</span>
+                        <select
+                          className="rounded-md border border-slate-600 bg-slate-800 px-2 py-1 text-white"
+                          value={skinfoldForm.method}
+                          onChange={(e) =>
+                            setSkinfoldForm({
+                              ...skinfoldForm,
+                              method: e.target.value,
+                            })
+                          }
+                        >
+                          <option value="3-dobras">Jackson & Pollock 3 dobras</option>
+                          <option value="7-dobras">Jackson & Pollock 7 dobras</option>
+                        </select>
+                      </div>
+                      {bodyFatResult && (
+                        <div className="text-sm text-green-400">
+                          % Gordura estimada: {bodyFatResult}
                         </div>
                       )}
-                    </div>
-                    {bodyFatPercentage !== null && (
-                      <div className="mt-4 rounded-md border border-[#C2A537] bg-[#C2A537]/10 p-3">
-                        <p className="text-lg font-semibold text-[#C2A537]">
-                          Percentual de Gordura: {bodyFatPercentage}%
-                        </p>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            const res = calculateBodyFat();
+                            if (res !== null) {
+                              toast.success(`% Gordura: ${res.toFixed(2)}%`);
+                            }
+                          }}
+                          className="border-[#C2A537] text-[#C2A537] hover:bg-[#C2A537]/10"
+                        >
+                          Calcular % gordura
+                        </Button>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
               </div>

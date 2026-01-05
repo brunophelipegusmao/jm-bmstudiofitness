@@ -97,7 +97,7 @@ export async function getWaitlistAdminAction(): Promise<{
       const mapped = mapWaitlist(entries);
       return { success: true, data: mapped };
     } catch (err) {
-      // Fallback: usa endpoint público (útil se token/role impedir)
+      // Fallback para endpoint público se o token não estiver presente
       const entries = await apiClient.get<WaitlistApi[]>("/waitlist/public");
       const mapped = mapWaitlist(entries);
       return { success: true, data: mapped };
@@ -191,10 +191,9 @@ export async function completeEnrollFromWaitlistAction(params: {
       studentId: userId,
     });
 
-    // Dispara e-mail para criação de senha e instruções de comparecimento
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    // Dispara e-mail para o aluno criar a senha (após cadastro/associação)
     try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
       const resp = await fetch(`${baseUrl}/api/waitlist/enroll-email`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -202,10 +201,10 @@ export async function completeEnrollFromWaitlistAction(params: {
       });
       if (!resp.ok) {
         const body = await resp.json().catch(() => ({}));
-        console.error("Falha ao acionar e-mail de matrícula:", body);
+        console.error("Falha ao enviar e-mail de criação de senha:", body);
       }
     } catch (err) {
-      console.error("Falha ao acionar e-mail de matrícula:", err);
+      console.error("Erro ao enviar e-mail de criação de senha:", err);
     }
 
     return { success: true, userId, password: createdNewUser ? password : "" };
@@ -223,3 +222,4 @@ export async function exportWaitlistPdfAction() {
   }
   return { success: true, data: result.data };
 }
+

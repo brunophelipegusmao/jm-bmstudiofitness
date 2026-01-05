@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
@@ -32,27 +32,30 @@ const formSchema = z
       .min(8, "A senha deve ter pelo menos 8 caracteres")
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/,
-        "A senha deve conter pelo menos uma letra maiúscula, uma minúscula e um número",
+        "A senha deve conter pelo menos uma letra maiuscula, uma minuscula e um numero",
       ),
     confirmPassword: z.string().min(8, "Confirme sua nova senha"),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "As senhas não coincidem",
+    message: "As senhas nao coincidem",
     path: ["confirmPassword"],
   });
 
 function ResetPasswordForm() {
   const [loading, setLoading] = useState(false);
   const [tokenValidated, setTokenValidated] = useState(false);
+  const [tokenChecked, setTokenChecked] = useState(false);
+  const [tokenError, setTokenError] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
   useEffect(() => {
-    // Validar token ao carregar a página
     const validateToken = async () => {
       if (!token) {
-        toast.error("Token de redefinição inválido ou expirado");
+        toast.error("Token de redefinicao invalido ou expirado");
+        setTokenError("Link invalido ou expirado. Solicite um novo link.");
+        setTokenChecked(true);
         return;
       }
 
@@ -68,11 +71,18 @@ function ResetPasswordForm() {
         const data = await response.json();
         if (data.valid) {
           setTokenValidated(true);
+          setTokenError(null);
         } else {
-          toast.error(data.message || "Token inválido ou expirado");
+          toast.error(data.message || "Token invalido ou expirado");
+          setTokenError(
+            data.message || "Link invalido ou expirado. Solicite um novo link.",
+          );
         }
       } catch {
         toast.error("Erro ao validar token. Tente novamente.");
+        setTokenError("Erro ao validar o link. Tente solicitar um novo link.");
+      } finally {
+        setTokenChecked(true);
       }
     };
 
@@ -89,7 +99,7 @@ function ResetPasswordForm() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!token) {
-      toast.error("Token de redefinição inválido");
+      toast.error("Token de redefinicao invalido");
       return;
     }
 
@@ -110,7 +120,6 @@ function ResetPasswordForm() {
 
       if (data.success) {
         setShowSuccessModal(true);
-        // Redireciona apÇüs breve delay
         setTimeout(() => {
           window.location.href = "/";
         }, 2000);
@@ -124,7 +133,7 @@ function ResetPasswordForm() {
     }
   };
 
-  if (!tokenValidated) {
+  if (!tokenChecked) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-black via-slate-900 to-black p-4">
         <Card className="w-full max-w-md border-slate-700 bg-slate-800/50 backdrop-blur-sm">
@@ -136,6 +145,35 @@ function ResetPasswordForm() {
         </Card>
       </div>
     );
+  }
+
+  if (tokenError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-black via-slate-900 to-black p-4">
+        <Card className="w-full max-w-md border-slate-700 bg-slate-800/50 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold text-white">
+              Link invalido ou expirado
+            </CardTitle>
+            <CardDescription className="text-slate-400">
+              {tokenError}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              className="w-full bg-[#C2A537] text-black hover:bg-[#C2A537]/90"
+              onClick={() => (window.location.href = "/user/forgot-password")}
+            >
+              Solicitar novo link
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!tokenValidated) {
+    return null;
   }
 
   return (
@@ -166,8 +204,7 @@ function ResetPasswordForm() {
                       />
                     </FormControl>
                     <p className="mt-1.5 text-xs text-slate-400">
-                      A senha deve ter no mínimo 8 caracteres, uma letra
-                      maiúscula, uma minúscula e um número
+                      A senha deve ter no minimo 8 caracteres, uma letra maiuscula, uma minuscula e um numero
                     </p>
                     <FormMessage className="text-red-400" />
                   </FormItem>
@@ -179,9 +216,7 @@ function ResetPasswordForm() {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">
-                      Confirmar Senha
-                    </FormLabel>
+                    <FormLabel className="text-white">Confirmar Senha</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -216,7 +251,7 @@ function ResetPasswordForm() {
               Senha redefinida com sucesso
             </h3>
             <p className="mt-3 text-slate-200">
-              Tudo pronto! Você será redirecionado para a página inicial.
+              Tudo pronto! Voce sera redirecionado para a pagina inicial.
             </p>
           </div>
         </div>
@@ -227,7 +262,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div>Carregando...</div>}>
+    <Suspense fallback={<div className="text-white">Carregando...</div>}>
       <ResetPasswordForm />
     </Suspense>
   );

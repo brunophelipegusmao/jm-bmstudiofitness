@@ -46,6 +46,7 @@ export function FinancialTab() {
       totalFormatted: "R$ 0,00",
     },
   });
+  const [expenseVersion, setExpenseVersion] = useState(0);
 
   // Carregar dados ao montar o componente
   useEffect(() => {
@@ -127,9 +128,8 @@ export function FinancialTab() {
             Voltar
           </button>
         </div>
-        <ExpenseForm />
-        <ExpenseTable expenses={[]} />{" "}
-        {/* TODO: Implementar carregamento das despesas */}
+        <ExpenseForm onCreated={() => setExpenseVersion((v) => v + 1)} />
+        <ExpenseTable key={expenseVersion} />
       </div>
     );
   }

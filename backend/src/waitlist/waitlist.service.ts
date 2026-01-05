@@ -1,13 +1,8 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-  Inject,
-} from '@nestjs/common';
+﻿import { Injectable, NotFoundException, ConflictException, Inject } from '@nestjs/common';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import { eq, desc, and, ilike, or, inArray } from 'drizzle-orm';
 import * as schema from '../database/schema';
 import { tbWaitlist, tbPlans } from '../database/schema';
-import { eq, desc, and, ilike, or, inArray } from 'drizzle-orm';
 import type { SQLWrapper } from 'drizzle-orm';
 import {
   CreateWaitlistDto,
@@ -37,15 +32,10 @@ export class WaitlistService {
 
     if (query.search) {
       const searchConditions: SQLWrapper[] = [];
-      if (query.search) {
-        searchConditions.push(ilike(tbWaitlist.name, `%${query.search}%`));
-        searchConditions.push(ilike(tbWaitlist.email, `%${query.search}%`));
-        searchConditions.push(ilike(tbWaitlist.phone, `%${query.search}%`));
-      }
-
-      if (searchConditions.length > 0) {
-        conditions.push(or(...searchConditions) as SQLWrapper);
-      }
+      searchConditions.push(ilike(tbWaitlist.name, `%${query.search}%`));
+      searchConditions.push(ilike(tbWaitlist.email, `%${query.search}%`));
+      searchConditions.push(ilike(tbWaitlist.phone, `%${query.search}%`));
+      conditions.push(or(...searchConditions) as SQLWrapper);
     }
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -80,10 +70,7 @@ export class WaitlistService {
   }
 
   async findPublic() {
-    const visibleStatuses = [
-      WaitlistStatus.PENDING,
-      WaitlistStatus.WAITING,
-    ] as const;
+    const visibleStatuses = [WaitlistStatus.PENDING, WaitlistStatus.WAITING] as const;
 
     const entries = await this.db
       .select({
@@ -132,14 +119,13 @@ export class WaitlistService {
       .where(eq(tbWaitlist.id, id));
 
     if (!entry) {
-      throw new NotFoundException('Entrada na lista de espera não encontrada');
+      throw new NotFoundException('Entrada na lista de espera nao encontrada');
     }
 
     return entry;
   }
 
   async create(dto: CreateWaitlistDto) {
-    // Verifica se o email já está na lista de espera com status pendente
     const [existing] = await this.db
       .select()
       .from(tbWaitlist)
@@ -151,10 +137,9 @@ export class WaitlistService {
       );
 
     if (existing) {
-      throw new ConflictException('Este email já está na lista de espera');
+      throw new ConflictException('Este email ja esta na lista de espera');
     }
 
-    // Se tem plano de interesse, verifica se existe
     if (dto.interestPlanId) {
       const [plan] = await this.db
         .select()
@@ -162,7 +147,7 @@ export class WaitlistService {
         .where(eq(tbPlans.id, dto.interestPlanId));
 
       if (!plan) {
-        throw new NotFoundException('Plano não encontrado');
+        throw new NotFoundException('Plano nao encontrado');
       }
     }
 
@@ -215,11 +200,16 @@ export class WaitlistService {
     return { message: 'Entrada removida da lista de espera' };
   }
 
+  async deleteAll() {
+    await this.db.delete(tbWaitlist);
+    return { message: 'Lista de espera limpa' };
+  }
+
   async markContacted(id: string) {
     const entry = await this.findOne(id);
 
     if (entry.status === WaitlistStatus.CONVERTED) {
-      throw new ConflictException('Esta entrada já foi convertida');
+      throw new ConflictException('Esta entrada ja foi convertida');
     }
 
     const [updated] = await this.db
@@ -239,26 +229,28 @@ export class WaitlistService {
     const entry = await this.findOne(id);
 
     if (entry.status === WaitlistStatus.CONVERTED) {
-      throw new ConflictException('Esta entrada já foi convertida');
+      throw new ConflictException('Esta entrada ja foi convertida');
     }
 
-    // Após a matrícula, removemos a entrada da lista de espera
-    await this.db.delete(tbWaitlist).where(eq(tbWaitlist.id, id));
+    const [updated] = await this.db
+      .update(tbWaitlist)
+      .set({
+        status: WaitlistStatus.CONVERTED,
+        convertedAt: new Date(),
+        convertedToUserId: dto.studentId,
+        updatedAt: new Date(),
+      })
+      .where(eq(tbWaitlist.id, id))
+      .returning();
 
-    return {
-      id,
-      convertedToUserId: dto.studentId,
-      status: WaitlistStatus.CONVERTED,
-    };
+    return updated;
   }
 
   async cancel(id: string) {
     const entry = await this.findOne(id);
 
     if (entry.status === WaitlistStatus.CONVERTED) {
-      throw new ConflictException(
-        'Não é possível cancelar uma entrada já convertida',
-      );
+      throw new ConflictException('Nao e possivel cancelar uma entrada convertida');
     }
 
     const [updated] = await this.db
@@ -279,17 +271,13 @@ export class WaitlistService {
     const stats = {
       total: all.length,
       pending: all.filter((e) => e.status === WaitlistStatus.PENDING).length,
-      contacted: all.filter((e) => e.status === WaitlistStatus.CONTACTED)
-        .length,
-      converted: all.filter((e) => e.status === WaitlistStatus.CONVERTED)
-        .length,
-      cancelled: all.filter((e) => e.status === WaitlistStatus.CANCELLED)
-        .length,
+      contacted: all.filter((e) => e.status === WaitlistStatus.CONTACTED).length,
+      converted: all.filter((e) => e.status === WaitlistStatus.CONVERTED).length,
+      cancelled: all.filter((e) => e.status === WaitlistStatus.CANCELLED).length,
       conversionRate:
         all.length > 0
           ? (
-              (all.filter((e) => e.status === WaitlistStatus.CONVERTED).length /
-                all.length) *
+              (all.filter((e) => e.status === WaitlistStatus.CONVERTED).length / all.length) *
               100
             ).toFixed(1) + '%'
           : '0%',

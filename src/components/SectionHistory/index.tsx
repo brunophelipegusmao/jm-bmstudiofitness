@@ -121,7 +121,7 @@ export default function SectionHistory({ settings }: SectionHistoryProps) {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
               viewport={{ once: true }}
-              className="prose prose-invert max-w-none space-y-4 text-base leading-relaxed text-gray-300 sm:space-y-6 sm:text-lg lg:text-xl"
+            className="prose prose-invert max-w-none space-y-4 break-words text-base leading-relaxed text-gray-300 sm:space-y-6 sm:text-lg lg:text-xl"
             >
               <ReactMarkdown>{historyMarkdown}</ReactMarkdown>
             </motion.div>

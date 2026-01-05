@@ -15,6 +15,17 @@ const toLocalDate = (value: unknown): Date => {
   return new Date(raw);
 };
 
+const parseBirthdayDate = (value: unknown): Date => {
+  if (!value) return new Date();
+  const raw = value instanceof Date ? value.toISOString() : String(value);
+  const datePart = raw.includes("T") ? raw.split("T")[0] : raw;
+  // Normaliza para 12:00Z para evitar voltar um dia com fuso
+  if (/^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
+    return new Date(`${datePart}T12:00:00Z`);
+  }
+  return new Date(raw);
+};
+
 const mapEvent = (payload: unknown): Event => {
   const data = payload as Record<string, unknown>;
   const author = data.author as Record<string, unknown> | undefined;
@@ -68,8 +79,8 @@ const mapBirthday = (payload: unknown): BirthdayEntry => {
     id: (data.id as string) ?? "",
     name: (data.name as string) ?? "Aniversariante",
     birthDate: data.bornDate
-      ? new Date(data.bornDate as string)
-      : new Date(data.birthDate ? (data.birthDate as string) : Date.now()),
+      ? parseBirthdayDate(data.bornDate)
+      : parseBirthdayDate(data.birthDate ?? Date.now()),
   };
 };
 

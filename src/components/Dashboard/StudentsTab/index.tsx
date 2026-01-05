@@ -10,6 +10,7 @@ import { reactivateStudentAction } from "@/actions/admin/reactivate-student-acti
 import { softDeleteStudentAction } from "@/actions/admin/soft-delete-student-action";
 import { updateStudentAction } from "@/actions/admin/update-student-action";
 import { updateStudentHealthAction } from "@/actions/admin/update-student-health-action";
+import { BodyMeasurementsHistoryView } from "@/components/Admin/BodyMeasurementsHistoryView";
 import { showErrorToast, showSuccessToast } from "@/components/ToastProvider";
 import { Button } from "@/components/ui/button";
 import {
@@ -332,11 +333,16 @@ export function StudentsTab({
                       />
                     )}
                     {activeTab === "health" && (
-                      <HealthForm
-                        data={profile}
-                        saving={saving}
-                        onSave={handleUpdateHealth}
-                      />
+                      <div className="space-y-6">
+                        <HealthForm
+                          data={profile}
+                          saving={saving}
+                          onSave={handleUpdateHealth}
+                        />
+                        <BodyMeasurementsHistoryView
+                          userId={selected?.userId ?? ""}
+                        />
+                      </div>
                     )}
                     {activeTab === "schedule" && (
                       <ScheduleForm
@@ -489,51 +495,334 @@ function HealthForm({
     heightCm: (h?.heightCm as string) ?? "",
     weightKg: (h?.weightKg as string) ?? "",
     bloodType: (h?.bloodType as string) ?? "",
+    hasPracticedSports:
+      typeof h?.hasPracticedSports === "boolean"
+        ? (h.hasPracticedSports as boolean)
+        : false,
+    lastExercise: (h?.lastExercise as string) ?? "",
+    sportsHistory: (h?.sportsHistory as string) ?? "",
     historyDiseases: (h?.historyDiseases as string) ?? "",
+    medications: (h?.medications as string) ?? "",
     allergies: (h?.allergies as string) ?? "",
+    injuries: (h?.injuries as string) ?? "",
+    alimentalRoutine: (h?.alimentalRoutine as string) ?? "",
+    diaryRoutine: (h?.diaryRoutine as string) ?? "",
+    useSupplements:
+      typeof h?.useSupplements === "boolean"
+        ? (h.useSupplements as boolean)
+        : false,
+    whatSupplements: (h?.whatSupplements as string) ?? "",
     otherNotes: (h?.otherNotes as string) ?? "",
   });
+  const [skinfoldForm, setSkinfoldForm] = useState({
+    measurementDate: new Date().toISOString().split("T")[0],
+    weight: "",
+    height: "",
+    chest: "",
+    abdominal: "",
+    suprailiac: "",
+    thigh: "",
+    triceps: "",
+    axillary: "",
+    subscapular: "",
+    bodyFatPercentage: "",
+    method: "3-dobras",
+  });
+  const [savingSkinfold, setSavingSkinfold] = useState(false);
+  const [bodyFatResult, setBodyFatResult] = useState<string>("");
+
+  const calculateBodyFat = () => {
+    const gender =
+      (data.student.personalData?.sex as string | undefined) ?? "masculino";
+    const birth = data.student.personalData?.bornDate
+      ? new Date(data.student.personalData.bornDate)
+      : null;
+    if (!birth) {
+      showErrorToast("Data de nascimento ausente para calcular % gordura");
+      return null;
+    }
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+
+    const toNum = (v: string) => (v ? Number(v) : 0);
+    const method = skinfoldForm.method;
+
+    let density: number | null = null;
+    if (method === "3-dobras") {
+      if (gender === "masculino") {
+        const sum =
+          toNum(skinfoldForm.chest) +
+          toNum(skinfoldForm.abdominal) +
+          toNum(skinfoldForm.thigh);
+        density =
+          1.10938 -
+          0.0008267 * sum +
+          0.0000016 * Math.pow(sum, 2) -
+          0.0002574 * age;
+      } else {
+        const sum =
+          toNum(skinfoldForm.triceps) +
+          toNum(skinfoldForm.suprailiac) +
+          toNum(skinfoldForm.thigh);
+        density =
+          1.0994921 -
+          0.0009929 * sum +
+          0.0000023 * Math.pow(sum, 2) -
+          0.0001392 * age;
+      }
+    } else {
+      const sum =
+        toNum(skinfoldForm.chest) +
+        toNum(skinfoldForm.axillary) +
+        toNum(skinfoldForm.triceps) +
+        toNum(skinfoldForm.subscapular) +
+        toNum(skinfoldForm.abdominal) +
+        toNum(skinfoldForm.suprailiac) +
+        toNum(skinfoldForm.thigh);
+      if (gender === "masculino") {
+        density =
+          1.112 -
+          0.00043499 * sum +
+          0.00000055 * Math.pow(sum, 2) -
+          0.00028826 * age;
+      } else {
+        density =
+          1.097 -
+          0.00046971 * sum +
+          0.00000056 * Math.pow(sum, 2) -
+          0.00012828 * age;
+      }
+    }
+
+    if (!density || density <= 0) {
+      showErrorToast("Não foi possível calcular a densidade corporal");
+      return null;
+    }
+    const bodyFat = (4.95 / density - 4.5) * 100;
+    const rounded = Number(bodyFat.toFixed(2));
+    setBodyFatResult(`${rounded}%`);
+    setSkinfoldForm((prev) => ({
+      ...prev,
+      bodyFatPercentage: String(rounded),
+    }));
+    return rounded;
+  };
+
+  const saveSkinfolds = async () => {
+    const computed = calculateBodyFat();
+    setSavingSkinfold(true);
+    try {
+      const payload: Record<string, unknown> = {
+        userId: data.student.id,
+        measurementDate: skinfoldForm.measurementDate,
+        weight: skinfoldForm.weight ? Number(skinfoldForm.weight) : null,
+        height: skinfoldForm.height ? Number(skinfoldForm.height) : null,
+        chestSkinfoldMm: skinfoldForm.chest ? Number(skinfoldForm.chest) : null,
+        abdominalSkinfoldMm: skinfoldForm.abdominal
+          ? Number(skinfoldForm.abdominal)
+          : null,
+        suprailiacSkinfoldMm: skinfoldForm.suprailiac
+          ? Number(skinfoldForm.suprailiac)
+          : null,
+        thighSkinfoldMm: skinfoldForm.thigh
+          ? Number(skinfoldForm.thigh)
+          : null,
+        tricepsSkinfoldMm: skinfoldForm.triceps
+          ? Number(skinfoldForm.triceps)
+          : null,
+        axillarySkinfoldMm: skinfoldForm.axillary
+          ? Number(skinfoldForm.axillary)
+          : null,
+        subscapularSkinfoldMm: skinfoldForm.subscapular
+          ? Number(skinfoldForm.subscapular)
+          : null,
+        bodyFatMethod: skinfoldForm.method,
+        bodyFatPercentage:
+          computed ??
+          (skinfoldForm.bodyFatPercentage
+            ? Number(skinfoldForm.bodyFatPercentage)
+            : null),
+      };
+
+      const res = await fetch("/api/admin/body-measurements", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Erro ao salvar dobras cutâneas");
+      }
+      showSuccessToast("Dobras cutâneas salvas");
+    } catch (err) {
+      showErrorToast(
+        err instanceof Error ? err.message : "Erro ao salvar dobras cutâneas",
+      );
+    } finally {
+      setSavingSkinfold(false);
+    }
+  };
 
   return (
     <form
-      className="grid gap-4 md:grid-cols-2"
+      className="space-y-6"
       onSubmit={(e) => {
         e.preventDefault();
         void onSave(form);
       }}
     >
-      <Field
-        label="Altura (cm)"
-        value={form.heightCm}
-        onChange={(v) => setForm({ ...form, heightCm: v })}
-      />
-      <Field
-        label="Peso (kg)"
-        value={form.weightKg}
-        onChange={(v) => setForm({ ...form, weightKg: v })}
-      />
-      <Field
-        label="Tipo sanguíneo"
-        value={form.bloodType}
-        onChange={(v) => setForm({ ...form, bloodType: v })}
-      />
-      <div className="md:col-span-2">
-        <Label className="text-sm text-zinc-300">Histórico de doenças</Label>
-        <Textarea
-          className="mt-1 bg-black/60 text-white"
-          value={form.historyDiseases}
-          onChange={(e) => setForm({ ...form, historyDiseases: e.target.value })}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Field
+          label="Altura (cm)"
+          value={form.heightCm}
+          onChange={(v) => setForm({ ...form, heightCm: v })}
+        />
+        <Field
+          label="Peso (kg)"
+          value={form.weightKg}
+          onChange={(v) => setForm({ ...form, weightKg: v })}
+        />
+        <Field
+          label="Tipo sanguíneo"
+          value={form.bloodType}
+          onChange={(v) => setForm({ ...form, bloodType: v })}
         />
       </div>
-      <div className="md:col-span-2">
-        <Label className="text-sm text-zinc-300">Alergias</Label>
-        <Textarea
-          className="mt-1 bg-black/60 text-white"
-          value={form.allergies}
-          onChange={(e) => setForm({ ...form, allergies: e.target.value })}
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-1">
+          <Label className="text-sm text-zinc-300">Histórico de doenças</Label>
+          <Textarea
+            className="mt-1 bg-black/60 text-white"
+            value={form.historyDiseases}
+            onChange={(e) =>
+              setForm({ ...form, historyDiseases: e.target.value })
+            }
+          />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-sm text-zinc-300">Medicamentos</Label>
+          <Textarea
+            className="mt-1 bg-black/60 text-white"
+            value={form.medications}
+            onChange={(e) => setForm({ ...form, medications: e.target.value })}
+          />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-sm text-zinc-300">Alergias</Label>
+          <Textarea
+            className="mt-1 bg-black/60 text-white"
+            value={form.allergies}
+            onChange={(e) => setForm({ ...form, allergies: e.target.value })}
+          />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-sm text-zinc-300">Lesões</Label>
+          <Textarea
+            className="mt-1 bg-black/60 text-white"
+            value={form.injuries}
+            onChange={(e) => setForm({ ...form, injuries: e.target.value })}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <Label className="text-sm text-zinc-300">
+          Praticou alguma atividade física?
+        </Label>
+        <div className="flex gap-4 text-sm text-zinc-200">
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="hasPracticedSports"
+              value="true"
+              checked={form.hasPracticedSports === true}
+              onChange={() => setForm({ ...form, hasPracticedSports: true })}
+            />
+            Sim
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="hasPracticedSports"
+              value="false"
+              checked={form.hasPracticedSports === false}
+              onChange={() => setForm({ ...form, hasPracticedSports: false })}
+            />
+            Não
+          </label>
+        </div>
+        <Field
+          label="Descrição / último exercício"
+          value={form.lastExercise}
+          onChange={(v) => setForm({ ...form, lastExercise: v })}
+        />
+        <div className="space-y-1">
+          <Label className="text-sm text-zinc-300">Histórico esportivo</Label>
+          <Textarea
+            className="mt-1 bg-black/60 text-white"
+            value={form.sportsHistory}
+            onChange={(e) => setForm({ ...form, sportsHistory: e.target.value })}
+          />
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-1">
+          <Label className="text-sm text-zinc-300">Rotina alimentar</Label>
+          <Textarea
+            className="mt-1 bg-black/60 text-white"
+            value={form.alimentalRoutine}
+            onChange={(e) =>
+              setForm({ ...form, alimentalRoutine: e.target.value })
+            }
+          />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-sm text-zinc-300">Rotina diária</Label>
+          <Textarea
+            className="mt-1 bg-black/60 text-white"
+            value={form.diaryRoutine}
+            onChange={(e) => setForm({ ...form, diaryRoutine: e.target.value })}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <Label className="text-sm text-zinc-300">Usa suplementos?</Label>
+        <div className="flex gap-4 text-sm text-zinc-200">
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="useSupplements"
+              value="true"
+              checked={form.useSupplements === true}
+              onChange={() => setForm({ ...form, useSupplements: true })}
+            />
+            Sim
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="useSupplements"
+              value="false"
+              checked={form.useSupplements === false}
+              onChange={() => setForm({ ...form, useSupplements: false })}
+            />
+            Não
+          </label>
+        </div>
+        <Field
+          label="Quais suplementos?"
+          value={form.whatSupplements}
+          onChange={(v) => setForm({ ...form, whatSupplements: v })}
         />
       </div>
-      <div className="md:col-span-2">
+
+      <div className="space-y-1">
         <Label className="text-sm text-zinc-300">Observações</Label>
         <Textarea
           className="mt-1 bg-black/60 text-white"
@@ -541,7 +830,134 @@ function HealthForm({
           onChange={(e) => setForm({ ...form, otherNotes: e.target.value })}
         />
       </div>
-      <div className="md:col-span-2 flex justify-end">
+
+      <div className="space-y-3 rounded-lg border border-zinc-800 bg-black/60 p-4">
+        <div className="flex items-center justify-between">
+          <h4 className="text-sm font-semibold text-zinc-200">
+            Dobras cutâneas / composição corporal
+          </h4>
+          <input
+            type="date"
+            className="rounded border border-zinc-700 bg-black/40 px-2 py-1 text-sm text-white"
+            value={skinfoldForm.measurementDate}
+            onChange={(e) =>
+              setSkinfoldForm({
+                ...skinfoldForm,
+                measurementDate: e.target.value,
+              })
+            }
+          />
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          <Field
+            label="Peitoral (mm)"
+            value={skinfoldForm.chest}
+            onChange={(v) => setSkinfoldForm({ ...skinfoldForm, chest: v })}
+            type="number"
+          />
+          <Field
+            label="Abdominal/Cintura (mm)"
+            value={skinfoldForm.abdominal}
+            onChange={(v) =>
+              setSkinfoldForm({ ...skinfoldForm, abdominal: v })
+            }
+            type="number"
+          />
+          <Field
+            label="Supra-ilíaca/Quadril (mm)"
+            value={skinfoldForm.suprailiac}
+            onChange={(v) =>
+              setSkinfoldForm({ ...skinfoldForm, suprailiac: v })
+            }
+            type="number"
+          />
+          <Field
+            label="Coxa (mm)"
+            value={skinfoldForm.thigh}
+            onChange={(v) => setSkinfoldForm({ ...skinfoldForm, thigh: v })}
+            type="number"
+          />
+          <Field
+            label="Tríceps (mm)"
+            value={skinfoldForm.triceps}
+            onChange={(v) => setSkinfoldForm({ ...skinfoldForm, triceps: v })}
+            type="number"
+          />
+          <Field
+            label="Axilar média (mm)"
+            value={skinfoldForm.axillary}
+            onChange={(v) => setSkinfoldForm({ ...skinfoldForm, axillary: v })}
+            type="number"
+          />
+          <Field
+            label="Subescapular (mm)"
+            value={skinfoldForm.subscapular}
+            onChange={(v) =>
+              setSkinfoldForm({ ...skinfoldForm, subscapular: v })
+            }
+            type="number"
+          />
+          <Field
+            label="Peso na medição (kg)"
+            value={skinfoldForm.weight}
+            onChange={(v) => setSkinfoldForm({ ...skinfoldForm, weight: v })}
+            type="number"
+          />
+          <Field
+            label="% Gordura (opcional)"
+            value={skinfoldForm.bodyFatPercentage}
+            onChange={(v) =>
+              setSkinfoldForm({ ...skinfoldForm, bodyFatPercentage: v })
+            }
+            type="number"
+          />
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm text-zinc-300">
+            <span>Método:</span>
+            <select
+              className="rounded border border-zinc-700 bg-black/60 px-2 py-1"
+              value={skinfoldForm.method}
+              onChange={(e) =>
+                setSkinfoldForm({ ...skinfoldForm, method: e.target.value })
+              }
+            >
+              <option value="3-dobras">Jackson & Pollock 3 dobras</option>
+              <option value="7-dobras">Jackson & Pollock 7 dobras</option>
+            </select>
+          </div>
+          {bodyFatResult && (
+            <div className="text-sm text-green-400">
+              % Gordura estimada: {bodyFatResult}
+            </div>
+          )}
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                const res = calculateBodyFat();
+                if (res !== null) {
+                  showSuccessToast(`% Gordura: ${res.toFixed(2)}%`);
+                }
+              }}
+              className="border-[#C2A537] text-[#C2A537] hover:bg-[#C2A537]/10"
+            >
+              Calcular % gordura
+            </Button>
+            <Button
+              type="button"
+              disabled={savingSkinfold}
+              onClick={() => void saveSkinfolds()}
+              className="bg-[#C2A537] text-black hover:bg-[#D4B547]"
+            >
+              {savingSkinfold ? "Salvando..." : "Salvar dobras"}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end">
         <Button
           type="submit"
           disabled={saving}

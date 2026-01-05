@@ -1,4 +1,4 @@
-import {
+﻿import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
@@ -13,6 +13,7 @@ import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import * as schema from '../database/schema';
 
 import {
+  tbFinancial,
   tbEmployeePermissions,
   tbPersonalData,
   tbStudentPermissions,
@@ -35,10 +36,10 @@ export class UsersService {
   ) {}
 
   /**
-   * Criar novo usuário
+   * Criar novo usuÃ¡rio
    */
   async create(createUserDto: CreateUserDto, requestingUserId?: string) {
-    // Verificar se email já existe
+    // Verificar se email jÃ¡ existe
     const existingEmail = await this.db
       .select()
       .from(tbPersonalData)
@@ -46,10 +47,10 @@ export class UsersService {
       .limit(1);
 
     if (existingEmail.length > 0) {
-      throw new ConflictException('Email já cadastrado');
+      throw new ConflictException('Email jÃ¡ cadastrado');
     }
 
-    // Verificar se CPF já existe
+    // Verificar se CPF jÃ¡ existe
     const existingCpf = await this.db
       .select()
       .from(tbPersonalData)
@@ -57,13 +58,13 @@ export class UsersService {
       .limit(1);
 
     if (existingCpf.length > 0) {
-      throw new ConflictException('CPF já cadastrado');
+      throw new ConflictException('CPF jÃ¡ cadastrado');
     }
 
     // Hash da senha
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-    // Criar usuário
+    // Criar usuÃ¡rio
     const [newUser] = await this.db
       .insert(tbUsers)
       .values({
@@ -84,7 +85,7 @@ export class UsersService {
       email: createUserDto.email,
     });
 
-    // Criar permissões padrão se for FUNCIONARIO
+    // Criar permissÃµes padrÃ£o se for FUNCIONARIO
     if (newUser.userRole === UserRole.FUNCIONARIO) {
       await this.db.insert(tbEmployeePermissions).values({
         userId: newUser.id,
@@ -96,7 +97,7 @@ export class UsersService {
       });
     }
 
-    // Criar permissões padrão se for ALUNO
+    // Criar permissÃµes padrÃ£o se for ALUNO
     if (newUser.userRole === UserRole.ALUNO) {
       await this.db.insert(tbStudentPermissions).values({
         userId: newUser.id,
@@ -111,13 +112,13 @@ export class UsersService {
       });
     }
 
-    // Retornar usuário sem senha
+    // Retornar usuÃ¡rio sem senha
     const { password, ...userWithoutPassword } = newUser;
     return userWithoutPassword;
   }
 
   /**
-   * Listar usuários com filtros e paginação
+   * Listar usuÃ¡rios com filtros e paginaÃ§Ã£o
    */
   async findAll(queryDto: QueryUsersDto) {
     const {
@@ -193,7 +194,7 @@ export class UsersService {
   }
 
   /**
-   * Buscar usuário por ID
+   * Buscar usuÃ¡rio por ID
    */
   async findOne(id: string) {
     const [user] = await this.db
@@ -218,14 +219,14 @@ export class UsersService {
       .limit(1);
 
     if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
+      throw new NotFoundException('UsuÃ¡rio nÃ£o encontrado');
     }
 
     return user;
   }
 
   /**
-   * Buscar usuário por email
+   * Buscar usuÃ¡rio por email
    */
   async findByEmail(email: string) {
     const [user] = await this.db
@@ -253,7 +254,7 @@ export class UsersService {
   }
 
   /**
-   * Buscar usuário por CPF
+   * Buscar usuÃ¡rio por CPF
    */
   async findByCpf(cpf: string) {
     const [user] = await this.db
@@ -281,26 +282,23 @@ export class UsersService {
   }
 
   /**
-   * Atualizar dados do usuário
+   * Atualizar dados do usuÃ¡rio
    */
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.findOne(id);
+    async update(id: string, updateUserDto: UpdateUserDto) {
+    await this.findOne(id);
 
     const updateData: any = { updatedAt: new Date() };
 
     if (updateUserDto.name !== undefined) updateData.name = updateUserDto.name;
     if (updateUserDto.isActive !== undefined)
       updateData.isActive = updateUserDto.isActive;
-    // role não faz parte do DTO atual; manter apenas campos existentes
 
-    // Atualizar tabela de usuários
     const [updatedUser] = await this.db
       .update(tbUsers)
       .set(updateData)
       .where(eq(tbUsers.id, id))
       .returning();
 
-    // Atualizar dados pessoais se fornecidos
     const personalUpdate: any = {};
     if ((updateUserDto as any).cpf !== undefined)
       personalUpdate.cpf = (updateUserDto as any).cpf;
@@ -312,6 +310,8 @@ export class UsersService {
       personalUpdate.telephone = updateUserDto.telephone;
     if (updateUserDto.email !== undefined)
       personalUpdate.email = updateUserDto.email;
+    if ((updateUserDto as any).sex !== undefined)
+      personalUpdate.sex = (updateUserDto as any).sex;
 
     if (Object.keys(personalUpdate).length > 0) {
       await this.db
@@ -320,9 +320,51 @@ export class UsersService {
         .where(eq(tbPersonalData.userId, id));
     }
 
+    const hasFinanceFields =
+      (updateUserDto as any).monthlyFeeValueInCents !== undefined ||
+      (updateUserDto as any).paymentMethod !== undefined ||
+      (updateUserDto as any).dueDate !== undefined;
+
+    if (hasFinanceFields) {
+      const financeUpdate: any = { updatedAt: new Date() };
+      if ((updateUserDto as any).monthlyFeeValueInCents !== undefined) {
+        financeUpdate.monthlyFeeValue = Number(
+          (updateUserDto as any).monthlyFeeValueInCents,
+        );
+      }
+      if ((updateUserDto as any).paymentMethod !== undefined) {
+        financeUpdate.paymentMethod = (updateUserDto as any).paymentMethod;
+      }
+      if ((updateUserDto as any).dueDate !== undefined) {
+        financeUpdate.dueDate = Number((updateUserDto as any).dueDate);
+      }
+
+      const existingFinance = await this.db
+        .select()
+        .from(tbFinancial)
+        .where(eq(tbFinancial.userId, id))
+        .limit(1);
+
+      if (existingFinance.length > 0) {
+        await this.db
+          .update(tbFinancial)
+          .set(financeUpdate)
+          .where(eq(tbFinancial.userId, id));
+      } else {
+        await this.db
+          .insert(tbFinancial)
+          .values({
+            userId: id,
+            monthlyFeeValue: financeUpdate.monthlyFeeValue ?? 0,
+            dueDate: financeUpdate.dueDate ?? 1,
+            paymentMethod: financeUpdate.paymentMethod ?? 'pix',
+            paid: false,
+          });
+      }
+    }
+
     return updatedUser;
   }
-
   /**
    * Atualizar senha
    */
@@ -334,12 +376,12 @@ export class UsersService {
       .limit(1);
 
     if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
+      throw new NotFoundException('UsuÃ¡rio nÃ£o encontrado');
     }
 
     if (dto.currentPassword) {
       if (!user.password) {
-        throw new BadRequestException('Usuário não possui senha definida');
+        throw new BadRequestException('UsuÃ¡rio nÃ£o possui senha definida');
       }
       const isValid = await bcrypt.compare(dto.currentPassword, user.password);
       if (!isValid) {
@@ -358,7 +400,7 @@ export class UsersService {
   }
 
   /**
-   * Atualizar permissões de funcionário
+   * Atualizar permissÃµes de funcionÃ¡rio
    */
   async updateEmployeePermissions(
     userId: string,
@@ -371,7 +413,7 @@ export class UsersService {
       .limit(1);
 
     if (!employee) {
-      throw new NotFoundException('Permissões de funcionário não encontradas');
+      throw new NotFoundException('PermissÃµes de funcionÃ¡rio nÃ£o encontradas');
     }
 
     const [updated] = await this.db
@@ -394,14 +436,14 @@ export class UsersService {
       .limit(1);
 
     if (!permissions) {
-      throw new NotFoundException('Permissões de funcionário não encontradas');
+      throw new NotFoundException('PermissÃµes de funcionÃ¡rio nÃ£o encontradas');
     }
 
     return permissions;
   }
 
   /**
-   * Atualizar permissões de aluno
+   * Atualizar permissÃµes de aluno
    */
   async updateStudentPermissions(
     userId: string,
@@ -414,7 +456,7 @@ export class UsersService {
       .limit(1);
 
     if (!studentPermissions) {
-      throw new NotFoundException('Permissões de aluno não encontradas');
+      throw new NotFoundException('PermissÃµes de aluno nÃ£o encontradas');
     }
 
     const [updated] = await this.db
@@ -437,24 +479,24 @@ export class UsersService {
       .limit(1);
 
     if (!permissions) {
-      throw new NotFoundException('Permissões de aluno não encontradas');
+      throw new NotFoundException('PermissÃµes de aluno nÃ£o encontradas');
     }
 
     return permissions;
   }
 
   /**
-   * Desativar usuário (soft delete)
+   * Desativar usuÃ¡rio (soft delete)
    */
   async softDelete(id: string, requestingUserId: string, role: UserRole) {
     if (role !== UserRole.MASTER && role !== UserRole.ADMIN) {
       throw new ForbiddenException(
-        'Apenas ADMIN ou MASTER podem desativar usuários',
+        'Apenas ADMIN ou MASTER podem desativar usuÃ¡rios',
       );
     }
 
     if (id === requestingUserId) {
-      throw new BadRequestException('Você não pode desativar a si mesmo');
+      throw new BadRequestException('VocÃª nÃ£o pode desativar a si mesmo');
     }
 
     const [user] = await this.db
@@ -464,7 +506,7 @@ export class UsersService {
       .limit(1);
 
     if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
+      throw new NotFoundException('UsuÃ¡rio nÃ£o encontrado');
     }
 
     const [updated] = await this.db
@@ -481,17 +523,15 @@ export class UsersService {
   }
 
   /**
-   * Exclusão definitiva com limpeza de dependências (check-ins, permissões, dados pessoais, financeiro, etc.)
+   * ExclusÃ£o definitiva com limpeza de dependÃªncias (check-ins, permissÃµes, dados pessoais, financeiro, etc.)
    */
-  async hardDelete(id: string, requestingUserId: string, role: UserRole) {
+    async hardDelete(id: string, requestingUserId: string, role: UserRole) {
     if (role !== UserRole.MASTER && role !== UserRole.ADMIN) {
-      throw new ForbiddenException(
-        'Apenas ADMIN ou MASTER podem excluir usuários',
-      );
+      throw new ForbiddenException('Apenas ADMIN ou MASTER podem excluir usuarios');
     }
 
     if (id === requestingUserId) {
-      throw new BadRequestException('Você não pode excluir a si mesmo');
+      throw new BadRequestException('Voce nao pode excluir a si mesmo');
     }
 
     const [user] = await this.db
@@ -501,44 +541,41 @@ export class UsersService {
       .limit(1);
 
     if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
+      throw new NotFoundException('Usuario nao encontrado');
     }
 
-    // Limpa dependências principais
+    // Liberar referencias de waitlist (convertedToUserId) para evitar FK
     await this.db
-      .delete(schema.tbCheckIns)
-      .where(eq(schema.tbCheckIns.userId, id));
+      .update(schema.tbWaitlist)
+      .set({ convertedToUserId: null, updatedAt: new Date() })
+      .where(eq(schema.tbWaitlist.convertedToUserId, id));
+
+    // Limpa dependencias principais
+    await this.db.delete(schema.tbCheckIns).where(eq(schema.tbCheckIns.userId, id));
     await this.db
       .delete(schema.tbEmployeePermissions)
       .where(eq(schema.tbEmployeePermissions.userId, id));
     await this.db
       .delete(schema.tbStudentPermissions)
       .where(eq(schema.tbStudentPermissions.userId, id));
-    await this.db
-      .delete(schema.tbHealthMetrics)
-      .where(eq(schema.tbHealthMetrics.userId, id));
-    await this.db
-      .delete(schema.tbFinancial)
-      .where(eq(schema.tbFinancial.userId, id));
+    await this.db.delete(schema.tbHealthMetrics).where(eq(schema.tbHealthMetrics.userId, id));
+    await this.db.delete(schema.tbFinancial).where(eq(schema.tbFinancial.userId, id));
     await this.db
       .delete(schema.tbBodyMeasurements)
       .where(eq(schema.tbBodyMeasurements.userId, id));
+    await this.db
+      .delete(schema.tbPasswordResetTokens)
+      .where(eq(schema.tbPasswordResetTokens.userId, id));
 
     // Dados pessoais
-    await this.db
-      .delete(tbPersonalData)
-      .where(eq(tbPersonalData.userId, id));
+    await this.db.delete(tbPersonalData).where(eq(tbPersonalData.userId, id));
 
-    // Finalmente, o usuário
+    // Finalmente, o usuario
     await this.db.delete(tbUsers).where(eq(tbUsers.id, id));
 
     return { success: true };
   }
-
-  /**
-   * Reativar usuário
-   */
-  async restore(id: string) {
+async restore(id: string) {
     const [user] = await this.db
       .select()
       .from(tbUsers)
@@ -546,7 +583,7 @@ export class UsersService {
       .limit(1);
 
     if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
+      throw new NotFoundException('UsuÃ¡rio nÃ£o encontrado');
     }
 
     const [updated] = await this.db
@@ -566,7 +603,10 @@ export class UsersService {
    * Alias usado no controller antigo
    */
   async remove(id: string, requestingUserId: string) {
-    // Recuperar role do solicitante não está disponível aqui, então restringimos a ADMIN/Master no controller
+    // Recuperar role do solicitante nÃ£o estÃ¡ disponÃ­vel aqui, entÃ£o restringimos a ADMIN/Master no controller
     return this.softDelete(id, requestingUserId, UserRole.ADMIN);
   }
 }
+
+
+

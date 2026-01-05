@@ -133,7 +133,14 @@ class ApiClient {
    * Metodo principal para fazer requisicoes a API
    */
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+    const primaryUrl = `${this.baseUrl}${endpoint}`;
+    const fallbackUrl =
+      typeof window !== "undefined"
+        ? `${window.location.origin}${
+            endpoint.startsWith("/api") ? endpoint : `/api${endpoint}`
+          }`
+        : null;
+    const urlsToTry = [primaryUrl, fallbackUrl].filter(Boolean) as string[];
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -145,40 +152,50 @@ class ApiClient {
       headers["Authorization"] = `Bearer ${this.accessToken}`;
     }
 
-    try {
-      let response = await fetch(url, {
-        ...options,
-        headers,
-      });
+    let lastError: unknown = null;
 
-      // Se receber 401, tenta renovar o token
-      if (response.status === 401 && this.refreshToken) {
-        const renewed = await this.refreshAccessToken();
+    for (const url of urlsToTry) {
+      try {
+        let response = await fetch(url, {
+          ...options,
+          headers,
+        });
 
-        if (renewed) {
-          headers["Authorization"] = `Bearer ${this.accessToken}`;
-          response = await fetch(url, {
-            ...options,
-            headers,
-          });
-        } else {
-          if (typeof window !== "undefined") {
-            window.location.href = "/login";
+        // Se receber 401, tenta renovar o token
+        if (response.status === 401 && this.refreshToken) {
+          const renewed = await this.refreshAccessToken();
+
+          if (renewed) {
+            headers["Authorization"] = `Bearer ${this.accessToken}`;
+            response = await fetch(url, {
+              ...options,
+              headers,
+            });
+          } else {
+            if (typeof window !== "undefined") {
+              window.location.href = "/login";
+            }
+            throw new Error("Sessao expirada");
           }
-          throw new Error("Sessao expirada");
+        }
+
+        if (!response.ok) {
+          const error: ApiError = await response.json();
+          throw new Error(error.message || "Erro na requisicao");
+        }
+
+        return await response.json();
+      } catch (error) {
+        lastError = error;
+        // tenta próxima URL se for erro de rede/TypeError
+        if (!(error instanceof TypeError)) {
+          break;
         }
       }
-
-      if (!response.ok) {
-        const error: ApiError = await response.json();
-        throw new Error(error.message || "Erro na requisicao");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Erro na requisicao:", error);
-      throw error;
     }
+
+    console.error("Erro na requisicao:", lastError);
+    throw lastError ?? new Error("Erro desconhecido na requisicao");
   }
 
   /**

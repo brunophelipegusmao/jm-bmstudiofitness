@@ -1,4 +1,4 @@
-import {
+﻿import {
   IsBoolean,
   IsInt,
   IsOptional,
@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 
 export class UpdateSettingsDto {
-  // Informações básicas
+  // InformaÃ§Ãµes bÃ¡sicas
   @IsOptional()
   @IsString()
   studioName?: string;
@@ -37,7 +37,7 @@ export class UpdateSettingsDto {
   @IsString()
   zipCode?: string;
 
-  // Horários de funcionamento
+  // HorÃ¡rios de funcionamento
   @IsOptional()
   @IsString()
   mondayOpen?: string;
@@ -110,7 +110,7 @@ export class UpdateSettingsDto {
   @Min(0)
   personalTrainingHourlyRate?: number;
 
-  // Políticas
+  // PolÃ­ticas
   @IsOptional()
   @IsInt()
   @Min(1)
@@ -138,7 +138,7 @@ export class UpdateSettingsDto {
   @IsBoolean()
   waitlistEnabled?: boolean;
 
-  // Modo Manutenção
+  // Modo ManutenÃ§Ã£o
   @IsOptional()
   @IsBoolean()
   maintenanceMode?: boolean;
@@ -147,7 +147,7 @@ export class UpdateSettingsDto {
   @IsString()
   maintenanceRedirectUrl?: string;
 
-  // Controle de Acesso às Rotas
+  // Controle de Acesso Ã s Rotas
   @IsOptional()
   @IsBoolean()
   routeHomeEnabled?: boolean;
@@ -184,7 +184,7 @@ export class UpdateSettingsDto {
   @IsBoolean()
   routeWaitlistEnabled?: boolean;
 
-  // Termos e políticas de texto
+  // Termos e polÃ­ticas de texto
   @IsOptional()
   @IsString()
   termsAndConditions?: string;
@@ -226,7 +226,36 @@ export class UpdateSettingsDto {
   @IsString()
   carouselImage7?: string;
 
-  // Customizações da home
+  // Legendas do carrossel
+  @IsOptional()
+  @IsString()
+  carouselCaption1?: string;
+
+  @IsOptional()
+  @IsString()
+  carouselCaption2?: string;
+
+  @IsOptional()
+  @IsString()
+  carouselCaption3?: string;
+
+  @IsOptional()
+  @IsString()
+  carouselCaption4?: string;
+
+  @IsOptional()
+  @IsString()
+  carouselCaption5?: string;
+
+  @IsOptional()
+  @IsString()
+  carouselCaption6?: string;
+
+  @IsOptional()
+  @IsString()
+  carouselCaption7?: string;
+
+  // CustomizaÃ§Ãµes da home
   @IsOptional()
   @IsBoolean()
   carouselEnabled?: boolean;
@@ -277,7 +306,7 @@ export class UpdateMaintenanceDto {
   @IsString()
   maintenanceRedirectUrl?: string;
 
-  // Permitir que a UI envie os flags de rotas junto (serão ignorados no service)
+  // Permitir que a UI envie os flags de rotas junto (serÃ£o ignorados no service)
   @IsOptional()
   @IsBoolean()
   routeHomeEnabled?: boolean;
@@ -352,3 +381,9 @@ export class UpdateRoutesDto {
   @IsBoolean()
   routeWaitlistEnabled?: boolean;
 }
+
+
+
+
+
+

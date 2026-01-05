@@ -14,6 +14,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../database/schema';
 import { CreateFinancialDto } from './dto/create-financial.dto';
 import { QueryFinancialDto } from './dto/query-financial.dto';
+import { RemindFinancialDto } from './dto/remind-financial.dto';
 import { MarkAsPaidDto, UpdateFinancialDto } from './dto/update-financial.dto';
 import { FinancialService } from './financial.service';
 
@@ -97,6 +98,19 @@ export class FinancialController {
   @Roles(UserRole.ADMIN, UserRole.MASTER)
   markAsPaid(@Param('id') id: string, @Body() markAsPaidDto: MarkAsPaidDto) {
     return this.financialService.markAsPaid(id, markAsPaidDto);
+  }
+
+  /**
+   * Enviar lembrete de cobrança (email/whatsapp)
+   */
+  @Post(':id/remind')
+  @Roles(UserRole.ADMIN, UserRole.MASTER)
+  remind(
+    @Param('id') id: string,
+    @Body() remindDto: RemindFinancialDto,
+    @CurrentUser('userId') userId: string,
+  ) {
+    return this.financialService.remind(id, remindDto, userId);
   }
 
   /**

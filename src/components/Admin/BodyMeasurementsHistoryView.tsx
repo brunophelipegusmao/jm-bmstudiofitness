@@ -16,26 +16,10 @@ interface BodyMeasurementsHistoryViewProps {
 type DbMeasurement = {
   id: string;
   userId: string;
-  weightKg: string;
-  heightCm: string;
-  chestCm: string | null;
-  waistCm: string | null;
-  abdomenCm: string | null;
-  hipCm: string | null;
-  rightArmCm: string | null;
-  leftArmCm: string | null;
-  rightThighCm: string | null;
-  leftThighCm: string | null;
-  rightCalfCm: string | null;
-  leftCalfCm: string | null;
+  measurementDate: string;
+  weight: string | null;
+  height: string | null;
   bodyFatPercentage: string | null;
-  tricepsSkinfoldMm: string | null;
-  subscapularSkinfoldMm: string | null;
-  chestSkinfoldMm: string | null;
-  axillarySkinfoldMm: string | null;
-  suprailiacSkinfoldMm: string | null;
-  abdominalSkinfoldMm: string | null;
-  thighSkinfoldMm: string | null;
   createdAt: string;
   measuredBy: string | null;
   notes: string | null;
@@ -109,10 +93,13 @@ export function BodyMeasurementsHistoryView({
           </TableHeader>
           <TableBody>
             {measurements.map((measurement) => {
-              const date = new Date(measurement.createdAt);
-              const weightKg = parseFloat(measurement.weightKg);
-              const heightCm = parseFloat(measurement.heightCm);
-              const imc = weightKg / Math.pow(heightCm / 100, 2);
+              const date = new Date(measurement.measurementDate || measurement.createdAt);
+              const weightKg = parseFloat(measurement.weight || "0");
+              const heightCm = parseFloat(measurement.height || "0");
+              const imc =
+                weightKg > 0 && heightCm > 0
+                  ? weightKg / Math.pow(heightCm / 100, 2)
+                  : 0;
               const bodyFatPercentage = measurement.bodyFatPercentage
                 ? parseFloat(measurement.bodyFatPercentage)
                 : null;
@@ -120,8 +107,12 @@ export function BodyMeasurementsHistoryView({
               return (
                 <TableRow key={measurement.id}>
                   <TableCell>{date.toLocaleDateString("pt-BR")}</TableCell>
-                  <TableCell>{weightKg.toFixed(1)}</TableCell>
-                  <TableCell>{heightCm.toFixed(1)}</TableCell>
+                  <TableCell>
+                    {weightKg > 0 ? weightKg.toFixed(1) : "-"}
+                  </TableCell>
+                  <TableCell>
+                    {heightCm > 0 ? heightCm.toFixed(1) : "-"}
+                  </TableCell>
                   <TableCell>
                     {bodyFatPercentage !== null
                       ? `${bodyFatPercentage.toFixed(1)}%`

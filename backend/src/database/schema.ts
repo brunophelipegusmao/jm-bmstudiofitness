@@ -1,4 +1,4 @@
-import {
+﻿import {
   boolean,
   date,
   integer,
@@ -9,7 +9,7 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 
-// Enum para roles de usuário
+// Enum para roles de usuÃ¡rio
 export enum UserRole {
   MASTER = 'master',
   ADMIN = 'admin',
@@ -18,7 +18,7 @@ export enum UserRole {
   ALUNO = 'aluno',
 }
 
-// Tabela de usuários
+// Tabela de usuÃ¡rios
 export const tbUsers = pgTable('tb_users', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: text('name').notNull(),
@@ -44,7 +44,7 @@ export const tbPersonalData = pgTable('tb_personal_data', {
   email: text('email').notNull().unique(),
 });
 
-// Tabela de dados de saúde
+// Tabela de dados de saÃºde
 export const tbHealthMetrics = pgTable('tb_health_metrics', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id')
@@ -66,7 +66,7 @@ export const tbHealthMetrics = pgTable('tb_health_metrics', {
   useSupplements: boolean('use_supplements').notNull(),
   whatSupplements: text('what_supplements'),
   otherNotes: text('other_notes'),
-  coachObservations: text('coach_observations'), // Público
+  coachObservations: text('coach_observations'), // PÃºblico
   coachObservationsParticular: text('coach_observations_particular'), // Privado
   updatedAt: date('updated_at').defaultNow().notNull(),
 });
@@ -78,7 +78,7 @@ export const tbFinancial = pgTable('tb_financial', {
     .notNull()
     .references(() => tbUsers.id),
   monthlyFeeValue: integer('monthly_fee_value').notNull(), // Em centavos
-  dueDate: integer('due_date').notNull(), // Dia do mês (1-31)
+  dueDate: integer('due_date').notNull(), // Dia do mÃªs (1-31)
   paid: boolean('paid').default(false).notNull(),
   paymentMethod: text('payment_method').notNull(),
   lastPaymentDate: date('last_payment_date'),
@@ -96,11 +96,11 @@ export const tbCheckIns = pgTable('tb_check_ins', {
   checkInTime: text('check_in_time').notNull(),
   method: text('method').notNull(),
   identifier: text('identifier').notNull(),
-  checkedInBy: uuid('checked_in_by').references(() => tbUsers.id), // Quem fez o check-in (funcionário/coach)
+  checkedInBy: uuid('checked_in_by').references(() => tbUsers.id), // Quem fez o check-in (funcionÃ¡rio/coach)
   createdAt: date('created_at').defaultNow().notNull(),
 });
 
-// Tabela de permissões de funcionários (granular)
+// Tabela de permissÃµes de funcionÃ¡rios (granular)
 export const tbEmployeePermissions = pgTable('tb_employee_permissions', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id')
@@ -116,7 +116,7 @@ export const tbEmployeePermissions = pgTable('tb_employee_permissions', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// Tabela de permissões de alunos (o que podem editar em saúde)
+// Tabela de permissÃµes de alunos (o que podem editar em saÃºde)
 export const tbStudentPermissions = pgTable('tb_student_permissions', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id')
@@ -135,10 +135,10 @@ export const tbStudentPermissions = pgTable('tb_student_permissions', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// Tabela de configurações do estúdio
+// Tabela de configuraÃ§Ãµes do estÃºdio
 export const tbStudioSettings = pgTable('tb_studio_settings', {
   id: uuid('id').defaultRandom().primaryKey(),
-  // Informações básicas
+  // InformaÃ§Ãµes bÃ¡sicas
   studioName: text('studio_name').notNull().default('JM Fitness Studio'),
   email: text('email').notNull().default('contato@jmfitness.com'),
   phone: text('phone').notNull().default('(21) 98099-5749'),
@@ -147,7 +147,7 @@ export const tbStudioSettings = pgTable('tb_studio_settings', {
   state: text('state').notNull().default('RJ'),
   zipCode: text('zip_code').notNull().default('20000-000'),
 
-  // Horários de funcionamento
+  // HorÃ¡rios de funcionamento
   mondayOpen: text('monday_open').notNull().default('06:00'),
   mondayClose: text('monday_close').notNull().default('22:00'),
   tuesdayOpen: text('tuesday_open').notNull().default('06:00'),
@@ -170,7 +170,7 @@ export const tbStudioSettings = pgTable('tb_studio_settings', {
     .notNull()
     .default(10000),
 
-  // Políticas
+  // PolÃ­ticas
   paymentDueDateDefault: integer('payment_due_date_default')
     .notNull()
     .default(10),
@@ -183,11 +183,11 @@ export const tbStudioSettings = pgTable('tb_studio_settings', {
   // Lista de Espera
   waitlistEnabled: boolean('waitlist_enabled').notNull().default(false),
 
-  // Modo Manutenção
+  // Modo ManutenÃ§Ã£o
   maintenanceMode: boolean('maintenance_mode').notNull().default(false),
   maintenanceRedirectUrl: text('maintenance_redirect_url').default('/waitlist'),
 
-  // Controle de Acesso às Rotas
+  // Controle de Acesso Ã s Rotas
   routeHomeEnabled: boolean('route_home_enabled').notNull().default(true),
   routeUserEnabled: boolean('route_user_enabled').notNull().default(true),
   routeCoachEnabled: boolean('route_coach_enabled').notNull().default(true),
@@ -207,12 +207,12 @@ export const tbStudioSettings = pgTable('tb_studio_settings', {
     .notNull()
     .default(true),
 
-  // Termos e políticas de texto
+  // Termos e polÃ­ticas de texto
   termsAndConditions: text('terms_and_conditions'),
   privacyPolicy: text('privacy_policy'),
   cancellationPolicy: text('cancellation_policy'),
 
-  // Imagens do carrossel da página inicial (máximo 7)
+  // Imagens do carrossel da pÃ¡gina inicial (mÃ¡ximo 7)
   carouselImage1: text('carousel_image_1').default('/gym1.jpg'),
   carouselImage2: text('carousel_image_2').default('/gym2.jpg'),
   carouselImage3: text('carousel_image_3').default('/gym3.jpg'),
@@ -220,9 +220,16 @@ export const tbStudioSettings = pgTable('tb_studio_settings', {
   carouselImage5: text('carousel_image_5'),
   carouselImage6: text('carousel_image_6'),
   carouselImage7: text('carousel_image_7'),
+  carouselCaption1: text('carousel_caption_1'),
+  carouselCaption2: text('carousel_caption_2'),
+  carouselCaption3: text('carousel_caption_3'),
+  carouselCaption4: text('carousel_caption_4'),
+  carouselCaption5: text('carousel_caption_5'),
+  carouselCaption6: text('carousel_caption_6'),
+  carouselCaption7: text('carousel_caption_7'),
   carouselEnabled: boolean('carousel_enabled').notNull().default(true),
 
-  // Conteúdo customizável da home
+  // ConteÃºdo customizÃ¡vel da home
   homeHistoryMarkdown: text('home_history_markdown'),
   homeHistoryImage: text('home_history_image'),
   foundationDate: date('foundation_date'),
@@ -250,7 +257,7 @@ export const tbPasswordResetTokens = pgTable('tb_password_reset_tokens', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-// Tabela de funcionários
+// Tabela de funcionÃ¡rios
 export const tbEmployees = pgTable('tb_employees', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id')
@@ -268,7 +275,7 @@ export const tbEmployees = pgTable('tb_employees', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// Tabela de histórico de salários
+// Tabela de histÃ³rico de salÃ¡rios
 export const tbEmployeeSalaryHistory = pgTable('tb_employee_salary_history', {
   id: uuid('id').defaultRandom().primaryKey(),
   employeeId: uuid('employee_id')
@@ -371,7 +378,7 @@ export const tbBlogPosts = pgTable('tb_blog_posts', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// Tabela de despesas do estúdio
+// Tabela de despesas do estÃºdio
 export const tbExpenses = pgTable('tb_expenses', {
   id: uuid('id').defaultRandom().primaryKey(),
   description: text('description').notNull(),
@@ -405,7 +412,7 @@ export const tbPaymentReceipts = pgTable('tb_payment_receipts', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-// Confirmações de presença em eventos
+// ConfirmaÃ§Ãµes de presenÃ§a em eventos
 export const tbEventAttendance = pgTable('tb_event_attendance', {
   id: uuid('id').defaultRandom().primaryKey(),
   eventId: uuid('event_id')
@@ -446,6 +453,7 @@ export const tbBodyMeasurements = pgTable('tb_body_measurements', {
   weight: text('weight'),
   height: text('height'),
   bodyFatPercentage: text('body_fat_percentage'),
+  bodyFatMethod: text('body_fat_method'),
   muscleMass: text('muscle_mass'),
   chest: text('chest'),
   waist: text('waist'),
@@ -456,8 +464,17 @@ export const tbBodyMeasurements = pgTable('tb_body_measurements', {
   rightThigh: text('right_thigh'),
   leftCalf: text('left_calf'),
   rightCalf: text('right_calf'),
+  // Dobras cutâneas (mm)
+  chestSkinfoldMm: text('chest_skinfold_mm'),
+  abdominalSkinfoldMm: text('abdominal_skinfold_mm'),
+  suprailiacSkinfoldMm: text('suprailiac_skinfold_mm'),
+  thighSkinfoldMm: text('thigh_skinfold_mm'),
+  tricepsSkinfoldMm: text('triceps_skinfold_mm'),
+  axillarySkinfoldMm: text('axillary_skinfold_mm'),
+  subscapularSkinfoldMm: text('subscapular_skinfold_mm'),
   notes: text('notes'),
   measuredBy: uuid('measured_by').references(() => tbUsers.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
