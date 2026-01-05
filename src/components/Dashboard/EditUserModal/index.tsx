@@ -291,7 +291,7 @@ export function EditUserModal({
     setIsLoading(true);
 
     // Remover confirmPassword e preparar dados
-    const { password, ...restData } = data;
+    const { password, confirmPassword, ...restData } = data;
 
     // Só incluir password se foi preenchida
     const updateData: Partial<FormData> & { id: string } = {

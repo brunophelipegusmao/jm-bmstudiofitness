@@ -1,28 +1,38 @@
+import { useEffect, useState } from "react";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 import {
   AlertCircle,
   BarChart3,
   Calendar,
   CheckCircle,
-  CreditCard,
+  Download,
+  FileText,
+  Layers,
   TrendingDown,
   TrendingUp,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
 
 import { getExpensesOverviewAction } from "@/actions/admin/get-expenses-overview-action";
+import { getExpensesAction } from "@/actions/admin/expenses-actions";
 import { getFinancialReportsAction } from "@/actions/admin/get-financial-reports-action";
 import { getPaymentDueDatesAction } from "@/actions/admin/get-payment-due-dates-action";
+import {
+  getStudentsPaymentsAction,
+  type StudentPaymentData,
+} from "@/actions/admin/get-students-payments-action";
 import { ExpenseForm, ExpenseTable } from "@/components/Admin/ExpenseManager";
-import { FinancialDashboardView } from "@/components/Dashboard/FinancialDashboardView";
-import { PaymentManagementView } from "@/components/Dashboard/PaymentManagementView";
+import type { Expense } from "@/components/Admin/ExpenseManager/types";
+import { sendFinancialReminderAction } from "@/actions/admin/send-financial-reminder-action";
 import { ReportsView } from "@/components/Dashboard/ReportsView";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCurrency } from "@/lib/payment-utils";
+
+type FinancialTabs = "alunos" | "estudio" | "geral" | "relatorios";
 
 export function FinancialTab() {
-  const [activeView, setActiveView] = useState<
-    "main" | "reports" | "payments" | "dashboard" | "expenses"
-  >("main");
+  const [activeTab, setActiveTab] = useState<FinancialTabs>("alunos");
   const [overview, setOverview] = useState({
     totalRevenue: "R$ 0,00",
     activeStudents: 0,
@@ -47,6 +57,49 @@ export function FinancialTab() {
     },
   });
   const [expenseVersion, setExpenseVersion] = useState(0);
+  const [studentPayments, setStudentPayments] = useState<StudentPaymentData[]>(
+    [],
+  );
+  const [loadingPayments, setLoadingPayments] = useState(false);
+  const [studentStatusFilter, setStudentStatusFilter] = useState<
+    "all" | "paid" | "pending"
+  >("all");
+  const [showReports, setShowReports] = useState(false);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [loadingExpenses, setLoadingExpenses] = useState(false);
+  const [reportScope, setReportScope] = useState<"alunos" | "estudio" | "geral">(
+    "alunos",
+  );
+  const [reportFormat, setReportFormat] = useState<"pdf" | "excel">("pdf");
+  const studentFields = [
+    "name",
+    "email",
+    "monthlyFeeValueInCents",
+    "dueDate",
+    "paymentMethod",
+    "paid",
+    "lastPaymentDate",
+    "planName",
+  ] as const;
+  const expenseFields = [
+    "description",
+    "category",
+    "amountInCents",
+    "dueDate",
+    "paid",
+    "paymentDate",
+    "paymentMethod",
+  ] as const;
+  const [selectedStudentFields, setSelectedStudentFields] = useState<string[]>(
+    [...studentFields],
+  );
+  const [selectedExpenseFields, setSelectedExpenseFields] = useState<string[]>(
+    [...expenseFields],
+  );
+  const [reminderChoice, setReminderChoice] = useState<Record<string, string>>(
+    {},
+  );
+  const [sendingReminder, setSendingReminder] = useState<string | null>(null);
 
   // Carregar dados ao montar o componente
   useEffect(() => {
@@ -54,6 +107,28 @@ export function FinancialTab() {
     loadDueDatesData();
     loadExpensesOverview();
   }, []);
+
+  useEffect(() => {
+    if (activeTab !== "alunos" && activeTab !== "relatorios") return;
+    const fetchPayments = async () => {
+      setLoadingPayments(true);
+      const data = await getStudentsPaymentsAction({ includePaid: true });
+      setStudentPayments(data);
+      setLoadingPayments(false);
+    };
+    void fetchPayments();
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab !== "estudio" && activeTab !== "relatorios") return;
+    const fetchExpenses = async () => {
+      setLoadingExpenses(true);
+      const result = await getExpensesAction();
+      setExpenses(result.expenses ?? []);
+      setLoadingExpenses(false);
+    };
+    void fetchExpenses();
+  }, [activeTab, expenseVersion]);
 
   const loadOverviewData = async () => {
     try {
@@ -102,45 +177,280 @@ export function FinancialTab() {
     }
   };
 
-  if (activeView === "reports") {
-    return <ReportsView onBack={() => setActiveView("main")} />;
-  }
-
-  if (activeView === "payments") {
-    return <PaymentManagementView onBack={() => setActiveView("main")} />;
-  }
-
-  if (activeView === "dashboard") {
-    return <FinancialDashboardView onBack={() => setActiveView("main")} />;
-  }
-
-  if (activeView === "expenses") {
+  const renderAlunos = () => {
+    const paid = studentPayments.filter((s) => s.paid);
+    const pending = studentPayments.filter((s) => !s.paid);
+    const filteredStudents =
+      studentStatusFilter === "all"
+        ? studentPayments
+        : studentStatusFilter === "paid"
+          ? paid
+          : pending;
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-white">
-            Gerenciamento de Despesas
-          </h2>
-          <button
-            onClick={() => setActiveView("main")}
-            className="text-slate-400 hover:text-white"
-          >
-            Voltar
-          </button>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="border-green-500/50 bg-green-900/20">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-green-400">
+                Receita Mensal
+              </CardTitle>
+              <TrendingUp className="h-4 w-4 text-green-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-300">
+                {overview.totalRevenue}
+              </div>
+              <p className="text-xs text-green-400">Total de mensalidades</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-blue-500/50 bg-blue-900/20">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-blue-400">
+                Alunos Ativos
+              </CardTitle>
+              <Users className="h-4 w-4 text-blue-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-300">
+                {overview.activeStudents}
+              </div>
+              <p className="text-xs text-blue-400">Com pagamento em dia</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-red-500/50 bg-red-900/20">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-red-400">
+                Inadimplência
+              </CardTitle>
+              <TrendingDown className="h-4 w-4 text-red-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-300">
+                {overview.totalPending}
+              </div>
+              <p className="text-xs text-red-400">Pagamentos pendentes</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-[#C2A537]/50 bg-[#C2A537]/10">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-[#C2A537]">
+                Taxa de Conversão
+              </CardTitle>
+              <BarChart3 className="h-4 w-4 text-[#C2A537]" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-[#C2A537]">
+                {overview.paymentRate}%
+              </div>
+              <p className="text-xs text-[#C2A537]">Pagamentos no prazo</p>
+            </CardContent>
+          </Card>
         </div>
-        <ExpenseForm onCreated={() => setExpenseVersion((v) => v + 1)} />
-        <ExpenseTable key={expenseVersion} />
+
+        <Card className="border-slate-700/60 bg-slate-800/40">
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle className="text-lg text-[#C2A537]">
+              Alunosem dia x em atraso
+            </CardTitle> 
+            <div className="flex gap-2 text-sm text-slate-300">
+              <span>
+                Em dia: <strong className="text-green-400">{paid.length}</strong>
+              </span>
+              <span>
+                Pendentes:{" "}
+                <strong className="text-orange-400">{pending.length}</strong>
+              </span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-3 flex flex-wrap gap-2">
+              {[
+                { id: "all", label: "Todos" },
+                { id: "paid", label: "Em dia" },
+                { id: "pending", label: "Em atraso" },
+              ].map((opt) => (
+                <button
+                  key={opt.id}
+                  onClick={() =>
+                    setStudentStatusFilter(opt.id as "all" | "paid" | "pending")
+                  }
+                  className={`rounded-md px-3 py-1 text-xs font-medium ${
+                    studentStatusFilter === opt.id
+                      ? "bg-[#C2A537] text-black"
+                      : "border border-slate-700 text-slate-200 hover:bg-slate-800"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-700 text-sm text-slate-200">
+                <thead className="bg-slate-900/60 text-xs uppercase text-slate-400">
+                  <tr>
+                    <th className="px-4 py-3 text-left">Aluno</th>
+                    <th className="px-4 py-3 text-left">Email / Cobrança</th>
+                    <th className="px-4 py-3 text-left">Valor</th>
+                    <th className="px-4 py-3 text-left">Vencimento</th>
+                    <th className="px-4 py-3 text-left">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800">
+                  {loadingPayments ? (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className="px-4 py-6 text-center text-slate-400"
+                      >
+                        Carregando alunos...
+                      </td>
+                    </tr>
+                  ) : studentPayments.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className="px-4 py-6 text-center text-slate-400"
+                      >
+                        Nenhuma cobrança encontrada.
+                      </td>
+                    </tr>
+                  ) : filteredStudents.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className="px-4 py-6 text-center text-slate-400"
+                      >
+                        Nenhum aluno para este filtro.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredStudents.map((p) => (
+                      <tr key={p.id} className="hover:bg-slate-800/40">
+                        <td className="px-4 py-3">{p.name || "Aluno"}</td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-col gap-2">
+                            <span>{p.email || "—"}</span>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <select
+                                className="rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white"
+                                value={reminderChoice[p.id] ?? "upcoming"}
+                                onChange={(e) =>
+                                  setReminderChoice((prev) => ({
+                                    ...prev,
+                                    [p.id]: e.target.value,
+                                  }))
+                                }
+                              >
+                                <option value="upcoming">
+                                  Mensalidade próxima do vencimento
+                                </option>
+                                <option value="today">Mensalidade vence hoje</option>
+                                <option value="blocked">
+                                  Em atraso (check-in bloqueado)
+                                </option>
+                              </select>
+                              <button
+                                onClick={() => {
+                                  setSendingReminder(p.id);
+                                  const template = (reminderChoice[p.id] ??
+                                    "upcoming") as
+                                    | "upcoming"
+                                    | "today"
+                                    | "blocked";
+                                  void sendFinancialReminderAction(
+                                    p.id,
+                                    "email",
+                                    template,
+                                  ).then((res) => {
+                                    if (res.success) {
+                                      alert("Cobrança enviada (simulada).");
+                                    } else {
+                                      alert(res.error ?? "Erro ao enviar cobrança.");
+                                    }
+                                    setSendingReminder(null);
+                                  });
+                                }}
+                                disabled={sendingReminder === p.id}
+                                className="rounded-md border border-slate-700 px-3 py-1 text-xs text-slate-100 hover:bg-slate-800"
+                              >
+                                {sendingReminder === p.id
+                                  ? "Enviando..."
+                                  : "Enviar cobrança"}
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          {p.formattedValue ??
+                            `R$ ${(
+                              (p.monthlyFeeValueInCents ?? p.planValue ?? 0) /
+                              100
+                            )
+                              .toFixed(2)
+                              .replace(".", ",")}`}
+                        </td>
+                        <td className="px-4 py-3">
+                          {typeof p.dueDate === "number"
+                            ? `Dia ${p.dueDate}`
+                            : p.dueDate instanceof Date
+                              ? p.dueDate.toLocaleDateString("pt-BR")
+                              : ""}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`rounded-full px-2 py-1 text-xs ${
+                              p.paid
+                                ? "bg-green-900/40 text-green-400"
+                                : "bg-orange-900/40 text-orange-300"
+                            }`}
+                          >
+                            {p.paid ? "Em dia" : "Em atraso"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
-  }
-  return (
+  };
+
+  const renderEstudio = () => (
     <div className="space-y-6">
-      {/* Visão Geral */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-white">Despesas do Estúdio</h2>
+        <div className="text-sm text-slate-300">
+          Pendentes:{" "}
+          <span className="text-orange-400">
+            {expensesOverview.pending.count} (
+            {expensesOverview.pending.totalFormatted})
+          </span>{" "}
+          · Pagas:{" "}
+          <span className="text-green-400">
+            {expensesOverview.paid.count} ({expensesOverview.paid.totalFormatted}
+            )
+          </span>
+        </div>
+      </div>
+      <ExpenseForm onCreated={() => setExpenseVersion((v) => v + 1)} />
+      <ExpenseTable key={expenseVersion} />
+    </div>
+  );
+
+  const renderGeral = () => (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="border-green-500/50 bg-green-900/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-green-400">
-              Receita Mensal
+              Receita (30 dias)
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-green-400" />
           </CardHeader>
@@ -148,31 +458,15 @@ export function FinancialTab() {
             <div className="text-2xl font-bold text-green-300">
               {overview.totalRevenue}
             </div>
-            <p className="text-xs text-green-400">Total de mensalidades</p>
+            <p className="text-xs text-green-400">Mensalidades recebidas</p>
           </CardContent>
         </Card>
-
-        <Card className="border-blue-500/50 bg-blue-900/20">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-400">
-              Alunos Ativos
-            </CardTitle>
-            <Users className="h-4 w-4 text-blue-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-300">
-              {overview.activeStudents}
-            </div>
-            <p className="text-xs text-blue-400">Com pagamento em dia</p>
-          </CardContent>
-        </Card>
-
         <Card className="border-red-500/50 bg-red-900/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-red-400">
               Inadimplência
             </CardTitle>
-            <TrendingDown className="h-4 w-4 text-red-400" />
+            <AlertCircle className="h-4 w-4 text-red-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-300">
@@ -181,40 +475,22 @@ export function FinancialTab() {
             <p className="text-xs text-red-400">Pagamentos pendentes</p>
           </CardContent>
         </Card>
-
-        <Card className="border-[#C2A537]/50 bg-[#C2A537]/10">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-[#C2A537]">
-              Taxa de Conversão
-            </CardTitle>
-            <BarChart3 className="h-4 w-4 text-[#C2A537]" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-[#C2A537]">
-              {overview.paymentRate}%
-            </div>
-            <p className="text-xs text-[#C2A537]">Pagamentos no prazo</p>
-          </CardContent>
-        </Card>
-
         <Card className="border-orange-500/50 bg-orange-900/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-orange-400">
               Despesas Pendentes
             </CardTitle>
-            <AlertCircle className="h-4 w-4 text-orange-400" />
+            <TrendingDown className="h-4 w-4 text-orange-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-300">
               {expensesOverview.pending.totalFormatted}
             </div>
             <p className="text-xs text-orange-400">
-              {expensesOverview.pending.count}{" "}
-              {expensesOverview.pending.count === 1 ? "despesa" : "despesas"}
+              {expensesOverview.pending.count} itens
             </p>
           </CardContent>
         </Card>
-
         <Card className="border-emerald-500/50 bg-emerald-900/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-emerald-400">
@@ -227,238 +503,383 @@ export function FinancialTab() {
               {expensesOverview.paid.totalFormatted}
             </div>
             <p className="text-xs text-emerald-400">
-              {expensesOverview.paid.count}{" "}
-              {expensesOverview.paid.count === 1 ? "despesa" : "despesas"}
+              {expensesOverview.paid.count} itens
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Seções de Funcionalidades Futuras */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Relatórios */}
-        <Card
-          className="cursor-pointer border-slate-700/50 bg-slate-800/30 transition-all duration-200 hover:border-[#C2A537]/50 hover:bg-slate-800/50"
-          onClick={() => setActiveView("reports")}
-        >
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-[#C2A537]">
-              <BarChart3 className="h-5 w-5" />
-              Relatórios Financeiros
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between rounded-lg border border-slate-600 bg-slate-700/50 p-4">
-                <div>
-                  <h4 className="font-medium text-white">Relatório Mensal</h4>
-                  <p className="text-sm text-slate-400">
-                    Receitas, despesas e margem de lucro
-                  </p>
-                </div>
-                <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
-                  Disponível
-                </div>
-              </div>
+      <Card className="border-slate-700/60 bg-slate-800/40">
+        <CardHeader className="flex items-center justify-between">
+          <CardTitle className="text-lg text-[#C2A537]">
+            Vencimentos e Acompanhamento
+          </CardTitle>
+          <div className="flex items-center gap-3 text-sm text-slate-300">
+            <span>Hoje: {dueDates.dueToday}</span>
+            <span>Próx. 7 dias: {dueDates.dueNext7Days}</span>
+            <span>Em atraso: {dueDates.overdue}</span>
+          </div>
+        </CardHeader>
+        <CardContent className="text-sm text-slate-200">
+          <p className="text-slate-400">
+            Use os filtros para priorizar cobranças e despesas. O cartão acima
+            resume a saúde financeira do período.
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
 
-              <div className="flex items-center justify-between rounded-lg border border-slate-600 bg-slate-700/50 p-4">
-                <div>
-                  <h4 className="font-medium text-white">
-                    Análise de Inadimplência
-                  </h4>
-                  <p className="text-sm text-slate-400">
-                    Tracking e previsão de pagamentos
-                  </p>
-                </div>
-                <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
-                  Disponível
-                </div>
-              </div>
+  const renderRelatorios = () => {
+    if (showReports) {
+      return <ReportsView onBack={() => setShowReports(false)} />;
+    }
 
-              <div className="flex items-center justify-between rounded-lg border border-slate-600 bg-slate-700/50 p-4">
-                <div>
-                  <h4 className="font-medium text-white">
-                    Projeção de Receita
-                  </h4>
-                  <p className="text-sm text-slate-400">
-                    Estimativas baseadas em histórico
-                  </p>
-                </div>
-                <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
-                  Disponível
-                </div>
-              </div>
+    const toggleField = (field: string, type: "student" | "expense") => {
+      if (type === "student") {
+        setSelectedStudentFields((prev) =>
+          prev.includes(field)
+            ? prev.filter((f) => f !== field)
+            : [...prev, field],
+        );
+      } else {
+        setSelectedExpenseFields((prev) =>
+          prev.includes(field)
+            ? prev.filter((f) => f !== field)
+            : [...prev, field],
+        );
+      }
+    };
+
+    const buildStudentRows = () =>
+      studentPayments.map((p) =>
+        selectedStudentFields.map((field) => {
+          switch (field) {
+            case "monthlyFeeValueInCents":
+              return formatCurrency(p.monthlyFeeValueInCents ?? p.planValue);
+            case "dueDate":
+              return typeof p.dueDate === "number"
+                ? `Dia ${p.dueDate}`
+                : p.dueDate instanceof Date
+                  ? p.dueDate.toLocaleDateString("pt-BR")
+                  : "";
+            case "paymentMethod":
+              return (p as StudentPaymentData & { paymentMethod?: string })
+                .paymentMethod ?? "";
+            case "paid":
+              return p.paid ? "Pago" : "Pendente";
+            case "lastPaymentDate":
+              return p.lastPaymentDate
+                ? p.lastPaymentDate.toLocaleDateString("pt-BR")
+                : "";
+            default:
+              return (p as Record<string, unknown>)[field] ?? "";
+          }
+        }),
+      );
+
+    const buildExpenseRows = () =>
+      expenses.map((e) =>
+        selectedExpenseFields.map((field) => {
+          switch (field) {
+            case "amountInCents":
+              return formatCurrency(e.amountInCents ?? 0);
+            case "dueDate":
+              return e.dueDate
+                ? new Date(e.dueDate).toLocaleDateString("pt-BR")
+                : "";
+            case "paymentDate":
+              return e.paymentDate
+                ? new Date(e.paymentDate).toLocaleDateString("pt-BR")
+                : "";
+            case "paid":
+              return e.paid ? "Pago" : "Pendente";
+            default:
+              return (e as Record<string, unknown>)[field] ?? "";
+          }
+        }),
+      );
+
+    const handleGenerate = () => {
+      const hasStudents = reportScope === "alunos" || reportScope === "geral";
+      const hasExpenses = reportScope === "estudio" || reportScope === "geral";
+      if (
+        (hasStudents && studentPayments.length === 0) ||
+        (hasExpenses && expenses.length === 0)
+      ) {
+        alert("Sem dados carregados para gerar este relatório.");
+        return;
+      }
+
+      const studentHead = selectedStudentFields;
+      const expenseHead = selectedExpenseFields;
+
+      if (reportFormat === "excel") {
+        const rows: string[] = [];
+        if (hasStudents) {
+          rows.push(studentHead.join(";"));
+          rows.push(
+            ...buildStudentRows().map((r) =>
+              r.map((c) => String(c ?? "")).join(";"),
+            ),
+          );
+          rows.push("");
+        }
+        if (hasExpenses) {
+          rows.push(expenseHead.join(";"));
+          rows.push(
+            ...buildExpenseRows().map((r) =>
+              r.map((c) => String(c ?? "")).join(";"),
+            ),
+          );
+        }
+        const csv = rows.join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "relatorio-financeiro.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+      } else {
+        const doc = new jsPDF();
+        let y = 10;
+        if (hasStudents) {
+          doc.text("Alunos", 14, y);
+          y += 4;
+          autoTable(doc, {
+            head: [studentHead],
+            body: buildStudentRows(),
+            startY: y,
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [194, 165, 55] },
+          });
+          y = (doc as any).lastAutoTable.finalY + 10;
+        }
+        if (hasExpenses) {
+          doc.text("Estúdio (despesas)", 14, y);
+          y += 4;
+          autoTable(doc, {
+            head: [expenseHead],
+            body: buildExpenseRows(),
+            startY: y,
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [194, 165, 55] },
+          });
+        }
+        doc.save("relatorio-financeiro.pdf");
+      }
+    };
+
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-white">Relatórios</h2>
+            <p className="text-slate-400">
+              Gere visões consolidadas de receitas e despesas
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowReports(true)}
+              className="flex items-center gap-2 rounded-md border border-slate-600 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800"
+            >
+              <FileText className="h-4 w-4" />
+              Abrir relatórios
+            </button>
+            <button
+              onClick={() => setActiveTab("geral")}
+              className="flex items-center gap-2 rounded-md border border-slate-600 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800"
+            >
+              <Layers className="h-4 w-4" />
+              Voltar
+            </button>
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card className="border-slate-700/60 bg-slate-800/40">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-[#C2A537]">
+                <Download className="h-4 w-4" />
+                Exportar
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-slate-200">
+              <p>Exporte dados financeiros consolidados em PDF ou Excel.</p>
+              <p className="text-slate-400">
+                Use a aba “Alunos” para exportar cobranças ou “Estúdio” para
+                despesas. Relatórios completos estão no botão acima.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-700/60 bg-slate-800/40">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-[#C2A537]">
+                <Calendar className="h-4 w-4" />
+                Períodos e filtros
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-slate-200">
+              <p>
+                Ajuste períodos e selecione colunas dentro dos próprios
+                relatórios ou nas telas de Alunos/Estúdio.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="border-slate-700/60 bg-slate-800/40">
+          <CardHeader className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-lg text-[#C2A537]">
+                Configurar relatório
+              </CardTitle>
+              <p className="text-sm text-slate-400">
+                Escolha o escopo, campos e formato (PDF ou Excel)
+              </p>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Gestão de Pagamentos */}
-        <Card
-          className="cursor-pointer border-slate-700/50 bg-slate-800/30 transition-all duration-200 hover:border-[#C2A537]/50 hover:bg-slate-800/50"
-          onClick={() => setActiveView("payments")}
-        >
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-[#C2A537]">
-              <CreditCard className="h-5 w-5" />
-              Gestão de Pagamentos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between rounded-lg border border-slate-600 bg-slate-700/50 p-4">
-                <div>
-                  <h4 className="font-medium text-white">
-                    Gateway de Pagamento
-                  </h4>
-                  <p className="text-sm text-slate-400">
-                    Integração com PIX, cartão e boleto
-                  </p>
-                </div>
-                <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
-                  Disponível
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between rounded-lg border border-slate-600 bg-slate-700/50 p-4">
-                <div>
-                  <h4 className="font-medium text-white">
-                    Cobrança Automática
-                  </h4>
-                  <p className="text-sm text-slate-400">
-                    Lembretes por email e WhatsApp
-                  </p>
-                </div>
-                <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
-                  Disponível
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between rounded-lg border border-slate-600 bg-slate-700/50 p-4">
-                <div>
-                  <h4 className="font-medium text-white">Planos e Promoções</h4>
-                  <p className="text-sm text-slate-400">
-                    Gestão de diferentes modalidades
-                  </p>
-                </div>
-                <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
-                  Disponível
-                </div>
-              </div>
+            <div className="flex gap-2">
+              <select
+                value={reportScope}
+                onChange={(e) =>
+                  setReportScope(e.target.value as "alunos" | "estudio" | "geral")
+                }
+                className="rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white"
+              >
+                <option value="alunos">Alunos</option>
+                <option value="estudio">Estúdio</option>
+                <option value="geral">Geral (alunos + estúdio)</option>
+              </select>
+              <select
+                value={reportFormat}
+                onChange={(e) =>
+                  setReportFormat(e.target.value as "pdf" | "excel")
+                }
+                className="rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white"
+              >
+                <option value="pdf">PDF</option>
+                <option value="excel">Excel (CSV)</option>
+              </select>
+              <button
+                onClick={handleGenerate}
+                className="rounded-md bg-[#C2A537] px-3 py-2 text-sm font-semibold text-black hover:bg-[#d4b547]"
+              >
+                Gerar
+              </button>
             </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {(reportScope === "alunos" || reportScope === "geral") && (
+              <div>
+                <p className="text-sm font-medium text-white">
+                  Campos (Alunos)
+                </p>
+                <div className="mt-2 grid gap-2 md:grid-cols-3">
+                  {studentFields.map((field) => (
+                    <label key={field} className="flex items-center gap-2 text-sm text-slate-200">
+                      <input
+                        type="checkbox"
+                        checked={selectedStudentFields.includes(field)}
+                        onChange={() => toggleField(field, "student")}
+                      />
+                      <span>
+                        {{
+                          name: "Aluno",
+                          email: "Email",
+                          monthlyFeeValueInCents: "Valor",
+                          dueDate: "Vencimento",
+                          paymentMethod: "Método",
+                          paid: "Status",
+                          lastPaymentDate: "Último pagamento",
+                          planName: "Plano",
+                        }[field] ?? field}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {(reportScope === "estudio" || reportScope === "geral") && (
+              <div>
+                <p className="text-sm font-medium text-white">
+                  Campos (Estúdio - Despesas)
+                </p>
+                <div className="mt-2 grid gap-2 md:grid-cols-3">
+                  {expenseFields.map((field) => (
+                    <label key={field} className="flex items-center gap-2 text-sm text-slate-200">
+                      <input
+                        type="checkbox"
+                        checked={selectedExpenseFields.includes(field)}
+                        onChange={() => toggleField(field, "expense")}
+                      />
+                      <span>
+                        {{
+                          description: "Descrição",
+                          category: "Categoria",
+                          amountInCents: "Valor",
+                          dueDate: "Vencimento",
+                          paid: "Status",
+                          paymentDate: "Data pagamento",
+                          paymentMethod: "Método",
+                        }[field] ?? field}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {reportScope === "geral" && (
+              <p className="text-xs text-slate-400">
+                O relatório geral inclui as seções selecionadas de alunos e
+                estúdio.
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
+    );
+  };
 
-      {/* Gerenciamento de Despesas */}
-      <Card
-        className="cursor-pointer border-slate-700/50 bg-slate-800/30 transition-all duration-200 hover:border-[#C2A537]/50 hover:bg-slate-800/50"
-        onClick={() => setActiveView("expenses")}
-      >
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-[#C2A537]">
-            <TrendingDown className="h-5 w-5" />
-            Gestão de Despesas
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg border border-slate-600 bg-slate-700/50 p-4">
-              <div>
-                <h4 className="font-medium text-white">Despesas Fixas</h4>
-                <p className="text-sm text-slate-400">
-                  Aluguel, energia, água, etc.
-                </p>
-              </div>
-              <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
-                Disponível
-              </div>
-            </div>
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center gap-2">
+        {[
+          { id: "alunos", label: "Alunos", icon: Users },
+          { id: "estudio", label: "Estúdio", icon: AlertCircle },
+          { id: "geral", label: "Geral", icon: BarChart3 },
+          { id: "relatorios", label: "Relatórios", icon: FileText },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setShowReports(false);
+                setActiveTab(tab.id as FinancialTabs);
+              }}
+              className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition ${
+                isActive
+                  ? "bg-[#C2A537] text-black shadow-lg shadow-[#C2A537]/30"
+                  : "border border-slate-700 text-slate-200 hover:bg-slate-800"
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
 
-            <div className="flex items-center justify-between rounded-lg border border-slate-600 bg-slate-700/50 p-4">
-              <div>
-                <h4 className="font-medium text-white">Despesas Variáveis</h4>
-                <p className="text-sm text-slate-400">
-                  Manutenção, materiais, etc.
-                </p>
-              </div>
-              <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
-                Disponível
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between rounded-lg border border-slate-600 bg-slate-700/50 p-4">
-              <div>
-                <h4 className="font-medium text-white">Relatórios</h4>
-                <p className="text-sm text-slate-400">Análise de custos</p>
-              </div>
-              <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
-                Disponível
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Dashboard de Acompanhamento */}
-      <Card
-        className="cursor-pointer border-slate-700/50 bg-slate-800/30 transition-all duration-200 hover:border-[#C2A537]/50 hover:bg-slate-800/50"
-        onClick={() => setActiveView("dashboard")}
-      >
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-[#C2A537]">
-            <Calendar className="h-5 w-5" />
-            Dashboard de Acompanhamento
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="space-y-3">
-              <h4 className="font-medium text-white">Vencimentos Hoje</h4>
-              <div className="rounded-lg border border-slate-600 bg-slate-700/50 p-4">
-                <p className="text-2xl font-bold text-orange-400">
-                  {dueDates.dueToday}
-                </p>
-                <p className="text-sm text-slate-400">mensalidades</p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <h4 className="font-medium text-white">Próximos 7 dias</h4>
-              <div className="rounded-lg border border-slate-600 bg-slate-700/50 p-4">
-                <p className="text-2xl font-bold text-yellow-400">
-                  {dueDates.dueNext7Days}
-                </p>
-                <p className="text-sm text-slate-400">vencimentos</p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <h4 className="font-medium text-white">Em Atraso</h4>
-              <div className="rounded-lg border border-slate-600 bg-slate-700/50 p-4">
-                <p className="text-2xl font-bold text-red-400">
-                  {dueDates.overdue}
-                </p>
-                <p className="text-sm text-slate-400">mensalidades</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 flex items-center justify-between rounded-lg border border-slate-600 bg-slate-700/50 p-6">
-            <div>
-              <h3 className="text-lg font-medium text-white">
-                Sistema de Acompanhamento Completo
-              </h3>
-              <p className="text-sm text-slate-400">
-                Dashboard completo com análise de vencimentos, pagamentos e
-                inadimplência
-              </p>
-            </div>
-            <div className="rounded bg-[#C2A537]/20 px-3 py-1 text-xs text-[#C2A537]">
-              Disponível
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {activeTab === "alunos" && renderAlunos()}
+      {activeTab === "estudio" && renderEstudio()}
+      {activeTab === "geral" && renderGeral()}
+      {activeTab === "relatorios" && renderRelatorios()}
     </div>
   );
 }

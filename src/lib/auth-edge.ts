@@ -12,6 +12,15 @@ function getBaseApiUrl() {
   );
 }
 
+function getFallbackApiUrls() {
+  const urls = [getBaseApiUrl()];
+  if (typeof window !== "undefined") {
+    const origin = window.location.origin;
+    urls.push(`${origin}/api`);
+  }
+  return urls;
+}
+
 function parseAccessTokenFromRequest(request: Request): string | null {
   const authHeader = request.headers.get("authorization");
   if (authHeader?.startsWith("Bearer ")) {
@@ -29,29 +38,36 @@ function parseAccessTokenFromRequest(request: Request): string | null {
 async function fetchUserWithToken(
   accessToken: string,
 ): Promise<EdgeAuthUser | null> {
-  try {
-    const res = await fetch(`${getBaseApiUrl()}/auth/me`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
-    });
+  const urls = getFallbackApiUrls();
+  for (const baseUrl of urls) {
+    try {
+      const res = await fetch(`${baseUrl}/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+      });
 
-    if (!res.ok) return null;
-    const data = await res.json();
-    const id = data.id || data.userId || data.user?.id;
-    if (!id) return null;
+      if (!res.ok) continue;
+      const data = await res.json();
+      const id = data.id || data.userId || data.user?.id;
+      if (!id) continue;
 
-    return {
-      id,
-      email: data.email || data.user?.email,
-      role: data.role || data.userRole || data.user?.role,
-    };
-  } catch (error) {
-    console.error("[auth-edge] Failed to fetch user:", error);
-    return null;
+      return {
+        id,
+        email: data.email || data.user?.email,
+        role: data.role || data.userRole || data.user?.role,
+      };
+    } catch (error) {
+      // Tenta próxima URL apenas se for erro de rede (ex.: ECONNREFUSED)
+      if (!(error instanceof TypeError)) {
+        console.error("[auth-edge] Failed to fetch user:", error);
+        return null;
+      }
+    }
   }
+  return null;
 }
 
 export async function isAuthenticated(): Promise<boolean> {

@@ -77,8 +77,14 @@ export class UsersController {
    * Atualizar dados do usuário
    */
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  @Roles(UserRole.ADMIN, UserRole.MASTER, UserRole.FUNCIONARIO)
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser('role') role: UserRole,
+    @CurrentUser('userId') requesterId: string,
+  ) {
+    return this.usersService.update(id, updateUserDto, role, requesterId);
   }
 
   /**

@@ -284,8 +284,21 @@ export class UsersService {
   /**
    * Atualizar dados do usuÃ¡rio
    */
-    async update(id: string, updateUserDto: UpdateUserDto) {
-    await this.findOne(id);
+    async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    requestingRole: UserRole,
+    requestingUserId: string,
+  ) {
+    const target = await this.findOne(id);
+    if (
+      target?.userRole === UserRole.ADMIN &&
+      requestingRole !== UserRole.MASTER
+    ) {
+      throw new ForbiddenException(
+        'Somente MASTER pode alterar usuários ADMIN',
+      );
+    }
 
     const updateData: any = { updatedAt: new Date() };
 

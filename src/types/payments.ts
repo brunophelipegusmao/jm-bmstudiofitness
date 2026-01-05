@@ -11,6 +11,7 @@ export interface StudentPaymentData {
   planValue: number;
   paid: boolean;
   isUpToDate?: boolean;
+  paymentMethod?: string;
   paymentDate?: Date | null;
   lastPaymentDate?: Date | null;
   dueDate: Date | number;

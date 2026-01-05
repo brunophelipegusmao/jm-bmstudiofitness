@@ -28,6 +28,18 @@ export class UpdateUserDto {
   bornDate?: string;
 
   @IsOptional()
+  @IsString()
+  cpf?: string;
+
+  @IsOptional()
+  @IsString()
+  sex?: string;
+
+  @IsOptional()
+  @IsString()
+  userRole?: string;
+
+  @IsOptional()
   @IsBoolean()
   isActive?: boolean;
 }

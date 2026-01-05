@@ -8,24 +8,37 @@ export interface UpdateUserPayload {
   address?: string;
   cpf?: string;
   bornDate?: string;
-  password?: string;
-  confirmPassword?: string;
+  sex?: string;
+  isActive?: boolean;
   userRole?: string;
   // extensible for additional fields
   [key: string]: unknown;
 }
 
 export async function updateUserAction(
-  adminId: string,
+  _adminId: string,
   payload: UpdateUserPayload,
 ): Promise<{ success: boolean; message?: string; error?: string }> {
   try {
     const { id, ...data } = payload;
-    await apiClient.patch(`/users/${id}`, { ...data, adminId });
-    return { success: true, message: "Usuário atualizado com sucesso" };
+
+    // Enviar apenas campos aceitos pelo DTO do backend
+    const allowed: Record<string, unknown> = {};
+    if (data.name !== undefined) allowed.name = data.name;
+    if (data.email !== undefined) allowed.email = data.email;
+    if (data.telephone !== undefined) allowed.telephone = data.telephone;
+    if (data.address !== undefined) allowed.address = data.address;
+    if (data.bornDate !== undefined) allowed.bornDate = data.bornDate;
+    if (data.cpf !== undefined) allowed.cpf = data.cpf;
+    if (data.sex !== undefined) allowed.sex = data.sex;
+    if (data.userRole !== undefined) allowed.userRole = data.userRole;
+    if (data.isActive !== undefined) allowed.isActive = data.isActive;
+
+    await apiClient.patch(`/users/${id}`, allowed);
+    return { success: true, message: "Usuario atualizado com sucesso" };
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Erro ao atualizar usuário";
+      error instanceof Error ? error.message : "Erro ao atualizar usuario";
     return { success: false, error: message, message };
   }
 }

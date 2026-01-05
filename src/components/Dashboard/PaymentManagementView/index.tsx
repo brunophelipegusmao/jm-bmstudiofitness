@@ -17,6 +17,8 @@ import {
   Wallet,
   Zap,
 } from "lucide-react";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -64,6 +66,19 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
     Array<{ id: string; name: string; email?: string }>
   >([]);
   const [loadingStudents, setLoadingStudents] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const exportableFields = [
+    { key: "name", label: "Aluno" },
+    { key: "email", label: "Email" },
+    { key: "monthlyFeeValueInCents", label: "Valor (R$)" },
+    { key: "dueDate", label: "Vencimento" },
+    { key: "paymentMethod", label: "Método" },
+    { key: "paid", label: "Status" },
+    { key: "lastPaymentDate", label: "Último pagamento" },
+  ] as const;
+  const [selectedFields, setSelectedFields] = useState<string[]>(
+    exportableFields.map((f) => f.key),
+  );
   const [editingPayment, setEditingPayment] = useState<StudentPaymentData | null>(
     null,
   );
@@ -189,18 +204,36 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
 
   const exportCsv = (dataset: StudentPaymentData[]) => {
     const rows = [
-      ["Aluno", "Email", "Valor", "Vencimento", "Status"],
-      ...dataset.map((p) => [
-        p.name ?? "",
-        p.email ?? "",
-        (p.monthlyFeeValueInCents ?? p.planValue ?? 0) / 100,
-        typeof p.dueDate === "number"
-          ? `Dia ${p.dueDate}`
-          : p.dueDate instanceof Date
-            ? format(p.dueDate, "dd/MM/yyyy")
-            : "",
-        p.paid ? "Pago" : "Pendente",
-      ]),
+      exportableFields
+        .filter((f) => selectedFields.includes(f.key))
+        .map((f) => f.label),
+      ...dataset.map((p) =>
+        exportableFields
+          .filter((f) => selectedFields.includes(f.key))
+          .map((f) => {
+            switch (f.key) {
+              case "monthlyFeeValueInCents":
+                return (p.monthlyFeeValueInCents ?? p.planValue ?? 0) / 100;
+              case "dueDate":
+                return typeof p.dueDate === "number"
+                  ? `Dia ${p.dueDate}`
+                  : p.dueDate instanceof Date
+                    ? format(p.dueDate, "dd/MM/yyyy")
+                    : "";
+              case "paid":
+                return p.paid ? "Pago" : "Pendente";
+              case "paymentMethod":
+                return (p as StudentPaymentData & { paymentMethod?: string })
+                  .paymentMethod ?? "";
+              case "lastPaymentDate":
+                return p.lastPaymentDate
+                  ? format(p.lastPaymentDate, "dd/MM/yyyy")
+                  : "";
+              default:
+                return (p as Record<string, unknown>)[f.key] ?? "";
+            }
+          }),
+      ),
     ];
     const csv = rows.map((r) => r.join(";")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -210,6 +243,49 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
     a.download = "cobrancas.csv";
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const exportPdf = (dataset: StudentPaymentData[]) => {
+    const doc = new jsPDF();
+    const head = [
+      exportableFields
+        .filter((f) => selectedFields.includes(f.key))
+        .map((f) => f.label),
+    ];
+    const body = dataset.map((p) =>
+      exportableFields
+        .filter((f) => selectedFields.includes(f.key))
+        .map((f) => {
+          switch (f.key) {
+            case "monthlyFeeValueInCents":
+              return formatCurrency(p.monthlyFeeValueInCents ?? p.planValue);
+            case "dueDate":
+              return typeof p.dueDate === "number"
+                ? `Dia ${p.dueDate}`
+                : p.dueDate instanceof Date
+                  ? format(p.dueDate, "dd/MM/yyyy")
+                  : "";
+            case "paid":
+              return p.paid ? "Pago" : "Pendente";
+            case "paymentMethod":
+              return (p as StudentPaymentData & { paymentMethod?: string })
+                .paymentMethod ?? "";
+            case "lastPaymentDate":
+              return p.lastPaymentDate
+                ? format(p.lastPaymentDate, "dd/MM/yyyy")
+                : "";
+            default:
+              return (p as Record<string, unknown>)[f.key] ?? "";
+          }
+        }),
+    );
+    autoTable(doc, {
+      head,
+      body,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [194, 165, 55] },
+    });
+    doc.save("cobrancas.pdf");
   };
 
   const formatDueDate = (due: StudentPaymentData["dueDate"]) => {
@@ -866,19 +942,19 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
       </div>
 
       <Card className="border-slate-700/50 bg-slate-800/30">
-        <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <CardTitle className="text-[#C2A537]">Cobranças em tempo real</CardTitle>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => void loadPayments()}
-            className="border-slate-600 text-slate-300 hover:bg-slate-800"
-          >
-            Atualizar
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-3 md:grid-cols-3">
+          <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <CardTitle className="text-[#C2A537]">Cobranças em tempo real</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void loadPayments()}
+              className="border-slate-600 text-slate-300 hover:bg-slate-800"
+            >
+              Atualizar
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3 md:grid-cols-3">
             <Card className="border-red-500/50 bg-red-900/20">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-red-400">
@@ -975,6 +1051,61 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
               onChange={(e) => setEndDateFilter(e.target.value)}
             />
           </div>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowExportModal((v) => !v)}
+              className="border-slate-600 text-slate-200 hover:bg-slate-800"
+            >
+              {showExportModal ? "Fechar exportação" : "Exportar PDF/Excel"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportCsv(filteredPayments)}
+              className="border-slate-600 text-slate-200 hover:bg-slate-800"
+            >
+              Exportar CSV (Excel)
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportPdf(filteredPayments)}
+              className="border-slate-600 text-slate-200 hover:bg-slate-800"
+            >
+              Exportar PDF
+            </Button>
+          </div>
+
+          {showExportModal && (
+            <div className="mt-3 rounded-lg border border-slate-700 bg-slate-800/50 p-4 text-sm text-slate-200">
+              <p className="mb-2 text-[#C2A537]">Campos do relatório</p>
+              <div className="grid gap-2 md:grid-cols-3">
+                {exportableFields.map((field) => (
+                  <label key={field.key} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedFields.includes(field.key)}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setSelectedFields((prev) =>
+                          checked
+                            ? [...prev, field.key]
+                            : prev.filter((f) => f !== field.key),
+                        );
+                      }}
+                    />
+                    <span>{field.label}</span>
+                  </label>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-slate-400">
+                Será usado o filtro atual e todos os alunos carregados (pagos e pendentes).
+              </p>
+            </div>
+          )}
 
           <div className="mt-4 space-y-3 rounded-lg border border-slate-700 bg-slate-800/40 p-4">
             <div className="flex items-center justify-between">

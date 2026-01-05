@@ -14,6 +14,7 @@ type FinancialRecord = {
   dueDate?: number | string;
   paid?: boolean;
   lastPaymentDate?: string | null;
+  paymentMethod?: string | null;
 };
 
 export async function getStudentsPaymentsAction(options?: {
@@ -56,6 +57,7 @@ function mapFinancialToPayment(record: FinancialRecord): StudentPaymentData {
     planName: "Mensalidade",
     planValue: monthlyFee,
     paid: !!record.paid,
+    paymentMethod: record.paymentMethod ?? undefined,
     isUpToDate: !!record.paid && !isOverdue,
     paymentDate: record.lastPaymentDate ? new Date(record.lastPaymentDate) : null,
     lastPaymentDate: record.lastPaymentDate

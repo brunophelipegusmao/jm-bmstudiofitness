@@ -54,6 +54,19 @@ export class FinancialController {
   }
 
   /**
+   * Relatório combinado (alunos/estúdio/geral)
+   */
+  @Get('report/full')
+  @Roles(UserRole.ADMIN, UserRole.MASTER)
+  async getFullReport(
+    @Query('scope') scope: 'alunos' | 'estudio' | 'geral' = 'alunos',
+    @Query('includePaid') includePaid = 'true',
+  ) {
+    const includePaidBool = includePaid !== 'false';
+    return this.financialService.getFullReport(scope, includePaidBool);
+  }
+
+  /**
    * Buscar por ID (restrito a ADMIN/MASTER)
    */
   @Get(':id')
