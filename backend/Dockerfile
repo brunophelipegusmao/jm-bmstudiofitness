@@ -13,16 +13,17 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
-# Runtime apenas com dependências de produção
+# Runtime com artefatos do builder
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3001
 ENV HOST=0.0.0.0
 
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps && npm cache clean --force
+# Leva node_modules (prod) e dist já gerados
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
+COPY package.json package-lock.json ./
 
 EXPOSE 3001
 
