@@ -3,14 +3,14 @@ FROM node:20-alpine AS base
 ARG NEXT_PUBLIC_API_URL="http://backend:3001/api"
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
-# Instalar dependências apenas para produção
+# Instalar dependências (inclui dev para build)
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copiar apenas arquivos de dependências
 COPY package.json package-lock.json* ./
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci && npm cache clean --force
 
 # Build da aplicação
 FROM base AS builder
