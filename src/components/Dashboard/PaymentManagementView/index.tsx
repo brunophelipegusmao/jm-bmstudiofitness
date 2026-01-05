@@ -1,6 +1,9 @@
 "use client";
 
+// eslint-disable-next-line simple-import-sort/imports
 import { format } from "date-fns";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 import {
   Bell,
   CheckCircle,
@@ -17,18 +20,16 @@ import {
   Wallet,
   Zap,
 } from "lucide-react";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { createFinancialRecordAction } from "@/actions/admin/create-financial-action";
-import { getStudentsPaymentsAction } from "@/actions/admin/get-students-payments-action";
-import { sendFinancialReminderAction } from "@/actions/admin/send-financial-reminder-action";
-import { markFinancialPaidAction } from "@/actions/admin/mark-financial-paid-action";
-import { updateFinancialRecordAction } from "@/actions/admin/update-financial-record-action";
 import { getPlansAdminAction, type Plan } from "@/actions/admin/plans-actions";
+import { getStudentsPaymentsAction } from "@/actions/admin/get-students-payments-action";
+import { markFinancialPaidAction } from "@/actions/admin/mark-financial-paid-action";
 import { searchStudentsAction } from "@/actions/admin/search-students-action";
+import { sendFinancialReminderAction } from "@/actions/admin/send-financial-reminder-action";
+import { updateFinancialRecordAction } from "@/actions/admin/update-financial-record-action";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/payment-utils";
@@ -225,8 +226,12 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
                 return p.lastPaymentDate
                   ? format(p.lastPaymentDate, "dd/MM/yyyy")
                   : "";
-              default:
-                return (p as Record<string, unknown>)[f.key] ?? "";
+              default: {
+                const fallback = (p as unknown as Record<string, unknown>)[
+                  f.key
+                ];
+                return fallback ?? "";
+              }
             }
           }),
       ),
@@ -249,9 +254,9 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
         .map((f) => f.label),
     ];
     const body = dataset.map((p) =>
-      exportableFields
-        .filter((f) => selectedFields.includes(f.key))
-        .map((f) => {
+          exportableFields
+            .filter((f) => selectedFields.includes(f.key))
+            .map((f) => {
           switch (f.key) {
             case "monthlyFeeValueInCents":
               return formatCurrency(p.monthlyFeeValueInCents ?? p.planValue);
@@ -272,8 +277,12 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
               return p.lastPaymentDate
                 ? format(p.lastPaymentDate, "dd/MM/yyyy")
                 : "";
-            default:
-              return (p as Record<string, unknown>)[f.key] ?? "";
+                default: {
+                  const fallback = (p as unknown as Record<string, unknown>)[
+                    f.key
+                  ];
+                  return fallback ?? "";
+                }
           }
         }),
     );
@@ -1409,6 +1418,7 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
                               void sendFinancialReminderAction(
                                 payment.id,
                                 "email",
+                                "upcoming",
                               ).then((res) =>
                                 res.success
                                   ? toast.success("Lembrete por email enviado")
@@ -1428,6 +1438,7 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
                               void sendFinancialReminderAction(
                                 payment.id,
                                 "whatsapp",
+                                "upcoming",
                               ).then((res) =>
                                 res.success
                                   ? toast.success("Lembrete WhatsApp enviado")

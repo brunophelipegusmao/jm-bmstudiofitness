@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Users, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { getPublicSettingsAction } from "@/actions/get-public-settings-action";
 export default function WaitlistModal() {
@@ -12,11 +12,7 @@ export default function WaitlistModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [hasChecked, setHasChecked] = useState(false);
 
-  useEffect(() => {
-    checkWaitlistStatus();
-  }, []);
-
-  async function checkWaitlistStatus() {
+  const checkWaitlistStatus = useCallback(async () => {
     try {
       const result = await getPublicSettingsAction();
       const waitlistEnabled = result.data?.waitlistEnabled ?? false;
@@ -31,7 +27,11 @@ export default function WaitlistModal() {
     } finally {
       setHasChecked(true);
     }
-  }
+  }, [router]);
+
+  useEffect(() => {
+    void checkWaitlistStatus();
+  }, [checkWaitlistStatus]);
 
   function handleClose() {
     setIsOpen(false);

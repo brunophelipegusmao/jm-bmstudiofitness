@@ -6,6 +6,11 @@ type UserPayload = {
   name?: string;
   userRole?: UserRole;
   role?: UserRole;
+  financial?: {
+    monthlyFeeValueInCents?: number;
+    paymentMethod?: string;
+    dueDate?: number;
+  };
   personalData?: {
     email?: string;
     cpf?: string;
@@ -47,10 +52,9 @@ export async function getUserDataAction(userId: string): Promise<{
         address: personal.address,
         cpf: personal.cpf,
         bornDate: personal.bornDate,
-        monthlyFeeValueInCents: (user as any)?.financial
-          ?.monthlyFeeValueInCents,
-        paymentMethod: (user as any)?.financial?.paymentMethod,
-        dueDate: (user as any)?.financial?.dueDate,
+        monthlyFeeValueInCents: user?.financial?.monthlyFeeValueInCents,
+        paymentMethod: user?.financial?.paymentMethod,
+        dueDate: user?.financial?.dueDate,
       },
     };
   } catch (error) {

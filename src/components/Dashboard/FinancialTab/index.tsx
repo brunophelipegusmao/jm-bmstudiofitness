@@ -66,7 +66,6 @@ export function FinancialTab() {
   >("all");
   const [showReports, setShowReports] = useState(false);
   const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [loadingExpenses, setLoadingExpenses] = useState(false);
   const [reportScope, setReportScope] = useState<
     "alunos" | "estudio" | "geral"
   >("alunos");
@@ -122,10 +121,8 @@ export function FinancialTab() {
   useEffect(() => {
     if (activeTab !== "estudio" && activeTab !== "relatorios") return;
     const fetchExpenses = async () => {
-      setLoadingExpenses(true);
       const result = await getExpensesAction();
       setExpenses(result.expenses ?? []);
-      setLoadingExpenses(false);
     };
     void fetchExpenses();
   }, [activeTab, expenseVersion]);
@@ -666,7 +663,10 @@ export function FinancialTab() {
             styles: { fontSize: 8 },
             headStyles: { fillColor: [194, 165, 55] },
           });
-          y = (doc as any).lastAutoTable.finalY + 10;
+          const lastAutoY = (doc as unknown as {
+            lastAutoTable?: { finalY?: number };
+          }).lastAutoTable?.finalY;
+          y = (lastAutoY ?? y) + 10;
         }
         if (hasExpenses) {
           doc.text("Estúdio (despesas)", 14, y);

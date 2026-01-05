@@ -96,7 +96,7 @@ export async function getWaitlistAdminAction(): Promise<{
       const entries = await apiClient.get<WaitlistApi[]>("/waitlist");
       const mapped = mapWaitlist(entries);
       return { success: true, data: mapped };
-    } catch (err) {
+    } catch {
       // Fallback para endpoint público se o token não estiver presente
       const entries = await apiClient.get<WaitlistApi[]>("/waitlist/public");
       const mapped = mapWaitlist(entries);

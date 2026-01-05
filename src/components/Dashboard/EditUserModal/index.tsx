@@ -310,6 +310,7 @@ export function EditUserModal({
 
     // Remover confirmPassword e preparar dados
     const { password, confirmPassword, ...restData } = data;
+    void confirmPassword;
 
     // Converter mensalidade (reais) para centavos antes de enviar
     const mensalidadeReais = restData.monthlyFeeValueInCents;

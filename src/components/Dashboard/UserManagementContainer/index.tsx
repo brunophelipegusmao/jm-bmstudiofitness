@@ -55,16 +55,19 @@ export function UserManagementContainer() {
     }
   }, []);
 
-  const handleDeleteUser = useCallback(async (userId: string) => {
-    const result = await deleteUserAction(userId);
-    if (result.success) {
-      setUsers((prev) => prev.filter((user) => user.id !== userId));
-      // Recarrega para garantir consistência
-      void loadUsers();
-    } else {
-      throw new Error(result.error || "Erro ao excluir usuario");
-    }
-  }, []);
+  const handleDeleteUser = useCallback(
+    async (userId: string) => {
+      const result = await deleteUserAction(userId);
+      if (result.success) {
+        setUsers((prev) => prev.filter((user) => user.id !== userId));
+        // Recarrega para garantir consistência
+        void loadUsers();
+      } else {
+        throw new Error(result.error || "Erro ao excluir usuario");
+      }
+    },
+    [loadUsers],
+  );
 
   const handleUpdateUser = useCallback((userId: string, updates: Partial<User>) => {
     setUsers((prev) =>

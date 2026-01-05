@@ -13,8 +13,8 @@ import {
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { getEventsCalendarAction } from "@/actions/public/event-action";
