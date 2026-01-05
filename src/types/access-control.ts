@@ -53,6 +53,7 @@ export class PermissionChecker {
 
   // Verifica se pode acessar dados de outro usuário
   canAccessUserData(targetUserId: string): boolean {
+    if (this.user.role === UserRole.MASTER) return true;
     if (this.user.role === UserRole.ADMIN) return true;
     if (this.user.role === UserRole.PROFESSOR) return true;
     if (this.user.role === UserRole.FUNCIONARIO) return true;
@@ -83,7 +84,14 @@ export class PermissionChecker {
 
   // Verifica se é admin
   isAdmin(): boolean {
-    return this.user.role === UserRole.ADMIN;
+    return (
+      this.user.role === UserRole.ADMIN || this.user.role === UserRole.MASTER
+    );
+  }
+
+  // Verifica se é master
+  isMaster(): boolean {
+    return this.user.role === UserRole.MASTER;
   }
 
   // Verifica se é professor

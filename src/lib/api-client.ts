@@ -290,7 +290,11 @@ class ApiClient {
     return response;
   }
 
-  async login(data: { login: string; password: string }): Promise<TokenResponse> {
+  async login(data: {
+    login: string;
+    password: string;
+    mode?: "master" | "admin";
+  }): Promise<TokenResponse> {
     const response = await this.post<TokenResponse>("/auth/login", data);
     this.setTokens(response.accessToken, response.refreshToken);
     return response;

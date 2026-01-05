@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { eq, isNull, sql } from 'drizzle-orm';
 
 import { db } from '../database/db';
-import { tbStudioSettings } from '../database/schema';
+import { tbStudioSettings, tbUsers } from '../database/schema';
 import {
   UpdateMaintenanceDto,
   UpdateRoutesDto,
@@ -35,6 +35,36 @@ export class SettingsService {
    */
   async updateSettings(updateSettingsDto: UpdateSettingsDto) {
     const currentSettings = await this.getSettings();
+
+    const mergedImages = {
+      carouselImage1:
+        updateSettingsDto.carouselImage1 ?? currentSettings.carouselImage1,
+      carouselImage2:
+        updateSettingsDto.carouselImage2 ?? currentSettings.carouselImage2,
+      carouselImage3:
+        updateSettingsDto.carouselImage3 ?? currentSettings.carouselImage3,
+      carouselImage4:
+        updateSettingsDto.carouselImage4 ?? currentSettings.carouselImage4,
+      carouselImage5:
+        updateSettingsDto.carouselImage5 ?? currentSettings.carouselImage5,
+      carouselImage6:
+        updateSettingsDto.carouselImage6 ?? currentSettings.carouselImage6,
+      carouselImage7:
+        updateSettingsDto.carouselImage7 ?? currentSettings.carouselImage7,
+    };
+
+    const carouselEnabled =
+      updateSettingsDto.carouselEnabled ?? currentSettings.carouselEnabled;
+
+    const imagesCount = Object.values(mergedImages).filter(
+      (img) => img !== null && img !== undefined && img !== '',
+    ).length;
+
+    if (carouselEnabled && imagesCount < 3) {
+      throw new BadRequestException(
+        'Carrossel habilitado requer pelo menos 3 imagens',
+      );
+    }
 
     const [updated] = await db
       .update(tbStudioSettings)
@@ -139,6 +169,13 @@ export class SettingsService {
    */
   async getPublicSettings() {
     const settings = await this.getSettings();
+    const [{ totalUsers }] =
+      (await db
+        .select({
+          totalUsers: sql<number>`count(*)`,
+        })
+        .from(tbUsers)
+        .where(isNull(tbUsers.deletedAt))) ?? [];
     return {
       studioName: settings.studioName,
       email: settings.email,
@@ -184,6 +221,18 @@ export class SettingsService {
       carouselImage5: settings.carouselImage5,
       carouselImage6: settings.carouselImage6,
       carouselImage7: settings.carouselImage7,
+      carouselEnabled: settings.carouselEnabled,
+      // Conteúdo customizado da home
+      homeHistoryMarkdown: settings.homeHistoryMarkdown,
+      homeHistoryImage: settings.homeHistoryImage,
+      foundationDate: settings.foundationDate,
+      totalUsers: totalUsers ?? 0,
+      promoBannerEnabled: settings.promoBannerEnabled,
+      promoBannerMediaType: settings.promoBannerMediaType,
+      promoBannerUrl: settings.promoBannerUrl,
+      promoBannerTitle: settings.promoBannerTitle,
+      promoBannerDescription: settings.promoBannerDescription,
+      promoBannerLink: settings.promoBannerLink,
     };
   }
 

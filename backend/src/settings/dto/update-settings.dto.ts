@@ -225,6 +225,48 @@ export class UpdateSettingsDto {
   @IsOptional()
   @IsString()
   carouselImage7?: string;
+
+  // Customizações da home
+  @IsOptional()
+  @IsBoolean()
+  carouselEnabled?: boolean;
+
+  @IsOptional()
+  @IsString()
+  homeHistoryMarkdown?: string;
+
+  @IsOptional()
+  @IsString()
+  homeHistoryImage?: string;
+
+  @IsOptional()
+  @IsString()
+  foundationDate?: string;
+
+  // Banner/promo
+  @IsOptional()
+  @IsBoolean()
+  promoBannerEnabled?: boolean;
+
+  @IsOptional()
+  @IsString()
+  promoBannerMediaType?: 'image' | 'video';
+
+  @IsOptional()
+  @IsString()
+  promoBannerUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  promoBannerTitle?: string;
+
+  @IsOptional()
+  @IsString()
+  promoBannerDescription?: string;
+
+  @IsOptional()
+  @IsString()
+  promoBannerLink?: string;
 }
 
 export class UpdateMaintenanceDto {

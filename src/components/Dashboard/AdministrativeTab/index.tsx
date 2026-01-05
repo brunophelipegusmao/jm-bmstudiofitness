@@ -216,46 +216,46 @@ export function AdministrativeTab({
   });
 
   // Validação client-side antes do submit
-  const validateForm = (formElement: HTMLFormElement): boolean => {
-    const requiredFields = [
-      { id: "name", label: "Nome Completo" },
-      { id: "email", label: "Email" },
-      { id: "cpf", label: "CPF" },
-      { id: "sex", label: "Sexo" },
-      { id: "telephone", label: "Telefone" },
-      { id: "bornDate", label: "Data de Nascimento" },
-      { id: "address", label: "Endereço" },
-      { id: "monthlyFee", label: "Mensalidade" },
-      { id: "paymentMethod", label: "Método de Pagamento" },
-      { id: "dueDate", label: "Dia de Vencimento" },
-    ];
+  // const validateForm = (formElement: HTMLFormElement): boolean => {
+  //   const requiredFields = [
+  //     { id: "name", label: "Nome Completo" },
+  //     { id: "email", label: "Email" },
+  //     { id: "cpf", label: "CPF" },
+  //     { id: "sex", label: "Sexo" },
+  //     { id: "telephone", label: "Telefone" },
+  //     { id: "bornDate", label: "Data de Nascimento" },
+  //     { id: "address", label: "Endereço" },
+  //     { id: "monthlyFee", label: "Mensalidade" },
+  //     { id: "paymentMethod", label: "Método de Pagamento" },
+  //     { id: "dueDate", label: "Dia de Vencimento" },
+  //   ];
 
-    const missingFields: string[] = [];
+  //   const missingFields: string[] = [];
 
-    requiredFields.forEach((field) => {
-      const element = formElement.querySelector(`#${field.id}`) as
-        | HTMLInputElement
-        | HTMLTextAreaElement
-        | HTMLSelectElement;
-      if (element && (!element.value || element.value.trim() === "")) {
-        missingFields.push(field.label);
-      }
-    });
+  //   requiredFields.forEach((field) => {
+  //     const element = formElement.querySelector(`#${field.id}`) as
+  //       | HTMLInputElement
+  //       | HTMLTextAreaElement
+  //       | HTMLSelectElement;
+  //     if (element && (!element.value || element.value.trim() === "")) {
+  //       missingFields.push(field.label);
+  //     }
+  //   });
 
-    if (missingFields.length > 0) {
-      setFeedbackModalConfig({
-        type: "warning",
-        title: "Campos Obrigatórios Faltando",
-        message:
-          "Por favor, preencha todos os campos obrigatórios antes de salvar.",
-        details: missingFields.map((field) => `${field} não foi preenchido`),
-      });
-      setShowFeedbackModal(true);
-      return false;
-    }
+  //   if (missingFields.length > 0) {
+  //     setFeedbackModalConfig({
+  //       type: "warning",
+  //       title: "Campos Obrigatórios Faltando",
+  //       message:
+  //         "Por favor, preencha todos os campos obrigatórios antes de salvar.",
+  //       details: missingFields.map((field) => `${field} não foi preenchido`),
+  //     });
+  //     setShowFeedbackModal(true);
+  //     return false;
+  //   }
 
-    return true;
-  };
+  //   return true;
+  // };
 
   // Carregar estatísticas ao montar o componente
   useEffect(() => {

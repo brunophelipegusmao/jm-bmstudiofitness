@@ -3,10 +3,12 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Users, X } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { getPublicSettingsAction } from "@/actions/get-public-settings-action";
 export default function WaitlistModal() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [hasChecked, setHasChecked] = useState(false);
 
@@ -20,7 +22,9 @@ export default function WaitlistModal() {
       const waitlistEnabled = result.data?.waitlistEnabled ?? false;
 
       if (waitlistEnabled) {
-        setIsOpen(true);
+        // Redireciona diretamente para a página de lista de espera
+        router.replace("/waitlist");
+        return;
       }
     } catch (error) {
       console.error("Erro ao verificar configurações:", error);

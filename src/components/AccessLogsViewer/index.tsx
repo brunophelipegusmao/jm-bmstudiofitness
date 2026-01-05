@@ -1,7 +1,7 @@
 "use client";
 
 import { Calendar, Clock, Download, Eye, FileText, User } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,11 +27,7 @@ export function AccessLogsViewer({
   const [logs, setLogs] = useState<AccessLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadLogs();
-  }, [studentId]);
-
-  const loadLogs = () => {
+  const loadLogs = useCallback(() => {
     setIsLoading(true);
     try {
       const savedLogs = localStorage.getItem("jmfitness-access-logs");
@@ -56,7 +52,11 @@ export function AccessLogsViewer({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [studentId]);
+
+  useEffect(() => {
+    loadLogs();
+  }, [loadLogs]);
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -85,11 +85,11 @@ export function AccessLogsViewer({
   const getActionLabel = (action: string) => {
     switch (action) {
       case "view":
-        return "Visualização";
+        return "Visualiza├º├úo";
       case "edit":
-        return "Edição";
+        return "Edi├º├úo";
       case "export":
-        return "Exportação";
+        return "Exporta├º├úo";
       default:
         return "Desconhecido";
     }
@@ -97,7 +97,7 @@ export function AccessLogsViewer({
 
   const exportLogs = () => {
     const csvContent = [
-      "Data,Hora,Estudante,Tipo de Dado,Ação,Usuário",
+      "Data,Hora,Estudante,Tipo de Dado,A├º├úo,Usu├írio",
       ...logs.map((log) => {
         const { date, time } = formatTimestamp(log.timestamp);
         return `${date},${time},${log.studentId},${log.dataType},${getActionLabel(log.action)},${log.userId}`;
@@ -140,7 +140,7 @@ export function AccessLogsViewer({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-[#C2A537]">
             <FileText className="h-5 w-5" />
-            Log de Acessos {studentId && "(Estudante Específico)"}
+            Log de Acessos {studentId && "(Estudante Espec├¡fico)"}
           </CardTitle>
           {logs.length > 0 && (
             <Button
@@ -191,7 +191,7 @@ export function AccessLogsViewer({
                     </div>
 
                     <div className="text-slate-400">
-                      {getActionLabel(log.action)} • {log.dataType}
+                      {getActionLabel(log.action)} ÔÇó {log.dataType}
                       {!studentId && (
                         <span className="ml-2 rounded bg-slate-700 px-2 py-1 text-xs">
                           {log.studentId}
@@ -208,3 +208,4 @@ export function AccessLogsViewer({
     </Card>
   );
 }
+

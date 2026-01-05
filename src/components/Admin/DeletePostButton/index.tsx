@@ -7,6 +7,7 @@ type DeletePostButtonProps = {
   title: string;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function DeletePostButton(_props: DeletePostButtonProps) {
   // Componente temporariamente desabilitado
   return (

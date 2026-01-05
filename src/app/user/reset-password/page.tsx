@@ -44,6 +44,7 @@ const formSchema = z
 function ResetPasswordForm() {
   const [loading, setLoading] = useState(false);
   const [tokenValidated, setTokenValidated] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
@@ -70,7 +71,7 @@ function ResetPasswordForm() {
         } else {
           toast.error(data.message || "Token inválido ou expirado");
         }
-      } catch (error) {
+      } catch {
         toast.error("Erro ao validar token. Tente novamente.");
       }
     };
@@ -101,19 +102,22 @@ function ResetPasswordForm() {
         },
         body: JSON.stringify({
           token,
-          password: values.newPassword,
+          newPassword: values.newPassword,
         }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        toast.success("Senha redefinida com sucesso!");
-        window.location.href = "/user/login";
+        setShowSuccessModal(true);
+        // Redireciona apÇüs breve delay
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 2000);
       } else {
         toast.error(data.message || "Erro ao redefinir senha");
       }
-    } catch (error) {
+    } catch {
       toast.error("Erro ao redefinir senha. Tente novamente.");
     } finally {
       setLoading(false);
@@ -135,7 +139,7 @@ function ResetPasswordForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-black via-slate-900 to-black p-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-linear-to-br from-black via-slate-900 to-black p-4">
       <Card className="w-full max-w-md border-slate-700 bg-slate-800/50 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-white">
@@ -204,6 +208,19 @@ function ResetPasswordForm() {
           </Form>
         </CardContent>
       </Card>
+
+      {showSuccessModal && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-xl border border-[#C2A537]/40 bg-slate-900/90 p-6 text-center shadow-lg shadow-[#C2A537]/20">
+            <h3 className="text-xl font-semibold text-[#C2A537]">
+              Senha redefinida com sucesso
+            </h3>
+            <p className="mt-3 text-slate-200">
+              Tudo pronto! Você será redirecionado para a página inicial.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

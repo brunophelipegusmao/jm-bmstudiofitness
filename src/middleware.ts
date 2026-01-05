@@ -67,11 +67,28 @@ export async function middleware(request: NextRequest) {
 
   const accessToken = request.cookies.get("accessToken")?.value;
   const routeSettings = await fetchRouteSettings(request);
+  const loginPaths = [
+    "/admin/login",
+    "/user/login",
+    "/coach/login",
+    "/employee/login",
+  ];
 
   if (routeSettings?.maintenanceMode) {
     const isAdminArea = pathname.startsWith("/admin");
+    const isWaitlistPage = pathname.startsWith("/waitlist");
     const isMaintenancePage = pathname.startsWith("/maintenance");
     const redirectTarget = routeSettings.maintenanceRedirectUrl || "/maintenance";
+
+    // Durante manutenção, sempre redireciona página inicial e telas de login
+    if (pathname === "/" || loginPaths.some((p) => pathname.startsWith(p))) {
+      return NextResponse.redirect(new URL(redirectTarget, request.url));
+    }
+
+    // Mantém a lista de espera disponível mesmo em manutenção
+    if (isWaitlistPage) {
+      return NextResponse.next();
+    }
 
     if (!isAdminArea && !isMaintenancePage) {
       const routeFlags: Array<{ prefix: string; enabled: boolean }> = [
@@ -97,7 +114,7 @@ export async function middleware(request: NextRequest) {
         },
         {
           prefix: "/waitlist",
-          enabled: routeSettings.routeWaitlistEnabled ?? false,
+          enabled: routeSettings.routeWaitlistEnabled ?? true,
         },
       ];
 

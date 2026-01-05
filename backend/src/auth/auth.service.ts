@@ -85,11 +85,23 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    // Gerar tokens
+    // Ajustar role efetiva: MASTER pode optar por entrar como ADMIN
+    let effectiveRole = user.userRole;
+    if (user.userRole === UserRole.MASTER && loginDto.mode === UserRole.ADMIN) {
+      effectiveRole = UserRole.ADMIN;
+    } else if (
+      loginDto.mode &&
+      loginDto.mode !== user.userRole &&
+      user.userRole !== UserRole.MASTER
+    ) {
+      throw new UnauthorizedException('Modo de acesso nÇœo permitido');
+    }
+
+    // Gerar tokens com a role efetiva
     const payload: JwtPayload = {
       sub: user.id,
       email: personalData.email,
-      role: user.userRole,
+      role: effectiveRole,
       name: user.name,
     };
 
@@ -107,7 +119,7 @@ export class AuthService {
         id: user.id,
         name: user.name,
         email: personalData.email,
-        role: user.userRole,
+        role: effectiveRole,
       },
     };
   }

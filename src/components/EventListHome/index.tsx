@@ -1,12 +1,22 @@
 "use client";
 
-import { format } from "date-fns";
+import {
+  addDays,
+  addMonths,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isSameMonth,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+} from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { getPublishedEventsAction } from "@/actions/public/event-action";
+import { getEventsCalendarAction } from "@/actions/public/event-action";
 import {
   Card,
   CardContent,
@@ -14,17 +24,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { Event } from "@/types/events";
+import type { BirthdayEntry, Event } from "@/types/events";
 
 export default function EventListHome() {
   const [events, setEvents] = useState<Event[]>([]);
+  const [birthdays, setBirthdays] = useState<BirthdayEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
 
   useEffect(() => {
-    async function loadEvents() {
+    async function loadCalendar() {
       try {
-        const fetchedEvents = await getPublishedEventsAction();
-        setEvents(fetchedEvents.slice(0, 6));
+        const data = await getEventsCalendarAction();
+        setEvents((data.events || []).slice(0, 6));
+        setBirthdays(data.birthdays || []);
       } catch (error) {
         console.error("Error loading events:", error);
       } finally {
@@ -32,7 +45,7 @@ export default function EventListHome() {
       }
     }
 
-    loadEvents();
+    void loadCalendar();
   }, []);
 
   const containerVariants = {
@@ -58,6 +71,95 @@ export default function EventListHome() {
       scale: 1,
     },
   };
+
+  const monthDays = useMemo(() => {
+    const start = startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 0 });
+    const end = endOfWeek(endOfMonth(currentMonth), { weekStartsOn: 0 });
+    const days: Date[] = [];
+    let cursor = start;
+    while (cursor <= end) {
+      days.push(cursor);
+      cursor = addDays(cursor, 1);
+    }
+    return days;
+  }, [currentMonth]);
+
+  const eventsByDate = useMemo(() => {
+    const map = new Map<string, Event[]>();
+    events.forEach((event) => {
+      const key = format(startOfDay(event.date), "yyyy-MM-dd");
+      const existing = map.get(key) ?? [];
+      map.set(key, [...existing, event]);
+    });
+    return map;
+  }, [events]);
+
+  const birthdaysByMonthDay = useMemo(() => {
+    const map = new Map<string, BirthdayEntry[]>();
+    birthdays.forEach((birthday) => {
+      const key = format(birthday.birthDate, "MM-dd");
+      const existing = map.get(key) ?? [];
+      map.set(key, [...existing, birthday]);
+    });
+    return map;
+  }, [birthdays]);
+
+  const renderCalendar = () => {
+    const weekDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    return (
+      <div className="rounded-2xl border border-[#C2A537]/20 bg-black/40 p-4 backdrop-blur-sm">
+        <div className="mb-4 flex items-center justify-between text-white">
+          <div className="text-lg font-semibold">
+            {format(currentMonth, "MMMM yyyy", { locale: ptBR })}
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentMonth((prev) => addMonths(prev, -1))}
+              className="rounded border border-[#C2A537]/40 px-2 py-1 text-sm text-[#C2A537] hover:bg-[#C2A537]/10"
+            >
+              Anterior
+            </button>
+            <button
+              onClick={() => setCurrentMonth((prev) => addMonths(prev, 1))}
+              className="rounded border border-[#C2A537]/40 px-2 py-1 text-sm text-[#C2A537] hover:bg-[#C2A537]/10"
+            >
+              Próximo
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-7 gap-2 text-center text-xs text-slate-400 sm:text-sm">
+          {weekDays.map((day) => (
+            <div key={day} className="pb-2 font-semibold uppercase tracking-wide">
+              {day}
+            </div>
+          ))}
+          {monthDays.map((day) => {
+            const key = format(day, "yyyy-MM-dd");
+            const hasEvent = eventsByDate.has(key);
+            const hasBirthday = birthdaysByMonthDay.has(format(day, "MM-dd"));
+            const isCurrentMonth = isSameMonth(day, currentMonth);
+            return (
+              <div
+                key={key}
+                className={`flex h-16 flex-col items-center justify-center rounded-lg border border-slate-700/50 bg-slate-900/40 text-white ${
+                  isCurrentMonth ? "" : "opacity-50"
+                }`}
+              >
+                <div className="text-sm font-semibold">{format(day, "d")}</div>
+                <div className="mt-1 flex gap-1">
+                  {hasEvent && <span className="h-2 w-2 rounded-full bg-[#C2A537]" />}
+                  {hasBirthday && <span className="h-2 w-2 rounded-full bg-pink-400" />}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  const eventsToShow = events.slice(0, 3);
 
   return (
     <motion.section
@@ -97,12 +199,9 @@ export default function EventListHome() {
           </motion.p>
         </motion.div>
 
-        <motion.div
-          variants={containerVariants}
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:gap-8 lg:grid-cols-3"
-        >
-          {loading ? (
-            Array.from({ length: 6 }).map((_, index) => (
+        {loading ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:gap-8 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
               <motion.div key={index} variants={cardVariants} className="group">
                 <Card className="border-gray-700 bg-black/50 backdrop-blur-sm">
                   <CardHeader className="pb-3 sm:pb-4">
@@ -117,72 +216,77 @@ export default function EventListHome() {
                   </CardContent>
                 </Card>
               </motion.div>
-            ))
-          ) : events.length === 0 ? (
-            <div className="col-span-full py-12 text-center">
-              <p className="text-gray-400">Nenhum evento disponível no momento</p>
-            </div>
-          ) : (
-            events.map((event) => (
-              <motion.div
-                key={event.id}
-                variants={cardVariants}
-                transition={{
-                  duration: 0.6,
-                  ease: "easeOut",
-                }}
-                whileHover={{
-                  scale: 1.02,
-                  y: -5,
-                  transition: { duration: 0.3 },
-                }}
-                whileTap={{
-                  scale: 0.98,
-                  transition: { duration: 0.1 },
-                }}
-                className="group"
-              >
-                <Link href={`/events/event/${event.slug}`}>
-                  <Card className="cursor-pointer border-gray-700 bg-black/50 backdrop-blur-sm transition-all duration-700 hover:border-[#C2A537] hover:shadow-xl hover:shadow-[#C2A537]/20">
-                    <CardHeader className="pb-3 sm:pb-4">
-                      <div className="mb-2 text-xs uppercase tracking-wide text-gray-400">
-                        {format(event.date, "dd/MM/yyyy", { locale: ptBR })}
-                        {event.time ? ` • ${event.time}` : ""}
-                      </div>
-                      <CardTitle className="text-xl font-bold text-white transition-colors duration-300 group-hover:text-[#C2A537]">
-                        {event.title}
-                      </CardTitle>
-                    </CardHeader>
-
-                    <CardContent className="pt-0">
-                      <CardDescription className="leading-relaxed text-gray-300 line-clamp-3">
-                        {event.summary || event.description}
-                      </CardDescription>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </motion.div>
-            ))
-          )}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          viewport={{ once: true }}
-          className="mt-8 text-center sm:mt-10 md:mt-12"
-        >
-          <Link href="/events">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="rounded-lg bg-[#C2A537] px-6 py-2.5 text-sm font-semibold text-black transition-all duration-300 hover:bg-[#D4B547] focus:ring-2 focus:ring-[#C2A537] focus:ring-offset-2 focus:ring-offset-black focus:outline-none sm:px-8 sm:py-3 sm:text-base"
+            ))}
+          </div>
+        ) : eventsToShow.length === 0 ? (
+          renderCalendar()
+        ) : (
+          <>
+            <motion.div
+              variants={containerVariants}
+              className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:gap-8 lg:grid-cols-3"
             >
-              Ver todos os eventos
-            </motion.button>
-          </Link>
-        </motion.div>
+              {eventsToShow.map((event) => (
+                <motion.div
+                  key={event.id}
+                  variants={cardVariants}
+                  transition={{
+                    duration: 0.6,
+                    ease: "easeOut",
+                  }}
+                  whileHover={{
+                    scale: 1.02,
+                    y: -5,
+                    transition: { duration: 0.3 },
+                  }}
+                  whileTap={{
+                    scale: 0.98,
+                    transition: { duration: 0.1 },
+                  }}
+                  className="group"
+                >
+                  <Link href={`/events/event/${event.slug}`}>
+                    <Card className="cursor-pointer border-gray-700 bg-black/50 backdrop-blur-sm transition-all duration-700 hover:border-[#C2A537] hover:shadow-xl hover:shadow-[#C2A537]/20">
+                      <CardHeader className="pb-3 sm:pb-4">
+                        <div className="mb-2 text-xs uppercase tracking-wide text-gray-400">
+                          {format(event.date, "dd/MM/yyyy", { locale: ptBR })}
+                          {event.time ? ` às ${event.time}` : ""}
+                        </div>
+                        <CardTitle className="text-xl font-bold text-white transition-colors duration-300 group-hover:text-[#C2A537]">
+                          {event.title}
+                        </CardTitle>
+                      </CardHeader>
+
+                      <CardContent className="pt-0">
+                        <CardDescription className="leading-relaxed text-gray-300 line-clamp-3">
+                          {event.summary || event.description}
+                        </CardDescription>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              viewport={{ once: true }}
+              className="mt-8 text-center sm:mt-10 md:mt-12"
+            >
+              <Link href="/events">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="rounded-lg bg-[#C2A537] px-6 py-2.5 text-sm font-semibold text-black transition-all duration-300 hover:bg-[#D4B547] focus:ring-2 focus:ring-[#C2A537] focus:ring-offset-2 focus:ring-offset-black focus:outline-none sm:px-8 sm:py-3 sm:text-base"
+                >
+                  Ver todos os eventos
+                </motion.button>
+              </Link>
+            </motion.div>
+          </>
+        )}
       </div>
     </motion.section>
   );

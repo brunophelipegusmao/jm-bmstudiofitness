@@ -160,23 +160,31 @@ export function Header() {
         </motion.div>
       )}
 
-      <nav className="relative">
+      <nav className="relative flex items-center gap-2 md:gap-3">
+        {/* BotÇôo de check-in mobile removido daqui; agora fica na home */}
         {/* Botão de menu mobile */}
         {/* Menu mobile */}
+        <Link
+          href="/checkin"
+          className="inline-flex h-11 items-center justify-center rounded-xl border border-[#C2A537]/30 bg-linear-to-br from-black/80 via-black/65 to-black/80 px-4 text-sm font-semibold text-[#C2A537] shadow-[0_4px_12px_-2px_rgba(0,0,0,0.35),inset_0_1px_2px_rgba(255,255,255,0.1)] backdrop-blur-md transition-all duration-300 hover:shadow-[0_10px_24px_-6px_rgba(194,165,55,0.35)] md:hidden"
+          aria-label="Ir para check-in"
+        >
+          Check-in
+        </Link>
         <motion.button
           whileHover={{
             scale: 1.05,
             y: -2,
           }}
-          whileTap={{
-            scale: 0.95,
-            y: 1,
-          }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="rounded-xl border border-[#C2A537]/20 bg-linear-to-br from-[#C2A537]/10 via-[#C2A537]/5 to-[#C2A537]/10 p-3 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.3),inset_0_1px_2px_rgba(255,255,255,0.1)] backdrop-blur-md transition-all duration-300 hover:shadow-[0_8px_24px_-4px_rgba(194,165,55,0.2),inset_0_1px_2px_rgba(255,255,255,0.2)] md:hidden"
-          aria-label="Menu"
-        >
+            whileTap={{
+              scale: 0.95,
+              y: 1,
+            }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[#C2A537]/20 bg-linear-to-br from-[#C2A537]/10 via-[#C2A537]/5 to-[#C2A537]/10 p-3 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.3),inset_0_1px_2px_rgba(255,255,255,0.1)] backdrop-blur-md transition-all duration-300 hover:shadow-[0_8px_24px_-4px_rgba(194,165,55,0.2),inset_0_1px_2px_rgba(255,255,255,0.2)] md:hidden"
+            aria-label="Menu"
+          >
           <motion.div
             animate={{
               rotate: isMenuOpen ? 45 : 0,
@@ -1051,6 +1059,8 @@ export function Header() {
           )}
         </AnimatePresence>
       </nav>
+
+      {/* Modal de check-in removido do header; agora a home controla a abertura */}
     </motion.header>
   );
 }

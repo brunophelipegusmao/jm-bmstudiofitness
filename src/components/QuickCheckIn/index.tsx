@@ -30,17 +30,32 @@ const initialState: QuickCheckInState = {
 
 export default function QuickCheckInCard() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [state, formAction, isPending] = useActionState(
     quickCheckInAction,
     initialState,
   );
 
+  const duplicateMessage = (() => {
+    const normalized = state.message.toLowerCase();
+    return (
+      normalized.includes("ja registrado para hoje") ||
+      normalized.includes("já registrado para hoje")
+    );
+  })();
+
   // Mostrar modal quando o check-in for bem sucedido
   useEffect(() => {
     if (state.success) {
       setShowSuccessModal(true);
+      setShowDuplicateModal(false);
+      return;
     }
-  }, [state.success]);
+
+    if (duplicateMessage) {
+      setShowDuplicateModal(true);
+    }
+  }, [state.success, state.message, duplicateMessage]);
 
   return (
     <div className="flex flex-1 justify-center">
@@ -80,10 +95,10 @@ export default function QuickCheckInCard() {
                   >
                     <UserCheck className="h-6 w-6 text-[#C2A537]" />
                   </motion.div>
-                  Check-in R?pido
+                  Check-in Rápido
                 </CardTitle>
                 <CardDescription className="text-sm text-slate-300 md:text-base">
-                  Digite seu CPF ou email para registrar sua presen?a
+                  Digite seu CPF ou email para registrar sua presença
                 </CardDescription>
               </motion.div>
             </CardHeader>
@@ -93,7 +108,7 @@ export default function QuickCheckInCard() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.8 }}
               >
-                {state.message && (
+                {state.message && !duplicateMessage && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -125,7 +140,7 @@ export default function QuickCheckInCard() {
                       id="identifier"
                       name="identifier"
                       type="text"
-                      placeholder="123.456.789-00 ou seu@email.com"
+                      placeholder="12345678900 ou e-mail"
                       required
                       disabled={isPending}
                       className="border-[#C2A537]/30 bg-slate-900/50 text-white transition-all duration-300 placeholder:text-slate-500 focus:border-[#C2A537] focus:ring-[#C2A537]/20"
@@ -141,7 +156,7 @@ export default function QuickCheckInCard() {
                   >
                     <div className="text-center">
                       <p className="text-sm text-slate-400">
-                        Acesso r?pido e seguro para check-in
+                        Acesso rápido e seguro para check-in
                       </p>
                     </div>
                   </motion.div>
@@ -177,7 +192,7 @@ export default function QuickCheckInCard() {
                     className="text-center"
                   >
                     <p className="text-sm text-slate-400">
-                      O check-in registra sua presen?a no est?dio hoje
+                      O check-in registra sua presença no estúdio hoje
                     </p>
                   </motion.div>
                 </form>
@@ -192,6 +207,25 @@ export default function QuickCheckInCard() {
           isOpen={showSuccessModal && !!state.userName && state.success}
           onClose={() => setShowSuccessModal(false)}
         />
+
+        {showDuplicateModal && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+            <div className="w-full max-w-md rounded-2xl border border-[#C2A537]/50 bg-slate-900/95 p-6 text-center shadow-2xl shadow-[#C2A537]/30">
+              <h3 className="text-xl font-semibold text-[#C2A537]">
+                Você já suou bastante hoje, nos vemos amanhã!
+              </h3>
+              <p className="mt-3 text-sm text-slate-200">
+                Apenas um check-in é permitido por dia.
+              </p>
+              <Button
+                className="mt-5 w-full bg-[#C2A537] text-black hover:bg-[#C2A537]/90"
+                onClick={() => setShowDuplicateModal(false)}
+              >
+                Entendido
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

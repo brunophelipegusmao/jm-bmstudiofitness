@@ -32,6 +32,17 @@ export interface PublicSettings {
   carouselImage5?: string | null;
   carouselImage6?: string | null;
   carouselImage7?: string | null;
+  carouselEnabled?: boolean;
+  homeHistoryMarkdown?: string | null;
+  homeHistoryImage?: string | null;
+  foundationDate?: string | null;
+  totalUsers?: number;
+  promoBannerEnabled?: boolean;
+  promoBannerMediaType?: "image" | "video";
+  promoBannerUrl?: string | null;
+  promoBannerTitle?: string | null;
+  promoBannerDescription?: string | null;
+  promoBannerLink?: string | null;
 }
 
 export async function getPublicSettingsAction(): Promise<{

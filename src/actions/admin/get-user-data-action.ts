@@ -28,6 +28,9 @@ export async function getUserDataAction(userId: string): Promise<{
   error?: string;
 }> {
   try {
+    if (!userId) {
+      throw new Error("ID do usuário não informado");
+    }
     const user = await apiClient.get<UserPayload>(`/users/${userId}`);
 
     const personal = user?.personalData ?? {};

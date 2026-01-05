@@ -19,6 +19,7 @@ export interface AuthResponse {
 export interface LoginDto {
   email: string;
   password: string;
+  mode?: 'master' | 'admin';
 }
 
 export interface RegisterDto {

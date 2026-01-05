@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import * as z from "zod";
 
@@ -60,10 +60,26 @@ export async function POST(request: NextRequest) {
     });
 
     // Enviar email
-    await sendResetPasswordEmail(validatedBody.email, user.name, token);
+    try {
+      const sent = await sendResetPasswordEmail(validatedBody.email, user.name, token);
+      if (!sent) {
+        console.error("Falha ao enviar e-mail de redefinição (SMTP/config).");
+        return NextResponse.json(
+          { success: false, message: "Não foi possível enviar o e-mail de redefinição." },
+          { status: 500 },
+        );
+      }
+    } catch (err) {
+      console.error("Erro ao enviar e-mail de redefinição:", err);
+      return NextResponse.json(
+        { success: false, message: "Não foi possível enviar o e-mail de redefinição." },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error("Erro em /api/user/request-reset-password:", error);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { success: false, message: "Email inválido" },

@@ -18,17 +18,21 @@ export async function getAllStudentsFullDataAction(): Promise<
 
   return rawStudents.map((student) => {
     const s = student as Record<string, unknown>;
+    const pd = (s.personalData as Record<string, unknown> | undefined) ?? {};
 
     const mapped: StudentFullData = {
       id: (s.id as string) ?? "",
       userId: (s.id as string) ?? "",
       name: (s.name as string) ?? "",
-      email: (s.email as string) ?? "",
-      cpf: (s.cpf as string) ?? "",
-      telephone: (s.telephone as string) ?? "",
-      sex: (s.sex as StudentFullData["sex"]) || "masculino",
-      bornDate: (s.bornDate as Date | string | undefined) ?? "",
-      address: (s.address as string) ?? "",
+      email: (s.email as string) ?? (pd.email as string) ?? "",
+      cpf: (s.cpf as string) ?? (pd.cpf as string) ?? "",
+      telephone: (s.telephone as string) ?? (pd.telephone as string) ?? "",
+      sex:
+        ((s.sex as StudentFullData["sex"]) ||
+          (pd.sex as StudentFullData["sex"])) ??
+        "masculino",
+      bornDate: (s.bornDate as Date | string | undefined) ?? (pd.bornDate as string) ?? "",
+      address: (s.address as string) ?? (pd.address as string) ?? "",
       role: "aluno",
       userRole: (s.userRole as string) || "aluno",
       planId: (s.planId as string | null | undefined) ?? null,

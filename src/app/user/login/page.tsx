@@ -42,7 +42,8 @@ export default function LoginPage() {
       } else {
         setError(result.error || "Erro ao fazer login");
       }
-    } catch (err) {
+    } catch (error) {
+      console.error(error);
       setError("Erro ao conectar com o servidor");
     } finally {
       setIsPending(false);
@@ -145,7 +146,7 @@ export default function LoginPage() {
                             id="email"
                             name="email"
                             type="email"
-                            placeholder="seu@email.com"
+                            placeholder="Digite seu e-mail"
                             required
                             disabled={isPending}
                             className="border-[#C2A537]/30 bg-slate-900/50 text-white transition-all duration-300 placeholder:text-slate-500 focus:border-[#C2A537] focus:ring-[#C2A537]/20"
@@ -169,7 +170,7 @@ export default function LoginPage() {
                               id="password"
                               name="password"
                               type={showPassword ? "text" : "password"}
-                              placeholder="sua senha"
+                              placeholder="Digite sua senha"
                               required
                               disabled={isPending}
                               className="border-[#C2A537]/30 bg-slate-900/50 pr-12 text-white transition-all duration-300 placeholder:text-slate-500 focus:border-[#C2A537] focus:ring-[#C2A537]/20"
@@ -227,7 +228,7 @@ export default function LoginPage() {
                           className="flex flex-col gap-4 text-center"
                         >
                           <p className="text-sm text-slate-400">
-                            Acesso para admins, professores e alunos cadastrados
+                            Acesso para alunos cadastrados
                           </p>
                           <Button
                             type="button"

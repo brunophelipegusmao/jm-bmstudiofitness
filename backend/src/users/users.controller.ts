@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -92,16 +93,16 @@ export class UsersController {
   }
 
   /**
-   * Soft delete de usuário (apenas ADMIN e MASTER)
+   * Hard delete de usuário (apenas ADMIN e MASTER)
    */
   @Delete(':id')
   @Roles(UserRole.ADMIN, UserRole.MASTER)
   remove(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @CurrentUser('userId') requestingUserId: string,
     @CurrentUser('role') role: UserRole,
   ) {
-    return this.usersService.softDelete(id, requestingUserId, role);
+    return this.usersService.hardDelete(id, requestingUserId, role);
   }
 
   /**

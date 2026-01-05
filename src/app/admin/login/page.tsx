@@ -23,6 +23,7 @@ const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isPending, setIsPending] = useState(false);
+  const [accessMode, setAccessMode] = useState<"admin" | "master">("admin");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,13 +35,14 @@ const AdminLogin = () => {
     const password = formData.get("password") as string;
 
     try {
-      const result = await login(email, password);
+      const result = await login(email, password, accessMode);
       if (result.success) {
         router.push("/admin/dashboard");
       } else {
         setError(result.error || "Erro ao fazer login");
       }
-    } catch (err) {
+    } catch (error) {
+      console.error(error);
       setError("Erro ao conectar com o servidor");
     } finally {
       setIsPending(false);
@@ -140,7 +142,7 @@ const AdminLogin = () => {
                         <Input
                           id="email"
                           name="email"
-                          type="email"
+                          type="text"
                           placeholder="admin@jmfitnessstudio.com"
                           required
                           disabled={isPending}
@@ -190,6 +192,40 @@ const AdminLogin = () => {
                             </motion.div>
                           </Button>
                         </div>
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6, delay: 1.3 }}
+                        className="grid gap-3"
+                      >
+                        <Label className="font-medium text-[#C2A537]">
+                          Perfil de acesso (Master pode alternar)
+                        </Label>
+                        <div className="flex gap-3">
+                          <Button
+                            type="button"
+                            variant={accessMode === "admin" ? "default" : "outline"}
+                            className="flex-1 bg-gradient-to-r from-[#C2A537] to-[#D4B547] text-black hover:from-[#D4B547] hover:to-[#E6C658]"
+                            onClick={() => setAccessMode("admin")}
+                            disabled={isPending}
+                          >
+                            Admin
+                          </Button>
+                          <Button
+                            type="button"
+                            variant={accessMode === "master" ? "default" : "outline"}
+                            className="flex-1 border-[#C2A537]/50 text-[#C2A537] hover:bg-[#C2A537]/10"
+                            onClick={() => setAccessMode("master")}
+                            disabled={isPending}
+                          >
+                            Master
+                          </Button>
+                        </div>
+                        <p className="text-xs text-slate-400">
+                          Usuário Master (ex.: CPF 11066603740) pode escolher entrar como Master ou Admin.
+                        </p>
                       </motion.div>
 
                       <motion.div

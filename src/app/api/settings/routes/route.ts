@@ -1,4 +1,3 @@
-import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 import { db } from "@/db";
@@ -7,7 +6,7 @@ import { studioSettingsTable } from "@/db/schema";
 /**
  * API Route para obter configurações de rotas (compatível com Edge Runtime)
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const settings = await db
       .select({

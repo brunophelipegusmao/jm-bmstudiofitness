@@ -10,7 +10,8 @@ import {
   Phone,
   Send,
 } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
 
 import {
   getPublicSettingsAction,
@@ -46,6 +47,11 @@ export default function ContactPage() {
   });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [statusMessage, setStatusMessage] = useState<string>("");
+  type RecaptchaInstance = {
+    reset: () => void;
+  };
+  const captchaRef = useRef<RecaptchaInstance | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string>("");
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -58,19 +64,7 @@ export default function ContactPage() {
     void loadSettings();
   }, []);
 
-  useEffect(() => {
-    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-    if (!siteKey) return;
-    const existing = document.querySelector<HTMLScriptElement>("script[data-recaptcha]");
-    if (existing) return;
-
-    const script = document.createElement("script");
-    script.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
-    script.async = true;
-    script.defer = true;
-    script.setAttribute("data-recaptcha", "true");
-    document.body.appendChild(script);
-  }, []);
+  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
   const contactCards: ContactCard[] = useMemo(() => {
     const addressParts = [
@@ -140,13 +134,13 @@ export default function ContactPage() {
     setStatusMessage("");
 
     try {
-      const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-      if (!siteKey || !window.grecaptcha) {
+      if (!siteKey) {
         throw new Error("reCAPTCHA nao configurado");
       }
-
-      await window.grecaptcha.ready();
-      const token = await window.grecaptcha.execute(siteKey, { action: "contact" });
+      // Para o reCAPTCHA v2 (checkbox), usamos o token salvo ao marcar.
+      if (!captchaToken) {
+        throw new Error("Confirme o reCAPTCHA antes de enviar.");
+      }
 
       const response = await fetch("/api/contact", {
         method: "POST",
@@ -156,7 +150,7 @@ export default function ContactPage() {
           email: formData.email,
           message: formData.message,
           phone: formData.phone,
-          token,
+          token: captchaToken,
         }),
       });
 
@@ -168,6 +162,10 @@ export default function ContactPage() {
       setStatus("success");
       setStatusMessage("Mensagem enviada com sucesso! Em breve entraremos em contato.");
       setFormData({ name: "", email: "", phone: "", message: "" });
+      setCaptchaToken("");
+      if (captchaRef.current) {
+        captchaRef.current.reset();
+      }
       setStatus("idle");
     } catch (error) {
       console.error(error);
@@ -363,10 +361,20 @@ export default function ContactPage() {
                         placeholder="Digite sua mensagem aqui..."
                         rows={5}
                         className="w-full rounded-md border border-[#C2A537]/30 bg-slate-900/50 px-3 py-2 text-white transition-all duration-300 placeholder:text-slate-500 focus:border-[#C2A537] focus:ring-1 focus:ring-[#C2A537]/20 focus:outline-none"
-                      />
-                    </motion.div>
+                  />
+                </motion.div>
 
-                    <div className="flex-1"></div>
+                <div className="flex justify-start">
+                  <ReCAPTCHA
+                    ref={captchaRef}
+                    sitekey={siteKey || ""}
+                    onChange={(token: string | null) => setCaptchaToken(token || "")}
+                    onExpired={() => setCaptchaToken("")}
+                    hl="pt-BR"
+                  />
+                </div>
+
+                <div className="flex-1"></div>
 
                     {statusMessage && (
                       <div

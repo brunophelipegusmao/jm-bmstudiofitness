@@ -4,7 +4,6 @@ import {
   BarChart3,
   Calendar,
   DollarSign,
-  FileText,
   PieChart,
   TrendingDown,
   TrendingUp,

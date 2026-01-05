@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import clsx from "clsx";
 import { motion } from "framer-motion";
@@ -7,8 +7,6 @@ import {
   Eye,
   Loader2,
   Search,
-  ToggleLeft,
-  ToggleRight,
   Trash2,
   User,
   UserCheck,
@@ -20,7 +18,7 @@ import { deleteStudentAction } from "@/actions/admin/delete-student-action";
 import { getStudentFullProfileAction } from "@/actions/admin/get-student-full-profile-action";
 import {
   getAllStudentsFullDataAction,
-  StudentFullData,
+  type StudentFullData,
 } from "@/actions/admin/get-students-full-data-action";
 import { updateStudentAction } from "@/actions/admin/update-student-action";
 import { ConfirmDialog } from "@/components/ConfirmDialog";

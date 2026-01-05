@@ -1,5 +1,4 @@
 import { sql } from "drizzle-orm";
-import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 import { db } from "@/db";
@@ -7,7 +6,7 @@ import { db } from "@/db";
 /**
  * API para adicionar colunas de controle de rotas
  */
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Adiciona as colunas se não existirem
     await db.execute(sql`

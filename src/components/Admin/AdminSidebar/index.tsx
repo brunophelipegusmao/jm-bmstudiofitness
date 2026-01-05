@@ -17,15 +17,16 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { type ElementType, useState, useTransition } from "react";
 
 import { logoutAction } from "@/actions/auth/logout-action";
 import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface SidebarItem {
   id: string;
   label: string;
-  icon: React.ElementType;
+  icon: ElementType;
   href: string;
   description: string;
 }
@@ -91,7 +92,7 @@ const menuItems: SidebarItem[] = [
     id: "maintenance",
     label: "Manutenção",
     icon: AlertTriangle,
-    href: "/admin/maintenance",
+    href: "/admin/dashboard?tab=maintenance",
     description: "Controle de manutenção",
   },
 ];
@@ -106,6 +107,7 @@ export function AdminSidebar({
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const { user } = useCurrentUser();
 
   const handleLogout = () => {
     startTransition(async () => {
@@ -155,44 +157,48 @@ export function AdminSidebar({
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
+          {menuItems
+            .filter(
+              (item) => item.id !== "maintenance" || user?.role === "master",
+            )
+            .map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
 
-            return (
-              <Link
-                key={item.id}
-                href={item.href}
-                onClick={() => setIsOpen(false)}
-                className={`group flex items-center gap-3 rounded-lg px-4 py-3 transition-all duration-200 ${
-                  isActive
-                    ? "bg-[#C2A537] text-black shadow-lg shadow-[#C2A537]/25"
-                    : "text-slate-300 hover:bg-slate-800/50 hover:text-[#C2A537]"
-                }`}
-              >
-                <Icon
-                  className={`h-5 w-5 transition-transform duration-200 ${
-                    isActive ? "scale-110" : "group-hover:scale-105"
+              return (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className={`group flex items-center gap-3 rounded-lg px-4 py-3 transition-all duration-200 ${
+                    isActive
+                      ? "bg-[#C2A537] text-black shadow-lg shadow-[#C2A537]/25"
+                      : "text-slate-300 hover:bg-slate-800/50 hover:text-[#C2A537]"
                   }`}
-                />
-                <div className="flex-1">
-                  <div className="font-medium">{item.label}</div>
-                  <div
-                    className={`text-xs ${
-                      isActive
-                        ? "text-black/70"
-                        : "text-slate-500 group-hover:text-slate-400"
+                >
+                  <Icon
+                    className={`h-5 w-5 transition-transform duration-200 ${
+                      isActive ? "scale-110" : "group-hover:scale-105"
                     }`}
-                  >
-                    {item.description}
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium">{item.label}</div>
+                    <div
+                      className={`text-xs ${
+                        isActive
+                          ? "text-black/70"
+                          : "text-slate-500 group-hover:text-slate-400"
+                      }`}
+                    >
+                      {item.description}
+                    </div>
                   </div>
-                </div>
-                {isActive && (
-                  <div className="h-2 w-2 animate-pulse rounded-full bg-black" />
-                )}
-              </Link>
-            );
-          })}
+                  {isActive && (
+                    <div className="h-2 w-2 animate-pulse rounded-full bg-black" />
+                  )}
+                </Link>
+              );
+            })}
 
           {/* Botão especial para criar admin */}
           <div className="pt-4">

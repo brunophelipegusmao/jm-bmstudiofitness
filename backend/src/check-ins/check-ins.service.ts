@@ -10,12 +10,7 @@ import type { SQLWrapper } from 'drizzle-orm';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import * as schema from '../database/schema';
 
-import {
-  tbCheckIns,
-  tbUsers,
-  tbPersonalData,
-  UserRole,
-} from '../database/schema';
+import { tbCheckIns, tbUsers, tbPersonalData, UserRole } from '../database/schema';
 import { CreateCheckInDto } from './dto/create-check-in.dto';
 import { EmployeeCheckInDto } from './dto/employee-check-in.dto';
 import { QueryCheckInsDto } from './dto/query-check-ins.dto';
@@ -109,6 +104,23 @@ export class CheckInsService {
     const checkInTime =
       createCheckInDto.checkInTime ||
       now.toTimeString().split(' ')[0].substring(0, 5);
+
+    // Impedir mais de um check-in por dia (regra: 1 por dia)
+    const maxPerDay = 1; // regra fixa: apenas um check-in por dia
+
+    const [{ count: todaysCount }] = await this.db
+      .select({ count: sql<number>`count(*)` })
+      .from(tbCheckIns)
+      .where(
+        and(
+          eq(tbCheckIns.userId, targetUserId!),
+          eq(tbCheckIns.checkInDate, checkInDate),
+        ),
+      );
+
+    if (Number(todaysCount) >= maxPerDay) {
+      throw new BadRequestException('Check-in ja registrado para hoje');
+    }
 
     const [checkIn] = await this.db
       .insert(tbCheckIns)

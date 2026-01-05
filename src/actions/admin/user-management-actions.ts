@@ -12,6 +12,11 @@ type UsersResponse =
 const mapUser = (raw: unknown): User => {
   const u = (raw as Record<string, unknown>) || {};
   const personal = (u.personalData as Record<string, unknown>) || {};
+  const rawId =
+    (u.id as string) ??
+    (u.userId as string) ??
+    (u.user_id as string) ??
+    (personal.userId as string);
 
   const role =
     (u.role as UserRole) ||
@@ -20,7 +25,7 @@ const mapUser = (raw: unknown): User => {
     UserRole.ALUNO;
 
   return {
-    id: String(u.id ?? ""),
+    id: rawId ? String(rawId) : "",
     name: (u.name as string) ?? "",
     email: (u.email as string) ?? (personal.email as string) ?? "",
     role,
@@ -96,6 +101,7 @@ export async function deleteUserAction(
   userId: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    if (!userId) throw new Error("ID do usuário não informado");
     await apiClient.delete(`/users/${userId}`);
     return { success: true };
   } catch (error) {
@@ -110,6 +116,7 @@ export async function toggleUserStatusAction(
   isActive: boolean,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    if (!userId) throw new Error("ID do usuário não informado");
     await apiClient.patch(`/users/${userId}`, { isActive });
     return { success: true };
   } catch (error) {

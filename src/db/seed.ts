@@ -198,7 +198,7 @@ async function main() {
     ])
     .returning();
 
-  const [professorEmployee, employeeRecord] = employeeRecords;
+  const [, employeeRecord] = employeeRecords;
 
   // 3.1) Registros de ponto do funcionário (últimos 30 dias)
   const timeRecords = [];

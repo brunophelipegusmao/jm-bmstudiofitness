@@ -273,7 +273,9 @@ export function EditUserModal({
             if (data.dueDate !== undefined) setValue("dueDate", data.dueDate);
           }
         } else {
-          toast.error((result && result.error) || "Erro ao carregar dados do usuário");
+          toast.error(
+            (result && result.error) || "Erro ao carregar dados do usuário",
+          );
           onClose();
         }
         setIsFetching(false);
@@ -281,13 +283,13 @@ export function EditUserModal({
     } else {
       reset();
     }
-  }, [isOpen, userId, setValue, reset, onClose, isEmployee, isStudent]);
+  }, [isOpen, userId, setValue, reset, onClose, isEmployee, isStudent, userName, userRole, adminId]);
 
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
 
     // Remover confirmPassword e preparar dados
-    const { confirmPassword, password, ...restData } = data;
+    const { password, ...restData } = data;
 
     // Só incluir password se foi preenchida
     const updateData: Partial<FormData> & { id: string } = {
@@ -690,7 +692,3 @@ export function EditUserModal({
     </Dialog>
   );
 }
-
-
-
-

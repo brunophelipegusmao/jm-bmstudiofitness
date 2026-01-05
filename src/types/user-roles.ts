@@ -1,6 +1,7 @@
 // Tipos de usuários e suas permissões no sistema
 
 export enum UserRole {
+  MASTER = "master",
   ADMIN = "admin",
   PROFESSOR = "professor",
   FUNCIONARIO = "funcionario",
@@ -35,6 +36,40 @@ export interface RolePermissions {
 
 // Definição das permissões por tipo de usuário
 export const USER_PERMISSIONS: RolePermissions[] = [
+  {
+    role: UserRole.MASTER,
+    description: "Acesso total ao sistema (perfil mestre)",
+    permissions: [
+      {
+        resource: "users",
+        actions: ["create", "read", "update", "delete"],
+      },
+      {
+        resource: "personalData",
+        actions: ["create", "read", "update", "delete"],
+      },
+      {
+        resource: "healthMetrics",
+        actions: ["create", "read", "update", "delete"],
+      },
+      {
+        resource: "financial",
+        actions: ["create", "read", "update", "delete"],
+      },
+      {
+        resource: "coachObservationsParticular",
+        actions: ["create", "read", "update", "delete"],
+      },
+      {
+        resource: "settings",
+        actions: ["create", "read", "update", "delete"],
+      },
+      {
+        resource: "checkIns",
+        actions: ["create", "read", "update", "delete"],
+      },
+    ],
+  },
   {
     role: UserRole.ADMIN,
     description: "Acesso total ao sistema",

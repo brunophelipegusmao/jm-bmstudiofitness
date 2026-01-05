@@ -11,10 +11,15 @@ import {
   getEventsAction,
   updateEventAction,
 } from "@/actions/admin/manage-events-action";
+import {
+  type StudioSettings,
+  updateStudioSettingsAction,
+} from "@/actions/admin/studio-settings-actions";
 import { CreatePostFormAdvanced } from "@/components/Dashboard/CreatePostFormAdvanced";
 import { EditPostForm } from "@/components/Dashboard/EditPostForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import type { Event } from "@/types/events";
 
 export function ManagePostForm() {
@@ -29,6 +34,7 @@ export function ManagePostForm() {
   const [loadingAttendanceId, setLoadingAttendanceId] = useState<string | null>(
     null,
   );
+  const { user } = useCurrentUser();
 
   useEffect(() => {
     loadEvents();
@@ -97,10 +103,7 @@ export function ManagePostForm() {
     }
   };
 
-  const handleTogglePublished = async (
-    eventId: string,
-    published: boolean,
-  ) => {
+  const handleTogglePublished = async (eventId: string, published: boolean) => {
     try {
       await updateEventAction(eventId, { published });
       await loadEvents();
@@ -155,6 +158,35 @@ export function ManagePostForm() {
       alert("Erro ao baixar relatório de confirmações.");
     } finally {
       setDownloadingId(null);
+    }
+  };
+
+  const handleSetAsBanner = async (event: Event) => {
+    if (!event.imageUrl) {
+      alert("O evento precisa ter uma imagem para ser usado como banner.");
+      return;
+    }
+
+    const link = `/events/event/${event.slug}`;
+    const description =
+      event.summary ||
+      (event.description ? event.description.slice(0, 140) : "");
+
+    try {
+      await updateStudioSettingsAction({
+        promoBannerEnabled: true,
+        promoBannerMediaType: event.imageUrl.toLowerCase().endsWith(".mp4")
+          ? "video"
+          : "image",
+        promoBannerUrl: event.imageUrl,
+        promoBannerTitle: event.title,
+        promoBannerDescription: description,
+        promoBannerLink: link,
+      } satisfies Partial<StudioSettings>);
+      alert("Banner atualizado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao definir banner:", error);
+      alert("Erro ao definir banner. Tente novamente.");
     }
   };
 
@@ -223,117 +255,137 @@ export function ManagePostForm() {
               const showAttendance = Boolean(attendance);
 
               return (
-              <Card
-                key={event.id}
-                className="border-slate-700/50 bg-slate-800/30"
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <CardTitle className="mb-2 text-lg text-white">
-                        {event.title}
-                      </CardTitle>
-                      <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400">
-                        <span>{event.published ? "Publicado" : "Rascunho"}</span>
-                        <span>
-                          {event.date.toLocaleDateString("pt-BR")}
-                          {event.time ? ` às ${event.time}` : ""}
-                        </span>
-                        {event.location && !event.hideLocation && (
-                          <span>{event.location}</span>
-                        )}
-                        <span>{event.views ?? 0} visualizacoes</span>
+                <Card
+                  key={event.id}
+                  className="border-slate-700/50 bg-slate-800/30"
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <CardTitle className="mb-2 text-lg text-white">
+                          {event.title}
+                        </CardTitle>
+                        <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400">
+                          <span>
+                            {event.published ? "Publicado" : "Rascunho"}
+                          </span>
+                          <span>
+                            {event.date.toLocaleDateString("pt-BR")}
+                            {event.time ? ` às ${event.time}` : ""}
+                          </span>
+                          {event.location && !event.hideLocation && (
+                            <span>{event.location}</span>
+                          )}
+                          <span>{event.views ?? 0} visualizacoes</span>
+                        </div>
                       </div>
-                    </div>
                       <div className="flex items-center gap-2">
                         <Button
                           size="sm"
                           onClick={() =>
                             handleTogglePublished(event.id, !event.published)
-                        }
-                        className="border-[#C2A537] bg-[#C2A537] text-black hover:bg-[#D4B547]"
-                      >
-                        {event.published ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
+                          }
+                          className="border-[#C2A537] bg-[#C2A537] text-black hover:bg-[#D4B547]"
+                        >
+                          {event.published ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
+                        {(user?.role === "admin" ||
+                          user?.role === "employee" ||
+                          user?.role === "funcionario") && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleSetAsBanner(event)}
+                            className="border-[#C2A537] text-[#C2A537] hover:bg-[#C2A537]/10"
+                          >
+                            Usar como banner
+                          </Button>
                         )}
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => setEditingEvent(event)}
-                        className="border-[#C2A537] bg-[#C2A537] text-black hover:bg-[#D4B547]"
-                      >
-                        <Edit3 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => handleDeleteEvent(event.id)}
-                        className="border-red-600 bg-red-600 text-white hover:bg-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDownloadReport(event)}
-                        disabled={downloadingId === event.id}
-                        className="border-[#C2A537] text-[#C2A537] hover:bg-[#C2A537]/10"
-                      >
-                        {downloadingId === event.id ? "Baixando..." : "Relatório"}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleLoadAttendance(event.id)}
-                        disabled={loadingAttendanceId === event.id}
-                        className="border-slate-600 text-slate-200 hover:bg-slate-700"
-                      >
-                        {loadingAttendanceId === event.id
-                          ? "Carregando..."
-                          : "Ver confirmações"}
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-slate-300">
-                    {event.summary || event.description}
-                  </p>
-                  {showAttendance && (
-                    <div className="rounded-lg border border-slate-700 bg-slate-900/40 p-3">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-semibold text-white">
-                          Confirmações ({attendance?.length ?? 0})
-                        </h4>
+                        <Button
+                          size="sm"
+                          onClick={() => setEditingEvent(event)}
+                          className="border-[#C2A537] bg-[#C2A537] text-black hover:bg-[#D4B547]"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => handleDeleteEvent(event.id)}
+                          className="border-red-600 bg-red-600 text-white hover:bg-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDownloadReport(event)}
+                          disabled={downloadingId === event.id}
+                          className="border-[#C2A537] text-[#C2A537] hover:bg-[#C2A537]/10"
+                        >
+                          {downloadingId === event.id
+                            ? "Baixando..."
+                            : "Relatório"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleLoadAttendance(event.id)}
+                          disabled={loadingAttendanceId === event.id}
+                          className="border-slate-600 text-slate-200 hover:bg-slate-700"
+                        >
+                          {loadingAttendanceId === event.id
+                            ? "Carregando..."
+                            : "Ver confirmações"}
+                        </Button>
                       </div>
-                      {hasAttendance ? (
-                        <div className="mt-2 space-y-2 text-sm text-slate-200">
-                          {attendance!.map((a) => (
-                            <div
-                              key={a.id}
-                              className="flex flex-col rounded border border-slate-800 bg-slate-900/60 px-3 py-2"
-                            >
-                              <span className="font-semibold">{a.name}</span>
-                              {a.email && (
-                                <span className="text-slate-400">{a.email}</span>
-                              )}
-                              <span className="text-xs text-slate-500">
-                                Confirmado em:{" "}
-                                {new Date(a.confirmedAt).toLocaleString("pt-BR")}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="mt-2 text-sm text-slate-400">
-                          Nenhuma confirmação registrada.
-                        </p>
-                      )}
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-slate-300">
+                      {event.summary || event.description}
+                    </p>
+                    {showAttendance && (
+                      <div className="rounded-lg border border-slate-700 bg-slate-900/40 p-3">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-semibold text-white">
+                            Confirmações ({attendance?.length ?? 0})
+                          </h4>
+                        </div>
+                        {hasAttendance ? (
+                          <div className="mt-2 space-y-2 text-sm text-slate-200">
+                            {attendance!.map((a) => (
+                              <div
+                                key={a.id}
+                                className="flex flex-col rounded border border-slate-800 bg-slate-900/60 px-3 py-2"
+                              >
+                                <span className="font-semibold">{a.name}</span>
+                                {a.email && (
+                                  <span className="text-slate-400">
+                                    {a.email}
+                                  </span>
+                                )}
+                                <span className="text-xs text-slate-500">
+                                  Confirmado em:{" "}
+                                  {new Date(a.confirmedAt).toLocaleString(
+                                    "pt-BR",
+                                  )}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="mt-2 text-sm text-slate-400">
+                            Nenhuma confirmação registrada.
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               );
             })
           )}

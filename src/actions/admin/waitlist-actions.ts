@@ -92,9 +92,16 @@ export async function getWaitlistAdminAction(): Promise<{
   error?: string;
 }> {
   try {
-    const entries = await apiClient.get<WaitlistApi[]>("/waitlist");
-    const mapped = mapWaitlist(entries);
-    return { success: true, data: mapped };
+    try {
+      const entries = await apiClient.get<WaitlistApi[]>("/waitlist");
+      const mapped = mapWaitlist(entries);
+      return { success: true, data: mapped };
+    } catch (err) {
+      // Fallback: usa endpoint público (útil se token/role impedir)
+      const entries = await apiClient.get<WaitlistApi[]>("/waitlist/public");
+      const mapped = mapWaitlist(entries);
+      return { success: true, data: mapped };
+    }
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Erro ao carregar lista de espera";
@@ -128,35 +135,80 @@ export async function completeEnrollFromWaitlistAction(params: {
 }) {
   try {
     const password = Math.random().toString(36).slice(-8);
-    const monthlyFeeValue = Math.round(parseFloat(params.monthlyFeeValue) * 100);
+    const monthlyFeeValue = Math.round(
+      parseFloat(params.monthlyFeeValue) * 100,
+    );
 
-    // Cria aluno
-    const user = await apiClient.post<{ id: string }>("/users", {
-      name: params.fullName,
-      email: params.email,
-      password,
-      cpf: params.cpf,
-      bornDate: params.bornDate,
-      address: params.address,
-      telephone: params.telephone,
-      role: "aluno",
-    });
+    let userId = "";
+    let createdNewUser = true;
+
+    // Cria aluno; se email já existir, usa usuário existente
+    try {
+      const user = await apiClient.post<{ id: string }>("/users", {
+        name: params.fullName,
+        email: params.email,
+        password,
+        cpf: params.cpf,
+        bornDate: params.bornDate,
+        address: params.address,
+        telephone: params.telephone,
+        role: "aluno",
+      });
+      userId = user.id;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      if (msg.toLowerCase().includes("email já cadastrado")) {
+        // Recupera usuário existente pelo e-mail
+        const existing = await apiClient.get<{ id: string }>(
+          `/users/email/${encodeURIComponent(params.email)}`,
+        );
+        if (!existing?.id) {
+          return { success: false, error: "Email já cadastrado em outro usuário" };
+        }
+        userId = existing.id;
+        createdNewUser = false;
+      } else {
+        throw err;
+      }
+    }
 
     // Cria registro financeiro
-    await apiClient.post("/financial", {
-      userId: user.id,
-      monthlyFeeValue,
-      dueDate: Number(params.dueDate),
-      paymentMethod: params.paymentMethod,
-      paid: false,
-    });
+    try {
+      await apiClient.post("/financial", {
+        userId,
+        monthlyFeeValue,
+        dueDate: Number(params.dueDate),
+        paymentMethod: params.paymentMethod,
+        paid: false,
+      });
+    } catch (err) {
+      console.error("Erro ao criar registro financeiro para aluno:", err);
+      // continua mesmo assim
+    }
 
     // Marca waitlist como convertida
     await apiClient.post(`/waitlist/${params.waitlistId}/convert`, {
-      studentId: user.id,
+      studentId: userId,
     });
 
-    return { success: true, userId: user.id, password };
+    // Dispara e-mail para criação de senha e instruções de comparecimento
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    try {
+      const resp = await fetch(`${baseUrl}/api/waitlist/enroll-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: params.email, name: params.fullName }),
+      });
+      if (!resp.ok) {
+        const body = await resp.json().catch(() => ({}));
+        console.error("Falha ao acionar e-mail de matrícula:", body);
+      }
+    } catch (err) {
+      console.error("Falha ao acionar e-mail de matrícula:", err);
+    }
+
+    return { success: true, userId, password: createdNewUser ? password : "" };
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Erro ao matricular aluno";

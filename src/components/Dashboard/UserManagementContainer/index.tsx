@@ -15,31 +15,28 @@ export function UserManagementContainer() {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [adminId, setAdminId] = useState<string>("");
+  const [adminRole, setAdminRole] = useState<string>("");
 
   const loadUsers = useCallback(async () => {
     try {
       setIsLoading(true);
 
-      // Carregar ID do admin logado
-      console.log("🔑 Carregando ID do admin logado...");
       const userIdResult = await getCurrentUserIdAction();
-      console.log("📋 Resultado getCurrentUserIdAction:", userIdResult);
       if (userIdResult.success && userIdResult.userId) {
         setAdminId(userIdResult.userId);
-        console.log("✅ Admin ID carregado:", userIdResult.userId);
+        if (userIdResult.role) setAdminRole(userIdResult.role);
       } else {
-        console.error("❌ Erro ao carregar admin ID:", userIdResult.error);
+        console.error("Erro ao carregar admin ID:", userIdResult.error);
       }
 
       const result = await getAllUsersAction();
-
       if (result.success && result.users) {
         setUsers(result.users);
       } else {
-        console.error("Erro ao carregar usuários:", result.error);
+        console.error("Erro ao carregar usuarios:", result.error);
       }
     } catch (error) {
-      console.error("Erro ao carregar usuários:", error);
+      console.error("Erro ao carregar usuarios:", error);
     } finally {
       setIsLoading(false);
     }
@@ -51,45 +48,37 @@ export function UserManagementContainer() {
 
   const handleCreateUser = useCallback(async (data: CreateUserData) => {
     const result = await createUserAction(data);
-
     if (result.success && result.user) {
       setUsers((prev) => [...prev, result.user!]);
     } else {
-      throw new Error(result.error || "Erro ao criar usuário");
+      throw new Error(result.error || "Erro ao criar usuario");
     }
   }, []);
 
   const handleDeleteUser = useCallback(async (userId: string) => {
     const result = await deleteUserAction(userId);
-
     if (result.success) {
       setUsers((prev) => prev.filter((user) => user.id !== userId));
+      // Recarrega para garantir consistência
+      void loadUsers();
     } else {
-      throw new Error(result.error || "Erro ao excluir usuário");
+      throw new Error(result.error || "Erro ao excluir usuario");
     }
   }, []);
 
-  const handleUpdateUser = useCallback(
-    (userId: string, updates: Partial<User>) => {
-      setUsers((prev) =>
-        prev.map((user) =>
-          user.id === userId ? { ...user, ...updates } : user,
-        ),
-      );
-    },
-    [],
-  );
+  const handleUpdateUser = useCallback((userId: string, updates: Partial<User>) => {
+    setUsers((prev) =>
+      prev.map((user) => (user.id === userId ? { ...user, ...updates } : user)),
+    );
+  }, []);
 
-  const handleToggleStatus = useCallback(
-    (userId: string, newStatus: boolean) => {
-      setUsers((prev) =>
-        prev.map((user) =>
-          user.id === userId ? { ...user, isActive: newStatus } : user,
-        ),
-      );
-    },
-    [],
-  );
+  const handleToggleStatus = useCallback((userId: string, newStatus: boolean) => {
+    setUsers((prev) =>
+      prev.map((user) =>
+        user.id === userId ? { ...user, isActive: newStatus } : user,
+      ),
+    );
+  }, []);
 
   return (
     <UserManagementTab
@@ -100,6 +89,7 @@ export function UserManagementContainer() {
       onToggleStatus={handleToggleStatus}
       isLoading={isLoading}
       adminId={adminId}
+      adminRole={adminRole}
     />
   );
 }

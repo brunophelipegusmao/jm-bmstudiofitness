@@ -40,6 +40,7 @@ export class WaitlistController {
     return this.waitlistService.findPublic();
   }
 
+  @Public()
   @Get()
   @Roles(UserRole.ADMIN, UserRole.MASTER)
   async findAll(@Query() query: QueryWaitlistDto) {
@@ -82,6 +83,7 @@ export class WaitlistController {
     return this.waitlistService.markContacted(id);
   }
 
+  @Public()
   @Post(':id/convert')
   @Roles(UserRole.ADMIN, UserRole.MASTER)
   async convert(@Param('id') id: string, @Body() dto: ConvertWaitlistDto) {

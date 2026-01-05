@@ -526,6 +526,10 @@ export const studioSettingsTable = pgTable("tb_studio_settings", {
   carouselImage5: text("carousel_image_5"),
   carouselImage6: text("carousel_image_6"),
   carouselImage7: text("carousel_image_7"),
+  carouselEnabled: boolean("carousel_enabled").notNull().default(true),
+  homeHistoryMarkdown: text("home_history_markdown"),
+  homeHistoryImage: text("home_history_image"),
+  foundationDate: date("foundation_date"),
 
   // Metadados
   createdAt: timestamp("created_at").notNull().defaultNow(),

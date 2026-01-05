@@ -1,9 +1,15 @@
 import crypto from "crypto";
+import nodemailer from "nodemailer";
 
 interface EmailConfig {
   provider: "resend" | "sendgrid" | "smtp" | "development";
   from: string;
   fromName: string;
+  smtpHost?: string;
+  smtpPort?: number;
+  smtpUser?: string;
+  smtpPass?: string;
+  smtpSecure?: boolean;
 }
 
 export interface EmailData {
@@ -19,6 +25,11 @@ function getEmailConfig(): EmailConfig {
     provider: (process.env.EMAIL_PROVIDER as EmailConfig["provider"]) || "development",
     from: process.env.EMAIL_FROM || "contato@jmfitnessstudio.com.br",
     fromName: process.env.EMAIL_FROM_NAME || "JM Fitness Studio",
+    smtpHost: process.env.SMTP_HOST,
+    smtpPort: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : undefined,
+    smtpUser: process.env.SMTP_USER,
+    smtpPass: process.env.SMTP_PASS,
+    smtpSecure: process.env.SMTP_SECURE === "true",
   };
 }
 
@@ -115,9 +126,38 @@ async function sendWithResend(emailData: EmailData): Promise<boolean> {
 }
 
 async function sendWithSMTP(emailData: EmailData): Promise<boolean> {
-  console.log("SMTP nao configurado. Configure variaveis SMTP para usar.");
-  console.log(`E-mail seria enviado para: ${emailData.to}`);
-  return false;
+  try {
+    const config = getEmailConfig();
+    if (!config.smtpHost || !config.smtpPort || !config.smtpUser || !config.smtpPass) {
+      console.error("SMTP nao configurado: defina SMTP_HOST, SMTP_PORT, SMTP_USER e SMTP_PASS.");
+      return false;
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: config.smtpHost,
+      port: config.smtpPort,
+      secure: config.smtpSecure ?? config.smtpPort === 465, // 465 = TLS
+      auth: {
+        user: config.smtpUser,
+        pass: config.smtpPass,
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: `${config.fromName} <${config.from}>`,
+      to: emailData.to,
+      replyTo: emailData.replyTo,
+      subject: emailData.subject,
+      html: emailData.html,
+      text: emailData.text,
+    });
+
+    console.log("Email enviado via SMTP:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Erro ao enviar com SMTP:", error);
+    return false;
+  }
 }
 
 async function sendWithSendGrid(emailData: EmailData): Promise<boolean> {
@@ -296,6 +336,98 @@ export async function sendResetPasswordEmail(
     }
   } catch (error) {
     console.error("Erro ao enviar e-mail de redefinicao de senha:", error);
+    return false;
+  }
+}
+
+function generateEnrollmentEmailTemplate(
+  name: string,
+  resetUrl: string,
+  studioAddress: string,
+) {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Bem-vindo(a) - Finalize sua matrícula</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #C2A537; margin: 0; font-size: 26px;">JM Fitness Studio</h1>
+        <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 15px;">Chegou a hora de treinar conosco!</p>
+      </div>
+      <div style="background: #f9f9f9; padding: 28px; border-radius: 10px; margin-bottom: 30px;">
+        <h2 style="color: #C2A537; margin-top: 0;">Olá, ${name}!</h2>
+        <p>Sua matrícula foi iniciada. Por favor, compareça ao estúdio para finalizar seu cadastro:</p>
+        <p style="background: #e9e9e9; padding: 10px; border-radius: 6px; font-weight: bold;">${studioAddress}</p>
+        <p>Para agilizar, crie sua senha agora usando o link abaixo (expira em 24 horas):</p>
+        <div style="text-align: center; margin: 26px 0;">
+          <a href="${resetUrl}" style="background: #C2A537; color: #000; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px; display: inline-block;">
+            Criar senha e acessar
+          </a>
+        </div>
+        <p style="font-size: 13px; color: #666;">Se o botão não funcionar, copie e cole este link no navegador:</p>
+        <p style="word-break: break-all; background: #e9e9e9; padding: 10px; border-radius: 6px; font-size: 12px;">${resetUrl}</p>
+      </div>
+      <div style="background: #1a1a1a; color: #ffffff; padding: 18px; border-radius: 10px; text-align: center;">
+        <p style="margin: 0; color: #C2A537;">Precisa de ajuda?</p>
+        <p style="margin: 6px 0 0 0; font-size: 13px;">Responda este e-mail ou fale conosco no estúdio.</p>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const text = `
+JM Fitness Studio - Finalize sua matrícula
+
+Olá, ${name}!
+
+Sua matrícula foi iniciada. Compareça ao estúdio para finalizar:
+${studioAddress}
+
+Crie sua senha pelo link (expira em 24h): ${resetUrl}
+`;
+
+  return { html, text };
+}
+
+export async function sendEnrollmentEmail(
+  email: string,
+  name: string,
+  token: string,
+  studioAddress: string,
+): Promise<boolean> {
+  try {
+    const config = getEmailConfig();
+    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/user/reset-password?token=${token}`;
+    const emailTemplate = generateEnrollmentEmailTemplate(
+      name,
+      resetUrl,
+      studioAddress,
+    );
+
+    const emailData: EmailData = {
+      to: email,
+      subject: "Sua matrícula na JM Fitness - Complete agora",
+      html: emailTemplate.html,
+      text: emailTemplate.text,
+    };
+
+    switch (config.provider) {
+      case "resend":
+        return await sendWithResend(emailData);
+      case "smtp":
+        return await sendWithSMTP(emailData);
+      case "sendgrid":
+        return await sendWithSendGrid(emailData);
+      case "development":
+      default:
+        return await sendInDevelopment(emailData);
+    }
+  } catch (error) {
+    console.error("Erro ao enviar e-mail de matrícula:", error);
     return false;
   }
 }

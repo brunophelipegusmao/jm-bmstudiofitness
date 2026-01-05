@@ -71,7 +71,7 @@ export default function ChangePasswordPage() {
       } else {
         toast.error(data.message || "Erro ao alterar senha");
       }
-    } catch (error) {
+    } catch { console.error(); 
       toast.error("Erro ao alterar senha. Tente novamente.");
     } finally {
       setLoading(false);

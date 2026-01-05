@@ -7,7 +7,7 @@ import {
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import * as schema from '../database/schema';
 import { tbWaitlist, tbPlans } from '../database/schema';
-import { eq, desc, and, ilike, or } from 'drizzle-orm';
+import { eq, desc, and, ilike, or, inArray } from 'drizzle-orm';
 import type { SQLWrapper } from 'drizzle-orm';
 import {
   CreateWaitlistDto,
@@ -80,6 +80,11 @@ export class WaitlistService {
   }
 
   async findPublic() {
+    const visibleStatuses = [
+      WaitlistStatus.PENDING,
+      WaitlistStatus.WAITING,
+    ] as const;
+
     const entries = await this.db
       .select({
         id: tbWaitlist.id,
@@ -94,7 +99,7 @@ export class WaitlistService {
         convertedToUserId: tbWaitlist.convertedToUserId,
       })
       .from(tbWaitlist)
-      .where(eq(tbWaitlist.status, WaitlistStatus.PENDING))
+      .where(inArray(tbWaitlist.status, visibleStatuses))
       .orderBy(tbWaitlist.createdAt);
 
     return entries;
@@ -141,7 +146,7 @@ export class WaitlistService {
       .where(
         and(
           eq(tbWaitlist.email, dto.email),
-          eq(tbWaitlist.status, WaitlistStatus.PENDING),
+          inArray(tbWaitlist.status, [WaitlistStatus.PENDING, WaitlistStatus.WAITING]),
         ),
       );
 
@@ -170,7 +175,7 @@ export class WaitlistService {
         interestPlanId: dto.interestPlanId || null,
         source: dto.source || null,
         notes: dto.notes || null,
-        status: WaitlistStatus.PENDING,
+        status: WaitlistStatus.WAITING,
       })
       .returning();
 
@@ -237,18 +242,14 @@ export class WaitlistService {
       throw new ConflictException('Esta entrada já foi convertida');
     }
 
-    const [updated] = await this.db
-      .update(tbWaitlist)
-      .set({
-        status: WaitlistStatus.CONVERTED,
-        convertedAt: new Date(),
-        convertedToUserId: dto.studentId,
-        updatedAt: new Date(),
-      })
-      .where(eq(tbWaitlist.id, id))
-      .returning();
+    // Após a matrícula, removemos a entrada da lista de espera
+    await this.db.delete(tbWaitlist).where(eq(tbWaitlist.id, id));
 
-    return updated;
+    return {
+      id,
+      convertedToUserId: dto.studentId,
+      status: WaitlistStatus.CONVERTED,
+    };
   }
 
   async cancel(id: string) {

@@ -1,4 +1,5 @@
 import {
+  IsIn,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -20,6 +21,12 @@ export class LoginDto {
   @IsNotEmpty()
   @MinLength(8)
   password: string;
+
+  // Permite ao MASTER escolher se quer logar como master ou como admin
+  @IsString()
+  @IsOptional()
+  @IsIn(['master', 'admin'])
+  mode?: 'master' | 'admin';
 }
 
 export class RegisterDto {

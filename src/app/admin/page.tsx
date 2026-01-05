@@ -1,5 +1,6 @@
 "use client";
 
+import { Dumbbell } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -33,8 +34,15 @@ const AdminPage = () => {
   }, [isAuthenticated, loading, router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black">
-      <div className="text-lg text-[#C2A537]">Redirecionando para login...</div>
+    <div className="flex min-h-screen items-center justify-center bg-black text-[#C2A537]">
+      <div className="flex flex-col items-center gap-4">
+        <div className="relative flex h-16 w-16 items-center justify-center">
+          <div className="absolute inset-0 animate-ping rounded-full border-2 border-[#C2A537]/20" />
+          <div className="absolute inset-2 rounded-full border border-[#C2A537]/40 blur-[1px]" />
+          <Dumbbell className="h-10 w-10 animate-bounce" strokeWidth={1.75} />
+        </div>
+        <span className="sr-only">Redirecionando para login...</span>
+      </div>
     </div>
   );
 };

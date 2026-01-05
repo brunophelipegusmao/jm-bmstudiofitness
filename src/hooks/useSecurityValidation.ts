@@ -39,7 +39,7 @@ export function useSecurityValidation() {
         }
 
         return { isValid: true };
-      } catch (error) {
+      } catch {
         return { isValid: false, error: "Erro interno de validação" };
       } finally {
         setIsValidating(false);

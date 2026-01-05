@@ -38,6 +38,7 @@ export const tbPersonalData = pgTable('tb_personal_data', {
     .references(() => tbUsers.id),
   cpf: varchar('cpf', { length: 11 }).notNull().unique(),
   bornDate: date('born_date').notNull(),
+  sex: text('sex').default('masculino').notNull(),
   address: text('address').notNull(),
   telephone: text('telephone').notNull(),
   email: text('email').notNull().unique(),
@@ -219,6 +220,18 @@ export const tbStudioSettings = pgTable('tb_studio_settings', {
   carouselImage5: text('carousel_image_5'),
   carouselImage6: text('carousel_image_6'),
   carouselImage7: text('carousel_image_7'),
+  carouselEnabled: boolean('carousel_enabled').notNull().default(true),
+
+  // Conteúdo customizável da home
+  homeHistoryMarkdown: text('home_history_markdown'),
+  homeHistoryImage: text('home_history_image'),
+  foundationDate: date('foundation_date'),
+  promoBannerEnabled: boolean('promo_banner_enabled').default(false),
+  promoBannerMediaType: text('promo_banner_media_type'),
+  promoBannerUrl: text('promo_banner_url'),
+  promoBannerTitle: text('promo_banner_title'),
+  promoBannerDescription: text('promo_banner_description'),
+  promoBannerLink: text('promo_banner_link'),
 
   // Metadados
   createdAt: timestamp('created_at').defaultNow().notNull(),

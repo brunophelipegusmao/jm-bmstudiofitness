@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 
 export enum WaitlistStatus {
+  WAITING = 'waiting',
   PENDING = 'pending',
   CONTACTED = 'contacted',
   CONVERTED = 'converted',

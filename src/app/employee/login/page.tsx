@@ -33,7 +33,8 @@ export default function EmployeeLoginPage() {
       } else {
         setError(result.error || "Erro ao fazer login");
       }
-    } catch (err) {
+    } catch (error) {
+      console.error(error);
       setError("Erro ao conectar com o servidor");
     } finally {
       setIsPending(false);

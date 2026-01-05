@@ -481,6 +481,61 @@ export class UsersService {
   }
 
   /**
+   * Exclusão definitiva com limpeza de dependências (check-ins, permissões, dados pessoais, financeiro, etc.)
+   */
+  async hardDelete(id: string, requestingUserId: string, role: UserRole) {
+    if (role !== UserRole.MASTER && role !== UserRole.ADMIN) {
+      throw new ForbiddenException(
+        'Apenas ADMIN ou MASTER podem excluir usuários',
+      );
+    }
+
+    if (id === requestingUserId) {
+      throw new BadRequestException('Você não pode excluir a si mesmo');
+    }
+
+    const [user] = await this.db
+      .select()
+      .from(tbUsers)
+      .where(eq(tbUsers.id, id))
+      .limit(1);
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    // Limpa dependências principais
+    await this.db
+      .delete(schema.tbCheckIns)
+      .where(eq(schema.tbCheckIns.userId, id));
+    await this.db
+      .delete(schema.tbEmployeePermissions)
+      .where(eq(schema.tbEmployeePermissions.userId, id));
+    await this.db
+      .delete(schema.tbStudentPermissions)
+      .where(eq(schema.tbStudentPermissions.userId, id));
+    await this.db
+      .delete(schema.tbHealthMetrics)
+      .where(eq(schema.tbHealthMetrics.userId, id));
+    await this.db
+      .delete(schema.tbFinancial)
+      .where(eq(schema.tbFinancial.userId, id));
+    await this.db
+      .delete(schema.tbBodyMeasurements)
+      .where(eq(schema.tbBodyMeasurements.userId, id));
+
+    // Dados pessoais
+    await this.db
+      .delete(tbPersonalData)
+      .where(eq(tbPersonalData.userId, id));
+
+    // Finalmente, o usuário
+    await this.db.delete(tbUsers).where(eq(tbUsers.id, id));
+
+    return { success: true };
+  }
+
+  /**
    * Reativar usuário
    */
   async restore(id: string) {

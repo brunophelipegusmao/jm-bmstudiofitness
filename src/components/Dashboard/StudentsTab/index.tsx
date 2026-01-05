@@ -125,6 +125,7 @@ export function StudentsTab({
     if (res.success) {
       showSuccessToast("Dados de saúde atualizados");
       await loadProfile(selected!);
+      await refreshList();
     } else showErrorToast(res.error ?? "Erro ao salvar saúde");
   };
 
@@ -143,6 +144,7 @@ export function StudentsTab({
     if (res.success) {
       showSuccessToast("Financeiro atualizado");
       await loadProfile(selected!);
+      await refreshList();
     } else showErrorToast(res.error ?? "Erro ao salvar financeiro");
   };
 

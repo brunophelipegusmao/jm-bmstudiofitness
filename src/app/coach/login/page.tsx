@@ -40,7 +40,8 @@ const CoachLogin = () => {
       } else {
         setError(result.error || "Erro ao fazer login");
       }
-    } catch (err) {
+    } catch (error) {
+      console.error(error);
       setError("Erro ao conectar com o servidor");
     } finally {
       setIsPending(false);
@@ -147,7 +148,7 @@ const CoachLogin = () => {
                           id="email"
                           name="email"
                           type="email"
-                          placeholder="seu.email@jmfitnessstudio.com"
+                          placeholder="Digite seu e-mail"
                           required
                           disabled={isPending}
                           className="border-[#C2A537]/30 bg-slate-900/50 text-white transition-all duration-300 placeholder:text-slate-500 focus:border-[#C2A537] focus:ring-[#C2A537]/20"
@@ -171,7 +172,7 @@ const CoachLogin = () => {
                             id="password"
                             name="password"
                             type={showPassword ? "text" : "password"}
-                            placeholder="sua senha"
+                            placeholder="Digite sua senha"
                             required
                             disabled={isPending}
                             className="border-[#C2A537]/30 bg-slate-900/50 pr-12 text-white transition-all duration-300 placeholder:text-slate-500 focus:border-[#C2A537] focus:ring-[#C2A537]/20"

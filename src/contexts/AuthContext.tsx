@@ -26,6 +26,7 @@ interface AuthContextType {
   login: (
     email: string,
     password: string,
+    mode?: "master" | "admin",
   ) => Promise<{ success: boolean; error?: string; user?: User }>;
   register: (data: {
     email: string;
@@ -68,10 +69,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function login(email: string, password: string) {
+  async function login(email: string, password: string, mode?: "master" | "admin") {
     try {
       setLoading(true);
-      const response = await apiClient.login({ login: email, password });
+      const response = await apiClient.login({ login: email, password, mode });
       setUser(response.user);
       return { success: true, user: response.user };
     } catch (error) {

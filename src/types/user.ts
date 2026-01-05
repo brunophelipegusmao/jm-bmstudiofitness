@@ -42,6 +42,7 @@ export interface UpdateUserData {
 }
 
 export const USER_ROLES: Record<UserRole, string> = {
+  [UserRole.MASTER]: "Master",
   [UserRole.ADMIN]: "Administrador",
   [UserRole.FUNCIONARIO]: "Funcionário",
   [UserRole.PROFESSOR]: "Professor",
@@ -49,6 +50,8 @@ export const USER_ROLES: Record<UserRole, string> = {
 } as const;
 
 export const USER_ROLE_DESCRIPTIONS: Record<UserRole, string> = {
+  [UserRole.MASTER]:
+    "Acesso total ao sistema, pode alternar entre perfis master/admin",
   [UserRole.ADMIN]:
     "Acesso total ao sistema, pode gerenciar usuários e configurações",
   [UserRole.FUNCIONARIO]:

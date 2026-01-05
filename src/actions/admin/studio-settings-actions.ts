@@ -43,6 +43,16 @@ export interface StudioSettings {
   contactEmail?: string;
   contactPhone?: string;
   openingHours?: string;
+  carouselEnabled?: boolean;
+  homeHistoryMarkdown?: string | null;
+  homeHistoryImage?: string | null;
+  foundationDate?: string | null;
+  promoBannerEnabled?: boolean;
+  promoBannerMediaType?: "image" | "video";
+  promoBannerUrl?: string | null;
+  promoBannerTitle?: string | null;
+  promoBannerDescription?: string | null;
+  promoBannerLink?: string | null;
 }
 
 const defaultSettings: StudioSettings = {
@@ -60,6 +70,16 @@ const defaultSettings: StudioSettings = {
   gracePeriodDays: 0,
   maxCheckInsPerDay: 0,
   allowWeekendCheckIn: false,
+  carouselEnabled: true,
+  homeHistoryMarkdown: null,
+  homeHistoryImage: null,
+  foundationDate: null,
+  promoBannerEnabled: false,
+  promoBannerMediaType: "image",
+  promoBannerUrl: null,
+  promoBannerTitle: null,
+  promoBannerDescription: null,
+  promoBannerLink: null,
 };
 
 export async function getStudioSettingsAction(): Promise<{

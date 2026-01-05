@@ -8,22 +8,23 @@ import { useEffect, useState } from "react";
 
 export default function MaintenancePage() {
   const router = useRouter();
-  const [countdown, setCountdown] = useState(10);
+  const REDIRECT_SECONDS = 10;
+  const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          router.push("/waitlist");
-          return 0;
-        }
-        return prev - 1;
-      });
+    const interval = setInterval(() => {
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [router]);
+    const timeout = setTimeout(() => {
+      router.replace("/waitlist");
+    }, REDIRECT_SECONDS * 1000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [router, REDIRECT_SECONDS]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#1b1b1a] to-black px-4">

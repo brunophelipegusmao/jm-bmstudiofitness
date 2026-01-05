@@ -11,7 +11,7 @@
  * 4. Corrige dividindo por 100 apenas os valores identificados como incorretos
  */
 
-import { and, eq, gt,isNull, sql } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 
 import { db } from "@/db";
 import { financialTable, usersTable } from "@/db/schema";

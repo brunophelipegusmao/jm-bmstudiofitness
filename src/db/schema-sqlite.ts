@@ -1,11 +1,7 @@
 import { relations, sql } from "drizzle-orm";
-import { int, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 import { UserRole } from "../types/user-roles";
-
-// Helper para criar UUID
-const uuid = () => sql`(lower(hex(randomblob(16))))`;
-const now = () => sql`(datetime('now'))`;
 
 export const usersTable = sqliteTable("tb_users", {
   id: text("id")
