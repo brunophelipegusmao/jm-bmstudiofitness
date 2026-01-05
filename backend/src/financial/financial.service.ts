@@ -291,7 +291,7 @@ export class FinancialService {
     const due =
       typeof existing.dueDate === 'number'
         ? `dia ${existing.dueDate}`
-        : existing.dueDate ?? '';
+        : (existing.dueDate ?? '');
 
     const templateTexts: Record<
       'upcoming' | 'today' | 'blocked',
@@ -299,27 +299,21 @@ export class FinancialService {
     > = {
       upcoming: {
         subject: 'Sua mensalidade está próxima do vencimento',
-        body: `Olá ${existing.userName ?? 'aluno(a)'}!
+        body: `Notamos que sua mensalidade (${formattedAmount}) vence em breve (${due}). Para evitar bloqueio do check-in, pedimos que conclua o pagamento até o vencimento.
 
-Notamos que sua mensalidade (${formattedAmount}) vence em breve (${due}). Para evitar bloqueio do check-in, pedimos que conclua o pagamento até o vencimento.
-
-Qualquer dúvida, estamos à disposição.`,
+      Qualquer dúvida, estamos à disposição.`,
       },
       today: {
         subject: 'Sua mensalidade vence hoje',
-        body: `Olá ${existing.userName ?? 'aluno(a)'}!
+        body: `Lembrando que sua mensalidade (${formattedAmount}) vence hoje (${due}). Assim que o pagamento for concluído, seu acesso permanece liberado normalmente.
 
-Lembrando que sua mensalidade (${formattedAmount}) vence hoje (${due}). Assim que o pagamento for concluído, seu acesso permanece liberado normalmente.
-
-Conte conosco se precisar de ajuda.`,
+      Conte conosco se precisar de ajuda.`,
       },
       blocked: {
         subject: 'Regularize sua mensalidade para liberar o check-in',
-        body: `Olá ${existing.userName ?? 'aluno(a)'}!
+        body: `Identificamos que sua mensalidade (${formattedAmount}) está em aberto e o check-in foi temporariamente bloqueado. Por favor, regularize o pagamento referente a ${due} para restabelecer o acesso.
 
-Identificamos que sua mensalidade (${formattedAmount}) está em aberto e o check-in foi temporariamente bloqueado. Por favor, regularize o pagamento referente a ${due} para restabelecer o acesso.
-
-Se precisar de suporte ou parcelamento, fale com a nossa equipe.`,
+      Se precisar de suporte ou parcelamento, fale com a nossa equipe.`,
       },
     };
 

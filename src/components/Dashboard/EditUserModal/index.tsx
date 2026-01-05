@@ -119,7 +119,11 @@ const employeeSchema = z
 const studentSchema = z
   .object({
     ...baseSchemaFields,
-    monthlyFeeValueInCents: z.number().min(0, "Mensalidade inválida"),
+    // Aqui o valor é em REAIS (ex.: 150.00) e só convertimos para centavos no submit
+    monthlyFeeValueInCents: z
+      .number()
+      .min(0, "Mensalidade inválida")
+      .max(21474836.47, "Mensalidade muito alta"),
     paymentMethod: z.enum([
       "pix",
       "cartao-credito",
@@ -259,7 +263,10 @@ export function EditUserModal({
           // Dados de aluno
           if (isStudent) {
             if (data.monthlyFeeValueInCents !== undefined) {
-              setValue("monthlyFeeValueInCents", data.monthlyFeeValueInCents);
+              setValue(
+                "monthlyFeeValueInCents",
+                data.monthlyFeeValueInCents / 100,
+              );
             }
             if (data.paymentMethod) {
               setValue(
@@ -285,13 +292,31 @@ export function EditUserModal({
     } else {
       reset();
     }
-  }, [isOpen, userId, setValue, reset, onClose, isEmployee, isStudent, userName, userRole, adminId]);
+  }, [
+    isOpen,
+    userId,
+    setValue,
+    reset,
+    onClose,
+    isEmployee,
+    isStudent,
+    userName,
+    userRole,
+    adminId,
+  ]);
 
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
 
     // Remover confirmPassword e preparar dados
     const { password, confirmPassword, ...restData } = data;
+
+    // Converter mensalidade (reais) para centavos antes de enviar
+    const mensalidadeReais = restData.monthlyFeeValueInCents;
+    if (mensalidadeReais !== undefined) {
+      const cents = Math.round((mensalidadeReais || 0) * 100);
+      restData.monthlyFeeValueInCents = cents;
+    }
 
     // Só incluir password se foi preenchida
     const updateData: Partial<FormData> & { id: string } = {
@@ -611,20 +636,9 @@ export function EditUserModal({
                           type="number"
                           step="0.01"
                           {...register("monthlyFeeValueInCents", {
-                            setValueAs: (value) =>
-                              Math.round(parseFloat(value) * 100),
+                            setValueAs: (value) => parseFloat(value) || 0,
                           })}
-                          onChange={(e) => {
-                            const valueInReais =
-                              parseFloat(e.target.value) || 0;
-                            setValue(
-                              "monthlyFeeValueInCents",
-                              Math.round(valueInReais * 100),
-                            );
-                          }}
-                          defaultValue={
-                            (watch("monthlyFeeValueInCents") || 0) / 100
-                          }
+                          defaultValue={watch("monthlyFeeValueInCents") || 0}
                         />
                         {errors.monthlyFeeValueInCents && (
                           <p className="text-sm text-red-500">

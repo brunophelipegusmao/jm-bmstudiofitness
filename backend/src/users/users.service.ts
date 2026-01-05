@@ -212,9 +212,15 @@ export class UsersService {
           address: tbPersonalData.address,
           telephone: tbPersonalData.telephone,
         },
+        financial: {
+          monthlyFeeValueInCents: tbFinancial.monthlyFeeValue,
+          paymentMethod: tbFinancial.paymentMethod,
+          dueDate: tbFinancial.dueDate,
+        },
       })
       .from(tbUsers)
       .leftJoin(tbPersonalData, eq(tbUsers.id, tbPersonalData.userId))
+      .leftJoin(tbFinancial, eq(tbUsers.id, tbFinancial.userId))
       .where(eq(tbUsers.id, id))
       .limit(1);
 
@@ -284,7 +290,7 @@ export class UsersService {
   /**
    * Atualizar dados do usuÃ¡rio
    */
-    async update(
+  async update(
     id: string,
     updateUserDto: UpdateUserDto,
     requestingRole: UserRole,
@@ -341,9 +347,9 @@ export class UsersService {
     if (hasFinanceFields) {
       const financeUpdate: any = { updatedAt: new Date() };
       if ((updateUserDto as any).monthlyFeeValueInCents !== undefined) {
-        financeUpdate.monthlyFeeValue = Number(
-          (updateUserDto as any).monthlyFeeValueInCents,
-        );
+        const raw = Number((updateUserDto as any).monthlyFeeValueInCents);
+        const safeValue = Math.max(0, Math.min(2147483647, raw)); // evitar overflow do int4
+        financeUpdate.monthlyFeeValue = safeValue;
       }
       if ((updateUserDto as any).paymentMethod !== undefined) {
         financeUpdate.paymentMethod = (updateUserDto as any).paymentMethod;
@@ -364,15 +370,13 @@ export class UsersService {
           .set(financeUpdate)
           .where(eq(tbFinancial.userId, id));
       } else {
-        await this.db
-          .insert(tbFinancial)
-          .values({
-            userId: id,
-            monthlyFeeValue: financeUpdate.monthlyFeeValue ?? 0,
-            dueDate: financeUpdate.dueDate ?? 1,
-            paymentMethod: financeUpdate.paymentMethod ?? 'pix',
-            paid: false,
-          });
+        await this.db.insert(tbFinancial).values({
+          userId: id,
+          monthlyFeeValue: financeUpdate.monthlyFeeValue ?? 0,
+          dueDate: financeUpdate.dueDate ?? 1,
+          paymentMethod: financeUpdate.paymentMethod ?? 'pix',
+          paid: false,
+        });
       }
     }
 
@@ -426,7 +430,9 @@ export class UsersService {
       .limit(1);
 
     if (!employee) {
-      throw new NotFoundException('PermissÃµes de funcionÃ¡rio nÃ£o encontradas');
+      throw new NotFoundException(
+        'PermissÃµes de funcionÃ¡rio nÃ£o encontradas',
+      );
     }
 
     const [updated] = await this.db
@@ -449,7 +455,9 @@ export class UsersService {
       .limit(1);
 
     if (!permissions) {
-      throw new NotFoundException('PermissÃµes de funcionÃ¡rio nÃ£o encontradas');
+      throw new NotFoundException(
+        'PermissÃµes de funcionÃ¡rio nÃ£o encontradas',
+      );
     }
 
     return permissions;
@@ -538,9 +546,11 @@ export class UsersService {
   /**
    * ExclusÃ£o definitiva com limpeza de dependÃªncias (check-ins, permissÃµes, dados pessoais, financeiro, etc.)
    */
-    async hardDelete(id: string, requestingUserId: string, role: UserRole) {
+  async hardDelete(id: string, requestingUserId: string, role: UserRole) {
     if (role !== UserRole.MASTER && role !== UserRole.ADMIN) {
-      throw new ForbiddenException('Apenas ADMIN ou MASTER podem excluir usuarios');
+      throw new ForbiddenException(
+        'Apenas ADMIN ou MASTER podem excluir usuarios',
+      );
     }
 
     if (id === requestingUserId) {
@@ -564,15 +574,21 @@ export class UsersService {
       .where(eq(schema.tbWaitlist.convertedToUserId, id));
 
     // Limpa dependencias principais
-    await this.db.delete(schema.tbCheckIns).where(eq(schema.tbCheckIns.userId, id));
+    await this.db
+      .delete(schema.tbCheckIns)
+      .where(eq(schema.tbCheckIns.userId, id));
     await this.db
       .delete(schema.tbEmployeePermissions)
       .where(eq(schema.tbEmployeePermissions.userId, id));
     await this.db
       .delete(schema.tbStudentPermissions)
       .where(eq(schema.tbStudentPermissions.userId, id));
-    await this.db.delete(schema.tbHealthMetrics).where(eq(schema.tbHealthMetrics.userId, id));
-    await this.db.delete(schema.tbFinancial).where(eq(schema.tbFinancial.userId, id));
+    await this.db
+      .delete(schema.tbHealthMetrics)
+      .where(eq(schema.tbHealthMetrics.userId, id));
+    await this.db
+      .delete(schema.tbFinancial)
+      .where(eq(schema.tbFinancial.userId, id));
     await this.db
       .delete(schema.tbBodyMeasurements)
       .where(eq(schema.tbBodyMeasurements.userId, id));
@@ -588,7 +604,7 @@ export class UsersService {
 
     return { success: true };
   }
-async restore(id: string) {
+  async restore(id: string) {
     const [user] = await this.db
       .select()
       .from(tbUsers)
@@ -620,6 +636,3 @@ async restore(id: string) {
     return this.softDelete(id, requestingUserId, UserRole.ADMIN);
   }
 }
-
-
-

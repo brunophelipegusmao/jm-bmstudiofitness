@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
@@ -13,18 +12,19 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 
-import { getExpensesOverviewAction } from "@/actions/admin/get-expenses-overview-action";
 import { getExpensesAction } from "@/actions/admin/expenses-actions";
+import { getExpensesOverviewAction } from "@/actions/admin/get-expenses-overview-action";
 import { getFinancialReportsAction } from "@/actions/admin/get-financial-reports-action";
 import { getPaymentDueDatesAction } from "@/actions/admin/get-payment-due-dates-action";
 import {
   getStudentsPaymentsAction,
   type StudentPaymentData,
 } from "@/actions/admin/get-students-payments-action";
+import { sendFinancialReminderAction } from "@/actions/admin/send-financial-reminder-action";
 import { ExpenseForm, ExpenseTable } from "@/components/Admin/ExpenseManager";
 import type { Expense } from "@/components/Admin/ExpenseManager/types";
-import { sendFinancialReminderAction } from "@/actions/admin/send-financial-reminder-action";
 import { ReportsView } from "@/components/Dashboard/ReportsView";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/payment-utils";
@@ -67,9 +67,9 @@ export function FinancialTab() {
   const [showReports, setShowReports] = useState(false);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loadingExpenses, setLoadingExpenses] = useState(false);
-  const [reportScope, setReportScope] = useState<"alunos" | "estudio" | "geral">(
-    "alunos",
-  );
+  const [reportScope, setReportScope] = useState<
+    "alunos" | "estudio" | "geral"
+  >("alunos");
   const [reportFormat, setReportFormat] = useState<"pdf" | "excel">("pdf");
   const studentFields = [
     "name",
@@ -90,12 +90,12 @@ export function FinancialTab() {
     "paymentDate",
     "paymentMethod",
   ] as const;
-  const [selectedStudentFields, setSelectedStudentFields] = useState<string[]>(
-    [...studentFields],
-  );
-  const [selectedExpenseFields, setSelectedExpenseFields] = useState<string[]>(
-    [...expenseFields],
-  );
+  const [selectedStudentFields, setSelectedStudentFields] = useState<string[]>([
+    ...studentFields,
+  ]);
+  const [selectedExpenseFields, setSelectedExpenseFields] = useState<string[]>([
+    ...expenseFields,
+  ]);
   const [reminderChoice, setReminderChoice] = useState<Record<string, string>>(
     {},
   );
@@ -254,10 +254,11 @@ export function FinancialTab() {
           <CardHeader className="flex items-center justify-between">
             <CardTitle className="text-lg text-[#C2A537]">
               Alunosem dia x em atraso
-            </CardTitle> 
+            </CardTitle>
             <div className="flex gap-2 text-sm text-slate-300">
               <span>
-                Em dia: <strong className="text-green-400">{paid.length}</strong>
+                Em dia:{" "}
+                <strong className="text-green-400">{paid.length}</strong>
               </span>
               <span>
                 Pendentes:{" "}
@@ -289,7 +290,7 @@ export function FinancialTab() {
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-slate-700 text-sm text-slate-200">
-                <thead className="bg-slate-900/60 text-xs uppercase text-slate-400">
+                <thead className="bg-slate-900/60 text-xs text-slate-400 uppercase">
                   <tr>
                     <th className="px-4 py-3 text-left">Aluno</th>
                     <th className="px-4 py-3 text-left">Email / Cobrança</th>
@@ -347,7 +348,9 @@ export function FinancialTab() {
                                 <option value="upcoming">
                                   Mensalidade próxima do vencimento
                                 </option>
-                                <option value="today">Mensalidade vence hoje</option>
+                                <option value="today">
+                                  Mensalidade vence hoje
+                                </option>
                                 <option value="blocked">
                                   Em atraso (check-in bloqueado)
                                 </option>
@@ -368,7 +371,9 @@ export function FinancialTab() {
                                     if (res.success) {
                                       alert("Cobrança enviada (simulada).");
                                     } else {
-                                      alert(res.error ?? "Erro ao enviar cobrança.");
+                                      alert(
+                                        res.error ?? "Erro ao enviar cobrança.",
+                                      );
                                     }
                                     setSendingReminder(null);
                                   });
@@ -434,8 +439,8 @@ export function FinancialTab() {
           </span>{" "}
           · Pagas:{" "}
           <span className="text-green-400">
-            {expensesOverview.paid.count} ({expensesOverview.paid.totalFormatted}
-            )
+            {expensesOverview.paid.count} (
+            {expensesOverview.paid.totalFormatted})
           </span>
         </div>
       </div>
@@ -564,8 +569,10 @@ export function FinancialTab() {
                   ? p.dueDate.toLocaleDateString("pt-BR")
                   : "";
             case "paymentMethod":
-              return (p as StudentPaymentData & { paymentMethod?: string })
-                .paymentMethod ?? "";
+              return (
+                (p as StudentPaymentData & { paymentMethod?: string })
+                  .paymentMethod ?? ""
+              );
             case "paid":
               return p.paid ? "Pago" : "Pendente";
             case "lastPaymentDate":
@@ -745,7 +752,9 @@ export function FinancialTab() {
               <select
                 value={reportScope}
                 onChange={(e) =>
-                  setReportScope(e.target.value as "alunos" | "estudio" | "geral")
+                  setReportScope(
+                    e.target.value as "alunos" | "estudio" | "geral",
+                  )
                 }
                 className="rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white"
               >
@@ -779,7 +788,10 @@ export function FinancialTab() {
                 </p>
                 <div className="mt-2 grid gap-2 md:grid-cols-3">
                   {studentFields.map((field) => (
-                    <label key={field} className="flex items-center gap-2 text-sm text-slate-200">
+                    <label
+                      key={field}
+                      className="flex items-center gap-2 text-sm text-slate-200"
+                    >
                       <input
                         type="checkbox"
                         checked={selectedStudentFields.includes(field)}
@@ -810,7 +822,10 @@ export function FinancialTab() {
                 </p>
                 <div className="mt-2 grid gap-2 md:grid-cols-3">
                   {expenseFields.map((field) => (
-                    <label key={field} className="flex items-center gap-2 text-sm text-slate-200">
+                    <label
+                      key={field}
+                      className="flex items-center gap-2 text-sm text-slate-200"
+                    >
                       <input
                         type="checkbox"
                         checked={selectedExpenseFields.includes(field)}

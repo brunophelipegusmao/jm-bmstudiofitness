@@ -1,8 +1,12 @@
 import {
   IsBoolean,
   IsEmail,
+  IsInt,
+  IsNumber,
   IsOptional,
   IsString,
+  Max,
+  Min,
   Length,
 } from 'class-validator';
 
@@ -42,6 +46,21 @@ export class UpdateUserDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  // Campos financeiros de alunos (permitir edição no endpoint /users/:id)
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(2147483647)
+  monthlyFeeValueInCents?: number;
+
+  @IsOptional()
+  @IsString()
+  paymentMethod?: string;
+
+  @IsOptional()
+  @IsInt()
+  dueDate?: number;
 }
 
 export class UpdatePasswordDto {

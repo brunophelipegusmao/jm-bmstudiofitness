@@ -22,7 +22,8 @@ export interface EmailData {
 
 function getEmailConfig(): EmailConfig {
   return {
-    provider: (process.env.EMAIL_PROVIDER as EmailConfig["provider"]) || "development",
+    provider:
+      (process.env.EMAIL_PROVIDER as EmailConfig["provider"]) || "development",
     // Forçar remetente fixo
     from: "contato@jmfitnessstudio.com.br",
     fromName: process.env.EMAIL_FROM_NAME || "JM Fitness Studio",
@@ -34,7 +35,10 @@ function getEmailConfig(): EmailConfig {
   };
 }
 
-function generateConfirmationEmailTemplate(name: string, confirmationUrl: string) {
+function generateConfirmationEmailTemplate(
+  name: string,
+  confirmationUrl: string,
+) {
   const html = `
     <!DOCTYPE html>
     <html>
@@ -129,8 +133,15 @@ async function sendWithResend(emailData: EmailData): Promise<boolean> {
 async function sendWithSMTP(emailData: EmailData): Promise<boolean> {
   try {
     const config = getEmailConfig();
-    if (!config.smtpHost || !config.smtpPort || !config.smtpUser || !config.smtpPass) {
-      console.error("SMTP nao configurado: defina SMTP_HOST, SMTP_PORT, SMTP_USER e SMTP_PASS.");
+    if (
+      !config.smtpHost ||
+      !config.smtpPort ||
+      !config.smtpUser ||
+      !config.smtpPass
+    ) {
+      console.error(
+        "SMTP nao configurado: defina SMTP_HOST, SMTP_PORT, SMTP_USER e SMTP_PASS.",
+      );
       return false;
     }
 
@@ -223,7 +234,10 @@ export async function sendConfirmationEmail(
     const config = getEmailConfig();
     const confirmationUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/user/confirm?token=${token}`;
 
-    const emailTemplate = generateConfirmationEmailTemplate(name, confirmationUrl);
+    const emailTemplate = generateConfirmationEmailTemplate(
+      name,
+      confirmationUrl,
+    );
 
     const emailData: EmailData = {
       to: email,
@@ -266,38 +280,38 @@ function generateResetPasswordEmailTemplate(name: string, resetUrl: string) {
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Redefinicao de senha - JM Fitness Studio</title>
+      <title>Redefinição de senha - JM Fitness Studio</title>
     </head>
     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
         <h1 style="color: #C2A537; margin: 0; font-size: 26px;">JM Fitness Studio</h1>
-        <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 15px;">Redefinicao de senha</p>
+        <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 15px;">Redefinição de senha</p>
       </div>
       <div style="background: #f9f9f9; padding: 28px; border-radius: 10px; margin-bottom: 30px;">
         <h2 style="color: #C2A537; margin-top: 0;">Olá, ${name}!</h2>
-        <p>Recebemos uma solicitacao para redefinir a senha da sua conta. Se voce nao fez esta solicitacao, ignore este email.</p>
+        <p>Recebemos uma solicitação para redefinir a senha da sua conta. Se você não fez esta solicitação, ignore este e-mail.</p>
         <p><strong>Importante:</strong> o link expira em 1 hora.</p>
         <div style="text-align: center; margin: 26px 0;">
           <a href="${resetUrl}" style="background: #C2A537; color: #000; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px; display: inline-block;">
             Redefinir senha
           </a>
         </div>
-        <p style="font-size: 13px; color: #666;">Se o botao nao funcionar, copie e cole este link no navegador:</p>
+        <p style="font-size: 13px; color: #666;">Se o botão não funcionar, copie e cole este link no navegador:</p>
         <p style="word-break: break-all; background: #e9e9e9; padding: 10px; border-radius: 6px; font-size: 12px;">${resetUrl}</p>
       </div>
       <div style="text-align: center; margin-top: 24px; padding-top: 16px; border-top: 1px solid #ddd;">
-        <p style="color: #666; font-size: 12px; margin: 0;">Este e um email automatico. Nao responda.</p>
+        <p style="color: #666; font-size: 12px; margin: 0;">Este é um e-mail automático. Não responda.</p>
       </div>
     </body>
     </html>
   `;
 
   const text = `
-JM Fitness Studio - Redefinicao de senha
+JM Fitness Studio - Redefinição de senha
 
 Olá, ${name}!
 
-Recebemos uma solicitacao para redefinir a senha da sua conta. Se voce nao fez esta solicitacao, ignore este email.
+Recebemos uma solicitação para redefinir a senha da sua conta. Se você não fez esta solicitação, ignore este e-mail.
 
 Link para redefinir: ${resetUrl}
 

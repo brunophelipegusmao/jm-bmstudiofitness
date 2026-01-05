@@ -11,6 +11,9 @@ export interface UpdateUserPayload {
   sex?: string;
   isActive?: boolean;
   userRole?: string;
+  monthlyFeeValueInCents?: number;
+  paymentMethod?: string;
+  dueDate?: number;
   // extensible for additional fields
   [key: string]: unknown;
 }
@@ -33,6 +36,11 @@ export async function updateUserAction(
     if (data.sex !== undefined) allowed.sex = data.sex;
     if (data.userRole !== undefined) allowed.userRole = data.userRole;
     if (data.isActive !== undefined) allowed.isActive = data.isActive;
+    if (data.monthlyFeeValueInCents !== undefined)
+      allowed.monthlyFeeValueInCents = data.monthlyFeeValueInCents;
+    if (data.paymentMethod !== undefined)
+      allowed.paymentMethod = data.paymentMethod;
+    if (data.dueDate !== undefined) allowed.dueDate = data.dueDate;
 
     await apiClient.patch(`/users/${id}`, allowed);
     return { success: true, message: "Usuario atualizado com sucesso" };
