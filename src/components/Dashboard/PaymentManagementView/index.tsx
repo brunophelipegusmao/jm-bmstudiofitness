@@ -254,9 +254,9 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
         .map((f) => f.label),
     ];
     const body = dataset.map((p) =>
-          exportableFields
-            .filter((f) => selectedFields.includes(f.key))
-            .map((f) => {
+      exportableFields
+        .filter((f) => selectedFields.includes(f.key))
+        .map((f) => {
           switch (f.key) {
             case "monthlyFeeValueInCents":
               return formatCurrency(p.monthlyFeeValueInCents ?? p.planValue);
@@ -277,12 +277,10 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
               return p.lastPaymentDate
                 ? format(p.lastPaymentDate, "dd/MM/yyyy")
                 : "";
-                default: {
-                  const fallback = (p as unknown as Record<string, unknown>)[
-                    f.key
-                  ];
-                  return fallback ?? "";
-                }
+            default: {
+              const fallback = (p as unknown as Record<string, unknown>)[f.key];
+              return fallback ?? "";
+            }
           }
         }),
     );

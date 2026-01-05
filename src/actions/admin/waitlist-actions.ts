@@ -56,7 +56,9 @@ export async function getWaitlistPublicAction(): Promise<{
     return { success: true, data: mapped };
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Erro ao carregar lista de espera";
+      error instanceof Error
+        ? error.message
+        : "Erro ao carregar lista de espera";
     return { success: false, error: message, data: [] };
   }
 }
@@ -81,7 +83,9 @@ export async function joinWaitlistAction(input: {
     return { success: true, message: "Cadastro realizado com sucesso!" };
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Erro ao cadastrar na lista de espera";
+      error instanceof Error
+        ? error.message
+        : "Erro ao cadastrar na lista de espera";
     return { success: false, error: message };
   }
 }
@@ -104,7 +108,9 @@ export async function getWaitlistAdminAction(): Promise<{
     }
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Erro ao carregar lista de espera";
+      error instanceof Error
+        ? error.message
+        : "Erro ao carregar lista de espera";
     return { success: false, error: message, data: [] };
   }
 }
@@ -163,7 +169,10 @@ export async function completeEnrollFromWaitlistAction(params: {
           `/users/email/${encodeURIComponent(params.email)}`,
         );
         if (!existing?.id) {
-          return { success: false, error: "Email já cadastrado em outro usuário" };
+          return {
+            success: false,
+            error: "Email já cadastrado em outro usuário",
+          };
         }
         userId = existing.id;
         createdNewUser = false;
@@ -193,7 +202,8 @@ export async function completeEnrollFromWaitlistAction(params: {
 
     // Dispara e-mail para o aluno criar a senha (após cadastro/associação)
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+      const baseUrl =
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
       const resp = await fetch(`${baseUrl}/api/waitlist/enroll-email`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -222,4 +232,3 @@ export async function exportWaitlistPdfAction() {
   }
   return { success: true, data: result.data };
 }
-

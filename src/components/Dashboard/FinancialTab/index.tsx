@@ -663,9 +663,11 @@ export function FinancialTab() {
             styles: { fontSize: 8 },
             headStyles: { fillColor: [194, 165, 55] },
           });
-          const lastAutoY = (doc as unknown as {
-            lastAutoTable?: { finalY?: number };
-          }).lastAutoTable?.finalY;
+          const lastAutoY = (
+            doc as unknown as {
+              lastAutoTable?: { finalY?: number };
+            }
+          ).lastAutoTable?.finalY;
           y = (lastAutoY ?? y) + 10;
         }
         if (hasExpenses) {
