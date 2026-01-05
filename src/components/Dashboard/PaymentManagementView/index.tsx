@@ -134,9 +134,9 @@ export function PaymentManagementView({ onBack }: PaymentManagementViewProps) {
     const timeout = setTimeout(async () => {
       try {
         setLoadingStudents(true);
-        const result = await searchStudentsAction({ query: term });
+        const result = await searchStudentsAction(term);
         const opts =
-          result?.students?.map((s) => ({
+          result?.data?.map((s) => ({
             id: s.id,
             name: s.name,
             email: s.email,
