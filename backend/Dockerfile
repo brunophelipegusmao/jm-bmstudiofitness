@@ -5,7 +5,7 @@ WORKDIR /app
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Build da aplicação NestJS
 FROM base AS builder
@@ -21,7 +21,7 @@ ENV PORT=3001
 ENV HOST=0.0.0.0
 
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps && npm cache clean --force
 COPY --from=builder /app/dist ./dist
 
 EXPOSE 3001
