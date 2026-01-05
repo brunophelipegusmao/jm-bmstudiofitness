@@ -25,23 +25,29 @@ async function bootstrap() {
   app.useGlobalGuards(new JwtAuthGuard(reflector), new RolesGuard(reflector));
 
   // CORS para o frontend Next.js (múltiplas portas)
-  const allowedOrigins = [
+  const envOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
+    : [];
+
+  const allowedOrigins = new Set([
     'http://localhost:3000',
     'http://localhost:3002',
     'http://localhost:3003',
     'http://localhost:3004',
     'http://localhost:8080',
+    'http://127.0.0.1:3000',
     'http://192.168.18.2:3000',
     'http://192.168.18.2:3002',
     'http://192.168.18.2:3003',
     'http://192.168.18.2:3004',
     'https://jmfitnessstudio.com.br',
-  ];
+    ...envOrigins,
+  ]);
 
   app.enableCors({
     origin: (origin, callback) => {
       // Permitir requisições sem origin (como curl, Postman) em desenvolvimento
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.has(origin)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
