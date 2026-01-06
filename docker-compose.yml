@@ -13,7 +13,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3001
-      - CORS_ORIGIN=https://www.jmstudiofitness.com.br,https://jmstudiofitness.com.br,http://147.79.86.73:8080
+      - CORS_ORIGIN=https://www.jmfitnessstudio.com.br,https://jmfitnessstudio.com.br,http://147.79.86.73:8080
     ports:
       - "3001:3001"
     networks:
@@ -25,14 +25,14 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: https://jmstudiofitness.com.br/api
-        NEXT_PUBLIC_BASE_URL: https://jmstudiofitness.com.br
+        NEXT_PUBLIC_API_URL: https://jmfitnessstudio.com.br/api
+        NEXT_PUBLIC_BASE_URL: https://jmfitnessstudio.com.br
     container_name: jmfitnessstudio-app
     restart: always
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=https://jmstudiofitness.com.br/api
-      - NEXT_PUBLIC_BASE_URL=https://jmstudiofitness.com.br
+      - NEXT_PUBLIC_API_URL=https://jmfitnessstudio.com.br/api
+      - NEXT_PUBLIC_BASE_URL=https://jmfitnessstudio.com.br
       - PORT=3000
     env_file:
       - .env
@@ -93,7 +93,7 @@ services:
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
       - NODE_ENV=production
-      - WEBHOOK_URL=https://jmstudiofitness.com.br/n8n/
+      - WEBHOOK_URL=https://jmfitnessstudio.com.br/n8n/
       - GENERIC_TIMEZONE=America/Sao_Paulo
       - N8N_PATH=/n8n/
     env_file:
