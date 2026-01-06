@@ -23,7 +23,10 @@ export function useCurrentUser() {
         setUser(profile as UserInfo);
         return;
       } catch (error) {
-        console.error("Erro ao buscar informações do usuário via apiClient:", error);
+        console.error(
+          "Erro ao buscar informações do usuário via apiClient:",
+          error,
+        );
 
         // Fallback: tenta rota local que lê cookie accessToken
         try {
