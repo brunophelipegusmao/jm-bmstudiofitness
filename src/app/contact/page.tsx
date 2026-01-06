@@ -25,7 +25,10 @@ declare global {
   interface Window {
     grecaptcha: {
       ready: () => Promise<void>;
-      execute: (siteKey: string, options: { action: string }) => Promise<string>;
+      execute: (
+        siteKey: string,
+        options: { action: string },
+      ) => Promise<string>;
     };
   }
 }
@@ -45,7 +48,9 @@ export default function ContactPage() {
     phone: "",
     message: "",
   });
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
   const [statusMessage, setStatusMessage] = useState<string>("");
   type RecaptchaInstance = {
     reset: () => void;
@@ -161,7 +166,9 @@ export default function ContactPage() {
       }
 
       setStatus("success");
-      setStatusMessage("Mensagem enviada com sucesso! Em breve entraremos em contato.");
+      setStatusMessage(
+        "Mensagem enviada com sucesso! Em breve entraremos em contato.",
+      );
       setFormData({ name: "", email: "", phone: "", message: "" });
       setCaptchaToken("");
       if (captchaRef.current) {
@@ -362,28 +369,29 @@ export default function ContactPage() {
                         placeholder="Digite sua mensagem aqui..."
                         rows={5}
                         className="w-full rounded-md border border-[#C2A537]/30 bg-slate-900/50 px-3 py-2 text-white transition-all duration-300 placeholder:text-slate-500 focus:border-[#C2A537] focus:ring-1 focus:ring-[#C2A537]/20 focus:outline-none"
-                  />
-                </motion.div>
+                      />
+                    </motion.div>
 
-                <div className="flex justify-start">
-                  {hasRecaptchaSiteKey ? (
-                    <ReCAPTCHA
-                      ref={captchaRef}
-                      sitekey={siteKey || ""}
-                      onChange={(token: string | null) =>
-                        setCaptchaToken(token || "")
-                      }
-                      onExpired={() => setCaptchaToken("")}
-                      hl="pt-BR"
-                    />
-                  ) : (
-                    <div className="rounded-md border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
-                      reCAPTCHA desabilitado: configure NEXT_PUBLIC_RECAPTCHA_SITE_KEY.
+                    <div className="flex justify-start">
+                      {hasRecaptchaSiteKey ? (
+                        <ReCAPTCHA
+                          ref={captchaRef}
+                          sitekey={siteKey || ""}
+                          onChange={(token: string | null) =>
+                            setCaptchaToken(token || "")
+                          }
+                          onExpired={() => setCaptchaToken("")}
+                          hl="pt-BR"
+                        />
+                      ) : (
+                        <div className="rounded-md border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
+                          reCAPTCHA desabilitado: configure
+                          NEXT_PUBLIC_RECAPTCHA_SITE_KEY.
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
 
-                <div className="flex-1"></div>
+                    <div className="flex-1"></div>
 
                     {statusMessage && (
                       <div
@@ -412,7 +420,9 @@ export default function ContactPage() {
                       >
                         <span className="flex items-center justify-center gap-2">
                           <Send className="h-4 w-4" />
-                          {status === "loading" ? "Enviando..." : "Enviar Mensagem"}
+                          {status === "loading"
+                            ? "Enviando..."
+                            : "Enviar Mensagem"}
                         </span>
                       </motion.button>
                     </motion.div>
