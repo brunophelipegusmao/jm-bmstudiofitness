@@ -11,6 +11,7 @@ import { and, eq, gt, or } from 'drizzle-orm';
 import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import * as schema from '../database/schema';
 import { v4 as uuidv4 } from 'uuid';
+import { sendEmail } from '../common/mailer';
 
 import {
   tbPasswordResetTokens,
@@ -327,13 +328,29 @@ export class AuthService {
       expiresAt,
     });
 
-    // Em produção, aqui enviaria o email com o link de reset
-    // Por ora, retornamos o token para testes
+    const resetBaseUrl =
+      process.env.FRONTEND_BASE_URL ||
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      'http://localhost:3000';
+
+    const resetUrl = `${resetBaseUrl}/user/reset-password?token=${token}`;
+
+    try {
+      await sendEmail({
+        to: forgotPasswordDto.email,
+        subject: 'Redefinição de senha - JM Fitness Studio',
+        text: `Recebemos uma solicitação para redefinir sua senha. Caso não tenha sido você, ignore este e-mail.\n\nLink para redefinir (expira em 1 hora): ${resetUrl}`,
+        html: `<p>Recebemos uma solicitação para redefinir sua senha.</p><p>Se não foi você, ignore este e-mail.</p><p><a href="${resetUrl}">Redefinir senha</a> (expira em 1 hora)</p><p style="font-size:12px;color:#666">Se o botão não funcionar, copie e cole o link: ${resetUrl}</p>`,
+      });
+    } catch (error) {
+      // Não revelamos falha de envio para o usuário final
+      console.error('Erro ao enviar e-mail de reset de senha:', error);
+    }
+
     return {
       success: true,
       message:
         'Se o email existir no sistema, um link de recuperação será enviado.',
-      token, // Remover em produção
     };
   }
 
