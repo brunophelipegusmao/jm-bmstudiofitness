@@ -24,10 +24,10 @@ export function AdminTabs({ students, onStudentsChange }: AdminTabsProps) {
   const { user } = useAuth();
   const tabParam = searchParams.get("tab");
   const normalizedTab = tabParam === "blog" ? "events" : tabParam;
-  const isMaster = user?.role === "master";
+  const isPrivileged = user?.role === "master" || user?.role === "admin";
   const requestedTab = normalizedTab || "administrative";
   const activeTab =
-    requestedTab === "maintenance" && !isMaster
+    requestedTab === "maintenance" && !isPrivileged
       ? "administrative"
       : requestedTab;
 
@@ -69,7 +69,7 @@ export function AdminTabs({ students, onStudentsChange }: AdminTabsProps) {
               {activeTab === "settings" &&
                 "Configure lista de espera e outros ajustes do estudio"}
               {activeTab === "maintenance" &&
-                "Apenas MASTER: controle de modo manutencao e rotas liberadas"}
+                "Apenas ADMIN/MASTER: controle de modo manutencao e rotas liberadas"}
             </p>
           </div>
 
@@ -94,11 +94,11 @@ export function AdminTabs({ students, onStudentsChange }: AdminTabsProps) {
             {activeTab === "plans" && <AdminPlansTab />}
             {activeTab === "settings" && <AdminSettingsTab />}
             {activeTab === "maintenance" &&
-              (isMaster ? (
+              (isPrivileged ? (
                 <MaintenanceControlPanel />
               ) : (
                 <div className="rounded-lg border border-orange-500/40 bg-orange-500/10 p-6 text-sm text-orange-300">
-                  Acesso restrito ao perfil MASTER.
+                  Acesso restrito aos perfis ADMIN ou MASTER.
                 </div>
               ))}
           </div>
