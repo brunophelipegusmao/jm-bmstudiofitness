@@ -65,6 +65,7 @@ export default function ContactPage() {
   }, []);
 
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+  const hasRecaptchaSiteKey = Boolean(siteKey && siteKey.trim().length > 0);
 
   const contactCards: ContactCard[] = useMemo(() => {
     const addressParts = [
@@ -365,13 +366,21 @@ export default function ContactPage() {
                 </motion.div>
 
                 <div className="flex justify-start">
-                  <ReCAPTCHA
-                    ref={captchaRef}
-                    sitekey={siteKey || ""}
-                    onChange={(token: string | null) => setCaptchaToken(token || "")}
-                    onExpired={() => setCaptchaToken("")}
-                    hl="pt-BR"
-                  />
+                  {hasRecaptchaSiteKey ? (
+                    <ReCAPTCHA
+                      ref={captchaRef}
+                      sitekey={siteKey || ""}
+                      onChange={(token: string | null) =>
+                        setCaptchaToken(token || "")
+                      }
+                      onExpired={() => setCaptchaToken("")}
+                      hl="pt-BR"
+                    />
+                  ) : (
+                    <div className="rounded-md border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
+                      reCAPTCHA desabilitado: configure NEXT_PUBLIC_RECAPTCHA_SITE_KEY.
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex-1"></div>
@@ -396,7 +405,7 @@ export default function ContactPage() {
                     >
                       <motion.button
                         type="submit"
-                        disabled={status === "loading"}
+                        disabled={status === "loading" || !hasRecaptchaSiteKey}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         className="w-full transform rounded-lg bg-linear-to-r from-[#C2A537] to-[#D4B547] py-3 font-semibold text-black transition-all duration-300 hover:from-[#D4B547] hover:to-[#E6C658] hover:shadow-xl hover:shadow-[#C2A537]/30 disabled:cursor-not-allowed disabled:opacity-60"
