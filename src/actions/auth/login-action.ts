@@ -28,7 +28,9 @@ export async function loginAction(
 
     const cookieStore = cookies();
     const maxAge = 60 * 60 * 24 * 7; // 7 dias
-    const isProd = process.env.NEXT_PUBLIC_BASE_URL?.includes("jmfitnessstudio.com.br");
+    const isProd = process.env.NEXT_PUBLIC_BASE_URL?.includes(
+      "jmfitnessstudio.com.br",
+    );
     const domain = isProd ? ".jmfitnessstudio.com.br" : undefined;
 
     cookieStore.set("accessToken", accessToken, {
