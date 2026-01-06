@@ -450,6 +450,7 @@ class ApiClient {
     type?: string;
   }) {
     return this.post("/financial", data);
+  }
 
   async markAsPaid(
     id: string,
