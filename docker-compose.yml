@@ -13,6 +13,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3001
+      - CORS_ORIGIN=https://www.jmfitnessstudio.com.br,https://jmfitnessstudio.com.br,http://147.79.86.73:8080
     ports:
       - "3001:3001"
     networks:
