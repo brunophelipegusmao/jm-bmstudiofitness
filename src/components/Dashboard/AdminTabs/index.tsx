@@ -59,8 +59,7 @@ export function AdminTabs({ students, onStudentsChange }: AdminTabsProps) {
                 "Busque e visualize dados completos dos alunos"}
               {activeTab === "users" &&
                 "Gerencie usuarios e permissoes do sistema"}
-              {activeTab === "employee" &&
-                "Gerencie funcionarios e seus dados"}
+              {activeTab === "employee" && "Gerencie funcionarios e seus dados"}
               {activeTab === "financial" &&
                 "Acompanhe relatorios e gestao financeira"}
               {activeTab === "events" && "Crie e gerencie eventos"}
