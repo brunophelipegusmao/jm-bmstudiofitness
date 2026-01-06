@@ -36,19 +36,19 @@ EMAIL_PROVIDER="development"
 
 A VPS provavelmente usa Nginx ou Apache como proxy reverso.
 
-**Para Nginx:**
+**Para Nginx (proxy externo para os containers Docker):**
 ```bash
 # Verificar configuração
 sudo nano /etc/nginx/sites-available/jmfitnessstudio.com.br
 
-# Deve ter algo assim:
+# Deve ter algo assim, apontando para o Nginx do docker-compose na porta 8080:
 server {
     listen 80;
     listen 443 ssl;
     server_name jmfitnessstudio.com.br www.jmfitnessstudio.com.br;
 
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://127.0.0.1:8080;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -67,7 +67,7 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-**Para Apache:**
+**Para Apache (proxy externo para os containers Docker):**
 ```bash
 # Verificar se mod_proxy está habilitado
 sudo a2enmod proxy
@@ -76,13 +76,14 @@ sudo a2enmod proxy_http
 # Verificar configuração
 sudo nano /etc/apache2/sites-available/jmfitnessstudio.com.br.conf
 
-# Deve ter:
+# Deve apontar para o Nginx interno na porta 8080:
 <VirtualHost *:80>
     ServerName jmfitnessstudio.com.br
-    
+    ServerAlias www.jmfitnessstudio.com.br
+
     ProxyPreserveHost On
-    ProxyPass / http://localhost:3000/
-    ProxyPassReverse / http://localhost:3000/
+    ProxyPass / http://127.0.0.1:8080/
+    ProxyPassReverse / http://127.0.0.1:8080/
 </VirtualHost>
 
 # Recarregar Apache
