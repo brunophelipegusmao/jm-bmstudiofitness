@@ -48,6 +48,7 @@ class ApiClient {
   private baseUrl: string;
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
+  private serverTokensLoaded = false;
 
   constructor(baseUrl: string = resolveBaseUrl()) {
     this.baseUrl = baseUrl;
@@ -56,6 +57,25 @@ class ApiClient {
     if (typeof window !== "undefined") {
       this.accessToken = localStorage.getItem("accessToken");
       this.refreshToken = localStorage.getItem("refreshToken");
+    }
+  }
+
+  /**
+   * Em ambiente server (SSR/actions), tenta carregar tokens dos cookies uma vez.
+   * Ignora erros quando o contexto Next.js não estiver disponível (ex.: scripts).
+   */
+  private async ensureServerTokens() {
+    if (typeof window !== "undefined" || this.serverTokensLoaded) return;
+
+    try {
+      const { cookies } = await import("next/headers");
+      const cookieStore = cookies();
+      this.accessToken = this.accessToken || cookieStore.get("accessToken")?.value || null;
+      this.refreshToken = this.refreshToken || cookieStore.get("refreshToken")?.value || null;
+      this.serverTokensLoaded = true;
+    } catch (error) {
+      // Em execução fora do App Router não há cookies(); apenas segue sem tokens.
+      this.serverTokensLoaded = true;
     }
   }
 
@@ -162,6 +182,7 @@ class ApiClient {
    * Metodo principal para fazer requisicoes a API
    */
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    await this.ensureServerTokens();
     const url = `${this.baseUrl}${endpoint}`;
 
     const headers: Record<string, string> = {
@@ -241,6 +262,7 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {},
   ): Promise<ArrayBuffer> {
+    await this.ensureServerTokens();
     const url = `${this.baseUrl}${endpoint}`;
     const headers: Record<string, string> = {
       ...((options.headers as Record<string, string>) || {}),
