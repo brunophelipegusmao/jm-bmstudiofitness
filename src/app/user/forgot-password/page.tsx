@@ -45,7 +45,8 @@ export default function ForgotPasswordPage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setLoading(true);
-      const response = await fetch("/api/user/request-reset-password", {
+      // Usa endpoint do backend Nest (proxied pelo Nginx)
+      const response = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,7 +59,9 @@ export default function ForgotPasswordPage() {
       if (data.success) {
         setShowSuccessModal(true);
       } else {
-        toast.error(data.message || "Ocorreu um erro ao processar sua solicitacao");
+        toast.error(
+          data.message || "Ocorreu um erro ao processar sua solicitacao",
+        );
       }
     } catch (err) {
       console.error("Erro ao solicitar redefinicao de senha:", err);
@@ -143,7 +146,8 @@ export default function ForgotPasswordPage() {
               Verifique seu e-mail
             </h3>
             <p className="mt-3 text-slate-200">
-              Se o e-mail estiver cadastrado, enviamos um link para redefinicao de senha.
+              Se o e-mail estiver cadastrado, enviamos um link para redefinicao
+              de senha.
             </p>
             <p className="mt-2 text-sm text-slate-400">
               Voce sera redirecionado para a pagina de login em instantes.

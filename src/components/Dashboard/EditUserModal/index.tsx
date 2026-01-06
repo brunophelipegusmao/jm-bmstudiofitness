@@ -350,7 +350,7 @@ export function EditUserModal({
     }
     setIsSendingReset(true);
     try {
-      const resp = await fetch("/api/user/request-reset-password", {
+      const resp = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
