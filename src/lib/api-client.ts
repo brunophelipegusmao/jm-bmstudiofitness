@@ -70,8 +70,10 @@ class ApiClient {
     try {
       const { cookies } = await import("next/headers");
       const cookieStore = cookies();
-      this.accessToken = this.accessToken || cookieStore.get("accessToken")?.value || null;
-      this.refreshToken = this.refreshToken || cookieStore.get("refreshToken")?.value || null;
+      this.accessToken =
+        this.accessToken || cookieStore.get("accessToken")?.value || null;
+      this.refreshToken =
+        this.refreshToken || cookieStore.get("refreshToken")?.value || null;
       this.serverTokensLoaded = true;
     } catch (error) {
       // Em execução fora do App Router não há cookies(); apenas segue sem tokens.
