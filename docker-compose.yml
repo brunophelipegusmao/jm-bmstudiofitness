@@ -62,8 +62,7 @@ services:
     container_name: jmfitnessstudio-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"  # expõe internamente; proxy reverso do host deve apontar para 127.0.0.1:8080
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
