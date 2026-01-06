@@ -69,9 +69,23 @@ class ApiClient {
     if (typeof window !== "undefined") {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
-      document.cookie = `accessToken=${accessToken}; path=/; max-age=${
-        60 * 60 * 24 * 7
-      }`;
+      const hostname = window.location.hostname;
+      const isProductionDomain = hostname.includes("jmfitnessstudio.com.br");
+      const cookieParts = [
+        `accessToken=${accessToken}`,
+        "path=/",
+        `max-age=${60 * 60 * 24 * 7}`,
+      ];
+
+      if (isProductionDomain) {
+        cookieParts.push(
+          "domain=.jmfitnessstudio.com.br",
+          "secure",
+          "samesite=lax",
+        );
+      }
+
+      document.cookie = cookieParts.join("; ");
     }
   }
 
@@ -85,8 +99,23 @@ class ApiClient {
     if (typeof window !== "undefined") {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-      document.cookie =
-        "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      const hostname = window.location.hostname;
+      const isProductionDomain = hostname.includes("jmfitnessstudio.com.br");
+      const cookieParts = [
+        "accessToken=;",
+        "path=/",
+        "expires=Thu, 01 Jan 1970 00:00:00 GMT",
+      ];
+
+      if (isProductionDomain) {
+        cookieParts.push(
+          "domain=.jmfitnessstudio.com.br",
+          "secure",
+          "samesite=lax",
+        );
+      }
+
+      document.cookie = cookieParts.join("; ");
     }
   }
 
@@ -365,7 +394,10 @@ class ApiClient {
     return this.patch(`/users/${id}`, data);
   }
 
-  async changePassword(id: string, data: { currentPassword: string; newPassword: string }) {
+  async changePassword(
+    id: string,
+    data: { currentPassword: string; newPassword: string },
+  ) {
     return this.patch(`/users/${id}/password`, data);
   }
 
