@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # API NestJS
   backend:
@@ -103,12 +101,11 @@ services:
 #     networks:
 #       - jmfitnessstudio-network
 
-# networks:
-#   jmfitnessstudio-network:
-#     driver: bridge
+networks:
+  jmfitnessstudio-network:
+    driver: bridge
 
-#   web:
-#     name: jm_web
-
+  web:
+    name: jm_web
 # volumes:
 #   n8n-data:
