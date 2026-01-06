@@ -85,30 +85,30 @@ services:
       - web
 
   # N8N para automações
-  n8n:
-    image: n8nio/n8n:latest
-    container_name: jmfitnessstudio-n8n
-    restart: always
-    environment:
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=https
-      - NODE_ENV=production
-      - WEBHOOK_URL=https://jmfitnessstudio.com.br/n8n/
-      - GENERIC_TIMEZONE=America/Sao_Paulo
-      - N8N_PATH=/n8n/
-    env_file:
-      - .env
-    volumes:
-      - n8n-data:/home/node/.n8n
-    networks:
-      - jmfitnessstudio-network
+#   n8n:
+#     image: n8nio/n8n:latest
+#     container_name: jmfitnessstudio-n8n
+#     restart: always
+#     environment:
+#       - N8N_PORT=5678
+#       - N8N_PROTOCOL=https
+#       - NODE_ENV=production
+#       - WEBHOOK_URL=https://jmfitnessstudio.com.br/n8n/
+#       - GENERIC_TIMEZONE=America/Sao_Paulo
+#       - N8N_PATH=/n8n/
+#     env_file:
+#       - .env
+#     volumes:
+#       - n8n-data:/home/node/.n8n
+#     networks:
+#       - jmfitnessstudio-network
 
-networks:
-  jmfitnessstudio-network:
-    driver: bridge
+# networks:
+#   jmfitnessstudio-network:
+#     driver: bridge
 
-  web:
-    name: jm_web
+#   web:
+#     name: jm_web
 
-volumes:
-  n8n-data:
+# volumes:
+#   n8n-data:
