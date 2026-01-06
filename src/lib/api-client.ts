@@ -450,7 +450,6 @@ class ApiClient {
     type?: string;
   }) {
     return this.post("/financial", data);
-        { success: false, message: "Sessao expirada" },
 
   async markAsPaid(
     id: string,
