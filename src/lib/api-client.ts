@@ -69,7 +69,7 @@ class ApiClient {
 
     try {
       const { cookies } = await import("next/headers");
-      const cookieStore = cookies();
+      const cookieStore = await cookies();
       this.accessToken =
         this.accessToken || cookieStore.get("accessToken")?.value || null;
       this.refreshToken =
@@ -450,7 +450,7 @@ class ApiClient {
     type?: string;
   }) {
     return this.post("/financial", data);
-  }
+        { success: false, message: "Sessao expirada" },
 
   async markAsPaid(
     id: string,
