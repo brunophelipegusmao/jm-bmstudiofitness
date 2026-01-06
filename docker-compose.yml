@@ -25,12 +25,14 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: /api
+        NEXT_PUBLIC_API_URL: https://jmfitnessstudio.com.br/api
+        NEXT_PUBLIC_BASE_URL: https://jmfitnessstudio.com.br
     container_name: jmfitnessstudio-app
     restart: always
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=/api
+      - NEXT_PUBLIC_API_URL=https://jmfitnessstudio.com.br/api
+      - NEXT_PUBLIC_BASE_URL=https://jmfitnessstudio.com.br
       - PORT=3000
     env_file:
       - .env
