@@ -24,10 +24,18 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "__mocks__/**/*.ts",
+    "scripts/**/*.ts",
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
+    "drizzle/**/*.ts",
+    "drizzle.config.ts",
+    "next.config.ts",
+    "tailwind.config.ts",
     ".next/types/**/*.ts",
     "src/types/**/*.d.ts"
   ],
-  "exclude": ["node_modules", "backend", "src/financial/**"]
+  "exclude": ["node_modules", "backend", "backend/**", "src/financial/**"]
 }
