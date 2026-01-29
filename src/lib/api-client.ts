@@ -82,7 +82,10 @@ class ApiClient {
   }
 
   /**
-   * Salva tokens no localStorage e na instancia
+   * Salva tokens no localStorage e (quando no browser) também em cookies.
+   *
+   * Importante: o middleware do Next valida o cookie `accessToken` (edge/runtime)
+   * então precisamos garantir que ele exista tanto em www quanto sem www.
    */
   setTokens(accessToken: string, refreshToken: string) {
     this.accessToken = accessToken;
@@ -91,28 +94,34 @@ class ApiClient {
     if (typeof window !== "undefined") {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
+
       const hostname = window.location.hostname;
       const isProductionDomain = hostname.includes("jmfitnessstudio.com.br");
-      const cookieParts = [
+      const maxAge = 60 * 60 * 24 * 7;
+
+      const baseCookieParts = ["path=/", `max-age=${maxAge}`];
+      const prodCookieParts = isProductionDomain
+        ? ["domain=.jmfitnessstudio.com.br", "secure", "samesite=lax"]
+        : [];
+
+      // accessToken
+      document.cookie = [
         `accessToken=${accessToken}`,
-        "path=/",
-        `max-age=${60 * 60 * 24 * 7}`,
-      ];
+        ...baseCookieParts,
+        ...prodCookieParts,
+      ].join("; ");
 
-      if (isProductionDomain) {
-        cookieParts.push(
-          "domain=.jmfitnessstudio.com.br",
-          "secure",
-          "samesite=lax",
-        );
-      }
-
-      document.cookie = cookieParts.join("; ");
+      // refreshToken
+      document.cookie = [
+        `refreshToken=${refreshToken}`,
+        ...baseCookieParts,
+        ...prodCookieParts,
+      ].join("; ");
     }
   }
 
   /**
-   * Remove tokens do localStorage e da instancia
+   * Remove tokens do localStorage e dos cookies (quando no browser)
    */
   clearTokens() {
     this.accessToken = null;
@@ -121,23 +130,28 @@ class ApiClient {
     if (typeof window !== "undefined") {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
+
       const hostname = window.location.hostname;
       const isProductionDomain = hostname.includes("jmfitnessstudio.com.br");
-      const cookieParts = [
-        "accessToken=;",
+      const baseCookieParts = [
         "path=/",
         "expires=Thu, 01 Jan 1970 00:00:00 GMT",
       ];
+      const prodCookieParts = isProductionDomain
+        ? ["domain=.jmfitnessstudio.com.br", "secure", "samesite=lax"]
+        : [];
 
-      if (isProductionDomain) {
-        cookieParts.push(
-          "domain=.jmfitnessstudio.com.br",
-          "secure",
-          "samesite=lax",
-        );
-      }
+      document.cookie = [
+        "accessToken=",
+        ...baseCookieParts,
+        ...prodCookieParts,
+      ].join("; ");
 
-      document.cookie = cookieParts.join("; ");
+      document.cookie = [
+        "refreshToken=",
+        ...baseCookieParts,
+        ...prodCookieParts,
+      ].join("; ");
     }
   }
 

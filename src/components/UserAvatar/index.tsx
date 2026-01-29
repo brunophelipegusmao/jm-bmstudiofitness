@@ -11,13 +11,20 @@ export function UserAvatar({
   size = "md",
   className = "",
 }: UserAvatarProps) {
-  // Gera as iniciais do nome
+  // Gera as iniciais do nome (com fallback seguro)
   const getInitials = (fullName: string) => {
-    const names = fullName.trim().split(" ");
+    const safe = (fullName ?? "").trim();
+    if (!safe) return "?";
+
+    const names = safe.split(/\s+/).filter(Boolean);
+    if (names.length === 0) return "?";
     if (names.length === 1) {
       return names[0].substring(0, 2).toUpperCase();
     }
-    return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+
+    const first = names[0][0] ?? "?";
+    const last = names[names.length - 1][0] ?? "?";
+    return (first + last).toUpperCase();
   };
 
   // Define os tamanhos

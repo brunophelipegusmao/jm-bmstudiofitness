@@ -39,7 +39,7 @@ export async function loginAction(
       path: "/",
       maxAge,
       sameSite: "lax",
-      secure: true,
+      secure: isProd,
       httpOnly: false,
       domain,
     });
@@ -48,7 +48,7 @@ export async function loginAction(
       path: "/",
       maxAge,
       sameSite: "lax",
-      secure: true,
+      secure: isProd,
       httpOnly: false,
       domain,
     });
